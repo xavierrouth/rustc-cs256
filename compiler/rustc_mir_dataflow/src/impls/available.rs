@@ -21,64 +21,25 @@ use rustc_macros::HashStable;
 use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
-use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
+use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill,
+    GenKillAnalysis
+};
 
-rustc_index::newtype_index! {
-    #[orderable]
-    #[debug_format = "Expr({})"]
-    pub struct ExprIdx {
-        const EXPR_START = 0;
-    }
-}
+use crate::impls::anticipated::{ExprHashMap, ExprIdx};
+use crate::impls::AnticipatedExpressions;
 
-/*
-impl DebugWithContext<Borrows<'_, '_>> for BorrowIndex {
-    fn fmt_with(&self, ctxt: &Borrows<'_, '_>, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", ctxt.location(*self))
-    }
-}*/
+use crate::ResultsCursor;
 
-impl <A> DebugWithContext<A> for ExprIdx {
-    fn fmt_with(&self, _ctxt: &A, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "hi")
-        // write!(f, "{:?}", ctxt.location(*self))
-    }
-}
+type AnticipatedExpressionsResults<'mir, 'tcx> = ResultsCursor<'mir, 'tcx, AnticipatedExpressions>;
 
-#[derive(Hash, Eq, PartialEq)]
-pub struct ExprSetElem {
-    bin_op: BinOp,
-    local1: Local,
-    local2: Local,
-}
-
-
-#[allow(rustc::default_hash_types)]
-pub struct ExprHashMap {
-    table: HashMap<ExprSetElem, ExprIdx>,
-}
-
-impl ExprHashMap {
-    #[allow(dead_code)]
-    pub fn new() -> ExprHashMap {
-        #[allow(rustc::default_hash_types)]
-        return ExprHashMap { table: HashMap::new() }
-    }
-
-    fn expr_idx(&mut self, expr: ExprSetElem) -> ExprIdx {
-        let len = self.table.len();
-        println!("hash table len: {len}");
-        self.table.entry(expr).or_insert(ExprIdx::new(len)).clone()
-    }
-}
-
-pub struct AnticipatedExpressions {
+pub struct AvailableExpressions<'mir, 'tcx> {
+    anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
     kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
     expr_table: ExprHashMap,
-    pub bitset_size: usize,
+    bitset_size: usize,
 }
 
-impl AnticipatedExpressions {
+impl <'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
     // Can we return this? 
     pub(super) fn transfer_function<'a, T>(&'a mut self, trans: &'a mut T) -> TransferFunction<'a, T> {
         TransferFunction { 
@@ -101,28 +62,30 @@ impl AnticipatedExpressions {
     }
 
     #[allow(dead_code)]
-    pub fn new<'tcx>(body: &Body<'tcx>) -> AnticipatedExpressions {
-        let size = Self::count_statements(body) + body.local_decls.len();
+    pub fn new(body: &Body<'tcx>, anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>) -> AvailableExpressions<'mir, 'tcx> {
+        
+        let size = Self::count_statements(body); // Should be same as Anticipated expressions bitvec size.
+        assert!(size == anticipated_exprs.results().analysis.bitset_size);
 
-        println!("size: {size}");
-        AnticipatedExpressions {
-            kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks),
+        AvailableExpressions {
+            anticipated_exprs,
+            kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
             expr_table: ExprHashMap::new(),
             bitset_size: size
         }
     }
 }
 
-impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
+impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
     type Domain = BitSet<ExprIdx>;
 
     // domain for analysis is Local since i
 
     type Direction = Backward;
-    const NAME: &'static str = "anticipated_expr";
+    const NAME: &'static str = "Available_expr";
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
-        // bottom = nothing anticipated yet
+        // bottom = nothing Available yet
         // TODO: update
         // let len = body.local_decls().len()
         // Should size be local_decls.len() or count of all statements?
@@ -134,7 +97,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
     }
 }
 
-impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
+impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'_, 'tcx> {
     type Idx = ExprIdx;
 
     fn domain_size(&self, _body: &Body<'tcx>) -> usize {
@@ -177,7 +140,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
     }
 }
 
-/// A `Visitor` that defines the transfer function for `AnticipatedExpressions`.
+/// A `Visitor` that defines the transfer function for `AvailableExpressions`.
 pub(super) struct TransferFunction<'a, T> {
     trans: &'a mut T,
     kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in 
@@ -188,50 +151,8 @@ impl<'tcx, T> Visitor<'tcx> for TransferFunction<'_, T>
 where
     T: GenKill<ExprIdx>,
 {
-    fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
+    fn visit_statement(&mut self, stmt: &Statement<'tcx>, _location: Location) {
         println!("stmt visited {:?}", stmt);
-
-        if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
-
-            // If current rvalue operands match no assigned operands in current BB, add to gen
-            match rvalue {
-                Rvalue::BinaryOp(bin_op, box (operand1, operand2))
-                | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
-                    // We need some way of dealing with constants
-                    if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) = (operand1.place(), operand2.place()) {
-                        if !self.kill_ops[location.block].contains(local1) && !self.kill_ops[location.block].contains(local2) {
-                            println!("GEN expr {:?}", rvalue.clone());
-                            self.trans.gen(self.expr_table.expr_idx(
-                                ExprSetElem { bin_op: *bin_op, local1, local2 }));
-                        }
-                    }
-                }
-                
-                Rvalue::Cast(..)
-                | Rvalue::Ref(_, _, _)
-                // | Rvalue::Ref(_, BorrowKind::Fake, _)
-                | Rvalue::AddressOf(..)
-                | Rvalue::ShallowInitBox(..)
-                | Rvalue::Use(..)
-                | Rvalue::ThreadLocalRef(..)
-                | Rvalue::Repeat(..)
-                | Rvalue::Len(..)
-                | Rvalue::NullaryOp(..)
-                | Rvalue::UnaryOp(..)
-                | Rvalue::Discriminant(..)
-                | Rvalue::Aggregate(..)
-                | Rvalue::CopyForDeref(..) => {}
-            }
-            
-            // Any expressions in this BB that now contain this will need to be recalculated
-            // And aren't anticipated anymore
-            self.kill_ops[location.block].insert(place.local);
-
-            // TODO: figure out how to actually kill stuff using kill_ops
-            // Using GenKillAnalysis makes stuff trickier because it caches the state updates in its own function
-            // Using Analysis directly, we could use statement_effect to get the input state for the current block and kill
-            // inputs selectively.
-        }
 
         // We don't care about expressions that aren't assignments for now
     }
@@ -335,10 +256,10 @@ where
 
 // #[allow(dead_code)]
 // /// The set of locals that are borrowed at some point in the MIR body.
-// pub fn anticipated_exprs(body: &Body<'_>) -> BitSet<Local> {
-//     struct Anticipated(BitSet<Local>);
+// pub fn Available_exprs(body: &Body<'_>) -> BitSet<Local> {
+//     struct Available(BitSet<Local>);
 
-//     impl GenKill<Local> for Anticipated {
+//     impl GenKill<Local> for Available {
 //         #[inline]
 //         fn gen(&mut self, elem: Local) {
 //             self.0.gen(elem)
@@ -349,7 +270,7 @@ where
 //         }
 //     }
 
-//     let mut anticipated = Anticipated(BitSet::new_empty(body.local_decls.len()));
-//     TransferFunction { trans: &mut anticipated }.visit_body(body);
-//     anticipated.0
+//     let mut Available = Available(BitSet::new_empty(body.local_decls.len()));
+//     TransferFunction { trans: &mut Available }.visit_body(body);
+//     Available.0
 // }

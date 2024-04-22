@@ -3,11 +3,13 @@
 //! zero-sized structure.
 
 mod anticipated;
+// mod available;
 mod borrowed_locals;
 mod initialized;
 mod liveness;
 mod storage_liveness;
 
+// pub use self::available::AvailableExpressions;
 pub use self::anticipated::AnticipatedExpressions;
 pub use self::borrowed_locals::borrowed_locals;
 pub use self::borrowed_locals::MaybeBorrowedLocals;
