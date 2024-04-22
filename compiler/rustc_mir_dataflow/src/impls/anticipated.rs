@@ -74,6 +74,7 @@ impl ExprHashMap {
 pub struct AnticipatedExpressions {
     kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
     expr_table: ExprHashMap,
+    bitset_size: usize,
 }
 
 impl AnticipatedExpressions {
@@ -103,7 +104,8 @@ impl AnticipatedExpressions {
         let size = Self::count_statements(body);
         AnticipatedExpressions {
             kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
-            expr_table: ExprHashMap::new()
+            expr_table: ExprHashMap::new(),
+            bitset_size: size
         }
     }
 }
@@ -116,10 +118,12 @@ impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
     type Direction = Backward;
     const NAME: &'static str = "anticipated_expr";
 
-    fn bottom_value(&self, body: &Body<'tcx>) -> Self::Domain {
+    fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
         // bottom = nothing anticipated yet
         // TODO: update
-        BitSet::new_empty(body.local_decls().len())
+        // let len = body.local_decls().len()
+        // Should size be local_decls.len() or count of all statements?
+        BitSet::new_empty(self.bitset_size)
     }
 
     fn initialize_start_block(&self, _: &Body<'tcx>, _: &mut Self::Domain) {
@@ -130,9 +134,10 @@ impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
 impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
     type Idx = ExprIdx;
 
-    fn domain_size(&self, body: &Body<'tcx>) -> usize {
+    fn domain_size(&self, _body: &Body<'tcx>) -> usize {
         // TODO: depends on how I see us doing stuff with the Idx
-        body.local_decls().len()
+        // body.local_decls().len()
+        self.bitset_size
     }
 
     fn statement_effect(
@@ -172,7 +177,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
 /// A `Visitor` that defines the transfer function for `AnticipatedExpressions`.
 pub(super) struct TransferFunction<'a, T> {
     trans: &'a mut T,
-    kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>,
+    kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in 
     expr_table: &'a mut ExprHashMap,
 }
 
@@ -224,6 +229,8 @@ where
             // Using Analysis directly, we could use statement_effect to get the input state for the current block and kill
             // inputs selectively.
         }
+
+        // We don't care about expressions that aren't assignments for now
     }
 
     // fn visit_rvalue(&mut self, rvalue: &Rvalue<'tcx>, location: Location) {
