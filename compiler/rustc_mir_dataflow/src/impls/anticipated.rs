@@ -1,5 +1,7 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
+use std::collections::HashMap;
+
 use rustc_middle::mir::*;
 
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
@@ -12,29 +14,71 @@ use rustc_index::bit_set::{BitSet, ChunkedBitSet};
 use rustc_index::{
     Idx, IndexVec
 };
+use rustc_serialize::{Decodable, Encodable};
+use rustc_data_structures::stable_hasher::{HashStable, StableHasher};
+use rustc_query_system::ich::StableHashingContext;
+use rustc_macros::HashStable;
+
+
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
 
+rustc_index::newtype_index! {
+    #[derive(HashStable)]
+    #[encodable]
+    #[orderable]
+    #[debug_format = "Expr{}"]
+    pub struct ExprIdx {
+        const EXPR_START = 0;
+    }
+}
+
+#[derive(Hash)]
+pub struct ExprSetElem {
+    bin_op: BinOp,
+    x: Local,
+    y: Local,
+}
+
+pub struct ExprHashMap {
+    table: HashMap<ExprSetElem, ExprIdx>,
+}
+
+impl ExprHashMap {
+
+    fn new() -> ExprHashMap {
+        return ExprHashMap { table: HashMap::new() }
+    }
+
+    fn expr_idx<'a>(&'a self, expr: &'a ExprSetElem) -> ExprIdx {
+        if !self.table.contains(expr) {
+            self.table.insert(expr, ExprIdx::new(self.table.len()))
+        }
+        return self.table[expr];
+    }
+}
 
 pub struct AnticipatedExpressions {
-    kill_ops: IndexVec<BasicBlock, BitSet<Local>>
+    kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
+    expr_table: ExprHashMap,
 }
 
 impl AnticipatedExpressions {
-    pub(super) fn transfer_function<'a, T>(&'a self, trans: &'a mut T) -> TransferFunction<'a, T> {
-        TransferFunction { trans, kill_ops : self.kill_ops }
+    pub(super) fn transfer_function<'a, T>(&'a self, trans: &'a mut T, expr_table: &'a mut ExprHashMap) -> TransferFunction<'a, T> {
+        TransferFunction { trans, kill_ops : self.kill_ops, expr_table : self.expr_table }
     }
 
     pub(super) fn new<'tcx>(body: &Body<'tcx>) -> AnticipatedExpressions {
         AnticipatedExpressions {
-            kill_ops: IndexVec::from_elem(BitSet::new(), body.basic_blocks)
+            kill_ops: IndexVec::from_elem(BitSet::new(), body.basic_blocks),
+            expr_table: ExprHashMap::new()
         }
     }
 }
 
 impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
-    type Domain = BitSet<(BinOp, Local, Local)>;
+    type Domain = BitSet<ExprIdx>;
 
     // domain for analysis is Local since i
 
@@ -53,7 +97,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
 }
 
 impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
-    type Idx = (BinOp, Local, Local);
+    type Idx = ExprIdx;
 
     fn domain_size(&self, body: &Body<'tcx>) -> usize {
         // TODO: depends on how I see us doing stuff with the Idx
@@ -78,6 +122,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
         // TODO: We probably have to do something with SwitchInt or one of them, but I believe the engine
         // considers that with merges, though I need to look back again
         // For now, ignoring
+
         // self.transfer_function(trans).visit_terminator(terminator, location);
         // terminator.edges()
     }
@@ -95,11 +140,12 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
 pub(super) struct TransferFunction<'a, T> {
     trans: &'a mut T,
     kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>,
+    expr_table: &'a mut ExprHashMap,
 }
 
 impl<'tcx, T> Visitor<'tcx> for TransferFunction<'_, T>
 where
-    T: GenKill<(BinOp, Local, Local)>,
+    T: GenKill<ExprIdx>,
 {
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
         println!("stmt visited {:?}", stmt);
@@ -113,7 +159,8 @@ where
                     // We need some way of dealing with constants
                     if let (Some(Place { local1, .. }), Some(Place { local2, .. })) = (operand1.place(), operand2.place()) {
                         if !self.kill_ops[location.block].contains(local1) && !self.kill_ops[location.block].contains(local2) {
-                            self.trans.gen((bin_op, local1, local2));
+                            println!("GEN expr {:?}", rvalue);
+                            self.trans.gen(self.expr_table.expr_idx(ExprSetElem { bin_op, local1, local2 }));
                         }
                     }
                 }
@@ -124,7 +171,6 @@ where
                 | Rvalue::ThreadLocalRef(..)
                 | Rvalue::Repeat(..)
                 | Rvalue::Len(..)
-                | Rvalue::CheckedBinaryOp(..)
                 | Rvalue::NullaryOp(..)
                 | Rvalue::UnaryOp(..)
                 | Rvalue::Discriminant(..)
@@ -240,23 +286,23 @@ where
     // }
 }
 
-#[allow(dead_code)]
-/// The set of locals that are borrowed at some point in the MIR body.
-pub fn anticipated_exprs(body: &Body<'_>) -> BitSet<Local> {
-    struct Anticipated(BitSet<Local>);
+// #[allow(dead_code)]
+// /// The set of locals that are borrowed at some point in the MIR body.
+// pub fn anticipated_exprs(body: &Body<'_>) -> BitSet<Local> {
+//     struct Anticipated(BitSet<Local>);
 
-    impl GenKill<Local> for Anticipated {
-        #[inline]
-        fn gen(&mut self, elem: Local) {
-            self.0.gen(elem)
-        }
-        #[inline]
-        fn kill(&mut self, _: Local) {
-            // Ignore borrow invalidation.
-        }
-    }
+//     impl GenKill<Local> for Anticipated {
+//         #[inline]
+//         fn gen(&mut self, elem: Local) {
+//             self.0.gen(elem)
+//         }
+//         #[inline]
+//         fn kill(&mut self, _: Local) {
+//             // Ignore borrow invalidation.
+//         }
+//     }
 
-    let mut anticipated = Anticipated(BitSet::new_empty(body.local_decls.len()));
-    TransferFunction { trans: &mut anticipated }.visit_body(body);
-    anticipated.0
-}
+//     let mut anticipated = Anticipated(BitSet::new_empty(body.local_decls.len()));
+//     TransferFunction { trans: &mut anticipated }.visit_body(body);
+//     anticipated.0
+// }
