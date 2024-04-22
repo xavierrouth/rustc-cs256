@@ -188,6 +188,7 @@ where
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
         println!("stmt visited {:?}", stmt);
 
+        // We only care about assignments for now
         if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
 
             // If current rvalue operands match no assigned operands in current BB, add to gen
@@ -229,124 +230,5 @@ where
             // Using Analysis directly, we could use statement_effect to get the input state for the current block and kill
             // inputs selectively.
         }
-
-        // We don't care about expressions that aren't assignments for now
     }
-
-    // fn visit_rvalue(&mut self, rvalue: &Rvalue<'tcx>, location: Location) {
-    //     self.super_rvalue(rvalue, location);
-
-    //     match rvalue {
-    //         // We ignore fake borrows as these get removed after analysis and shouldn't effect
-    //         // the layout of generators.
-    //         Rvalue::AddressOf(_, borrowed_place)
-    //         | Rvalue::Ref(_, BorrowKind::Mut { .. } | BorrowKind::Shared, borrowed_place) => {
-    //             if !borrowed_place.is_indirect() {
-    //                 println!("rvalue {:?}", rvalue);
-    //                 println!("stmt place {:?}", borrowed_place);
-
-    //                 self.trans.gen(borrowed_place.local);
-    //             }
-    //         }
-
-    //         Rvalue::BinaryOp(_, operands) => {
-    //             println!("operand 1: {:?}\n", operands.0);
-    //             println!("operand 2: {:?}\n", operands.1);
-    //             println!("place of operand 1: {:?}\n", operands.0.place());
-    //             println!("place of operand 2: {:?}\n", operands.1.place());
-    //             if !operands.0.place().is_none() && !operands.1.place().is_none() {
-    //                 let op_1 = operands.0.place().unwrap();
-    //                 let op_2 = operands.1.place().unwrap();
-    //                 println!("local associated with op 1 {:?}", op_1.local);
-    //                 println!("local associated with op 2 {:?}", op_2.local);
-    //                 println!("bb at location {:?}\n", location.block);
-    //                 // use external function to lookup data for bb
-
-    //                 /* for statement in basic_blocks[location.block].statements {
-    //                     match statement.kind {
-    //                         StatementKind::Assign(assign_pair) => {
-    //                             if assign_pair.0 == op_1 {
-    //                                 println!("FOUND A MATCH for OP 1\n");
-    //                             }
-    //                             if assign_pair.0 == op_2 {
-    //                                 println!("FOUND A MATCH for OP 2\n");
-    //                             }
-    //                         }
-    //                         _ => {}
-    //                     }
-    //                 } */
-    //                 // self.trans.gen(operands.0.place().unwrap().local);
-    //             }
-    //         }
-
-    //         Rvalue::Cast(..)
-    //         | Rvalue::Ref(_, BorrowKind::Fake, _)
-    //         | Rvalue::ShallowInitBox(..)
-    //         | Rvalue::Use(..)
-    //         | Rvalue::ThreadLocalRef(..)
-    //         | Rvalue::Repeat(..)
-    //         | Rvalue::Len(..)
-    //         | Rvalue::CheckedBinaryOp(..)
-    //         | Rvalue::NullaryOp(..)
-    //         | Rvalue::UnaryOp(..)
-    //         | Rvalue::Discriminant(..)
-    //         | Rvalue::Aggregate(..)
-    //         | Rvalue::CopyForDeref(..) => {}
-    //     }
-    // }
-
-    // fn visit_terminator(&mut self, terminator: &Terminator<'tcx>, location: Location) {
-    //     self.super_terminator(terminator, location);
-
-    //     match terminator.kind {
-    //         TerminatorKind::Drop { place: dropped_place, .. } => {
-    //             // Drop terminators may call custom drop glue (`Drop::drop`), which takes `&mut
-    //             // self` as a parameter. In the general case, a drop impl could launder that
-    //             // reference into the surrounding environment through a raw pointer, thus creating
-    //             // a valid `*mut` pointing to the dropped local. We are not yet willing to declare
-    //             // this particular case UB, so we must treat all dropped locals as mutably borrowed
-    //             // for now. See discussion on [#61069].
-    //             //
-    //             // [#61069]: https://github.com/rust-lang/rust/pull/61069
-    //             if !dropped_place.is_indirect() {
-    //                 self.trans.gen(dropped_place.local);
-    //             }
-    //         }
-
-    //         TerminatorKind::UnwindTerminate(_)
-    //         | TerminatorKind::Assert { .. }
-    //         | TerminatorKind::Call { .. }
-    //         | TerminatorKind::FalseEdge { .. }
-    //         | TerminatorKind::FalseUnwind { .. }
-    //         | TerminatorKind::CoroutineDrop
-    //         | TerminatorKind::Goto { .. }
-    //         | TerminatorKind::InlineAsm { .. }
-    //         | TerminatorKind::UnwindResume
-    //         | TerminatorKind::Return
-    //         | TerminatorKind::SwitchInt { .. }
-    //         | TerminatorKind::Unreachable
-    //         | TerminatorKind::Yield { .. } => {}
-    //     }
-    // }
 }
-
-// #[allow(dead_code)]
-// /// The set of locals that are borrowed at some point in the MIR body.
-// pub fn anticipated_exprs(body: &Body<'_>) -> BitSet<Local> {
-//     struct Anticipated(BitSet<Local>);
-
-//     impl GenKill<Local> for Anticipated {
-//         #[inline]
-//         fn gen(&mut self, elem: Local) {
-//             self.0.gen(elem)
-//         }
-//         #[inline]
-//         fn kill(&mut self, _: Local) {
-//             // Ignore borrow invalidation.
-//         }
-//     }
-
-//     let mut anticipated = Anticipated(BitSet::new_empty(body.local_decls.len()));
-//     TransferFunction { trans: &mut anticipated }.visit_body(body);
-//     anticipated.0
-// }
