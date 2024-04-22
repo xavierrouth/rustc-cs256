@@ -81,7 +81,6 @@ impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
 
     // domain for analysis is Local since i
 
-    type Direction = Backward;
     const NAME: &'static str = "Available_expr";
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
