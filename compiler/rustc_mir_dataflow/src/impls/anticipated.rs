@@ -61,6 +61,9 @@ pub struct ExprHashMap {
 
 impl ExprHashMap {
 
+    /// We now parse the body to add a global operand -> expression mapping
+    /// This now enables kill to do a lookup to add expressions to the kill set based on
+    /// defs in the basic block
     fn parse_body(&mut self, body: &Body<'_>) -> &mut ExprHashMap {
         for block in body.basic_blocks.iter() {
             for statement in &block.statements {
@@ -77,7 +80,7 @@ impl ExprHashMap {
                                 let expr_idx = self.expr_idx(
                                     ExprSetElem { bin_op: *bin_op, local1, local2 });
                                 
-                                // Map operands to expressions (useful for kill)
+                                // Map operands to expressions
                                 if let Some(local1_exprs) = self.operand_table.get_mut(&local1) {
                                     local1_exprs.insert(expr_idx);
                                 }
@@ -95,20 +98,7 @@ impl ExprHashMap {
                             }
                         }
                         
-                        Rvalue::Cast(..)
-                        | Rvalue::Ref(_, _, _)
-                        // | Rvalue::Ref(_, BorrowKind::Fake, _)
-                        | Rvalue::AddressOf(..)
-                        | Rvalue::ShallowInitBox(..)
-                        | Rvalue::Use(..)
-                        | Rvalue::ThreadLocalRef(..)
-                        | Rvalue::Repeat(..)
-                        | Rvalue::Len(..)
-                        | Rvalue::NullaryOp(..)
-                        | Rvalue::UnaryOp(..)
-                        | Rvalue::Discriminant(..)
-                        | Rvalue::Aggregate(..)
-                        | Rvalue::CopyForDeref(..) => {}
+                        _ => {}
                     }
                 }
             }
@@ -267,30 +257,16 @@ where
                     }
                 }
                 
-                Rvalue::Cast(..)
-                | Rvalue::Ref(_, _, _)
-                // | Rvalue::Ref(_, BorrowKind::Fake, _)
-                | Rvalue::AddressOf(..)
-                | Rvalue::ShallowInitBox(..)
-                | Rvalue::Use(..)
-                | Rvalue::ThreadLocalRef(..)
-                | Rvalue::Repeat(..)
-                | Rvalue::Len(..)
-                | Rvalue::NullaryOp(..)
-                | Rvalue::UnaryOp(..)
-                | Rvalue::Discriminant(..)
-                | Rvalue::Aggregate(..)
-                | Rvalue::CopyForDeref(..) => {}
+                _ => {}
             }
             
             // Any expressions in this BB that now contain this will need to be recalculated
             // And aren't anticipated anymore
             self.kill_ops[location.block].insert(place.local);
 
-            // TODO: figure out how to actually kill stuff using kill_ops
-            // Using GenKillAnalysis makes stuff trickier because it caches the state updates in its own function
-            // Using Analysis directly, we could use statement_effect to get the input state for the current block and kill
-            // inputs selectively.
+            // We consider any assignments to be defs, and so we add all expressions that
+            // use that def'd operand to kill
+            // We do this using the previously calculated operand -> exprs mapping in the expr_table
             if let Some(exprs) = self.expr_table.operand_table.get(&place.local) {
                 #[allow(rustc::potential_query_instability)]
                 for expr_id in exprs.iter() {
