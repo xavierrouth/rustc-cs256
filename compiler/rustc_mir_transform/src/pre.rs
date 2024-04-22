@@ -26,7 +26,7 @@ use rustc_mir_dataflow::{
     lattice, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis, MaybeReachable,
 };
 use rustc_mir_dataflow::impls::{
-    AnticipatedExpressions
+    AnticipatedExpressions, // AvailableExpressions
 };
 
 pub struct PartialRedundancyElimination;
@@ -39,10 +39,19 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
     #[instrument(level = "trace", skip(self, tcx, body))]
     fn run_pass(&self, tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
         debug!(def_id = ?body.source.def_id());
+        println!("running PRE on {:?}", body.source.def_id());
         let _anticipated = AnticipatedExpressions::new(body)
             .into_engine(tcx, body)
             .pass_name("anticipated_exprs")
             .iterate_to_fixpoint()
             .into_results_cursor(body);
+
+        /*
+        let _available = AvailableExpressions::new(body, _anticipated)
+            .into_engine(tcx, body)
+            .pass_name("available_exprs")
+            .iterate_to_fixpoint()
+            .into_results_cursor(body);
+        */
     }
 }

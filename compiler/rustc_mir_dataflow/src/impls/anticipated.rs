@@ -107,7 +107,7 @@ impl ExprHashMap {
     }
 
     #[allow(dead_code)]
-    fn new(body: &Body<'_>) -> ExprHashMap {
+    pub fn new(body: &Body<'_>) -> ExprHashMap {
         #[allow(rustc::default_hash_types)]
         let mut _self = ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new() };
         // Iterate through exprs and add all expressions to table
@@ -124,7 +124,7 @@ impl ExprHashMap {
 pub struct AnticipatedExpressions {
     kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
     expr_table: ExprHashMap,
-    bitset_size: usize,
+    pub bitset_size: usize,
 }
 
 impl AnticipatedExpressions {
@@ -151,14 +151,14 @@ impl AnticipatedExpressions {
 
     #[allow(dead_code)]
     pub fn new<'tcx>(body: &Body<'tcx>) -> AnticipatedExpressions {
-        let size = Self::count_statements(body);
-        let _self = AnticipatedExpressions {
-            kill_ops: IndexVec::from_elem(BitSet::new_empty(size+1), &body.basic_blocks), // FIXME: This size '100'
+        let size = Self::count_statements(body) + body.local_decls.len();
+
+        println!("size: {size}");
+        AnticipatedExpressions {
+            kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks),
             expr_table: ExprHashMap::new(body),
             bitset_size: size
-        };
-        
-        _self
+        }
     }
 }
 
