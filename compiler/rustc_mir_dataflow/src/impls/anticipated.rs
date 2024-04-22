@@ -82,12 +82,14 @@ impl ExprHashMap {
                                     local1_exprs.insert(expr_idx);
                                 }
                                 else {
+                                    #[allow(rustc::default_hash_types)]
                                     self.operand_table.insert(local1, HashSet::from([expr_idx]));
                                 }
                                 if let Some(local2_exprs) = self.operand_table.get_mut(&local2) {
                                     local2_exprs.insert(expr_idx);
                                 }
                                 else {
+                                    #[allow(rustc::default_hash_types)]
                                     self.operand_table.insert(local2, HashSet::from([expr_idx]));
                                 }
                             }
@@ -289,7 +291,12 @@ where
             // Using GenKillAnalysis makes stuff trickier because it caches the state updates in its own function
             // Using Analysis directly, we could use statement_effect to get the input state for the current block and kill
             // inputs selectively.
-
+            if let Some(exprs) = self.expr_table.operand_table.get(&place.local) {
+                #[allow(rustc::potential_query_instability)]
+                for expr_id in exprs.iter() {
+                    self.trans.kill(*expr_id);
+                }
+            }
         }
     }
 }
