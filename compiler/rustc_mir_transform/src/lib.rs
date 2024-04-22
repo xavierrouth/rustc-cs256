@@ -84,6 +84,7 @@ mod errors;
 mod ffi_unwind_calls;
 mod function_item_references;
 mod gvn;
+mod pre;
 pub mod inline;
 mod instsimplify;
 mod jump_threading;
@@ -567,6 +568,7 @@ fn run_optimization_passes<'tcx>(tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
         tcx,
         body,
         &[
+            &pre::PartialRedundancyElimination,
             &check_alignment::CheckAlignment,
             // Before inlining: trim down MIR with passes to reduce inlining work.
 
