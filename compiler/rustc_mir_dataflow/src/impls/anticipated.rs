@@ -1,5 +1,6 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
+
 use std::collections::HashMap;
 
 use rustc_middle::mir::*;
@@ -14,48 +15,59 @@ use rustc_index::bit_set::{BitSet, ChunkedBitSet};
 use rustc_index::{
     Idx, IndexVec
 };
-use rustc_serialize::{Decodable, Encodable};
 use rustc_data_structures::stable_hasher::{HashStable, StableHasher};
-use rustc_query_system::ich::StableHashingContext;
 use rustc_macros::HashStable;
 
-
+use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
-use crate::{Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
+use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
 
 rustc_index::newtype_index! {
-    #[derive(HashStable)]
-    #[encodable]
     #[orderable]
-    #[debug_format = "Expr{}"]
+    #[debug_format = "Expr({})"]
     pub struct ExprIdx {
         const EXPR_START = 0;
     }
 }
 
-#[derive(Hash)]
-pub struct ExprSetElem {
-    bin_op: BinOp,
-    x: Local,
-    y: Local,
+/*
+impl DebugWithContext<Borrows<'_, '_>> for BorrowIndex {
+    fn fmt_with(&self, ctxt: &Borrows<'_, '_>, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", ctxt.location(*self))
+    }
+}*/
+
+impl <A> DebugWithContext<A> for ExprIdx {
+    fn fmt_with(&self, _ctxt: &A, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "hi")
+        // write!(f, "{:?}", ctxt.location(*self))
+    }
 }
 
+#[derive(Hash, Eq, PartialEq)]
+pub struct ExprSetElem {
+    bin_op: BinOp,
+    local1: Local,
+    local2: Local,
+}
+
+
+#[allow(rustc::default_hash_types)]
 pub struct ExprHashMap {
     table: HashMap<ExprSetElem, ExprIdx>,
 }
 
 impl ExprHashMap {
-
+    #[allow(dead_code)]
     fn new() -> ExprHashMap {
+        #[allow(rustc::default_hash_types)]
         return ExprHashMap { table: HashMap::new() }
     }
 
-    fn expr_idx<'a>(&'a self, expr: &'a ExprSetElem) -> ExprIdx {
-        if !self.table.contains(expr) {
-            self.table.insert(expr, ExprIdx::new(self.table.len()))
-        }
-        return self.table[expr];
+    fn expr_idx(&mut self, expr: ExprSetElem) -> ExprIdx {
+        let len = self.table.len();
+        self.table.entry(expr).or_insert(ExprIdx::new(len)).clone()
     }
 }
 
@@ -65,13 +77,32 @@ pub struct AnticipatedExpressions {
 }
 
 impl AnticipatedExpressions {
-    pub(super) fn transfer_function<'a, T>(&'a self, trans: &'a mut T, expr_table: &'a mut ExprHashMap) -> TransferFunction<'a, T> {
-        TransferFunction { trans, kill_ops : self.kill_ops, expr_table : self.expr_table }
+    // Can we return this? 
+    pub(super) fn transfer_function<'a, T>(&'a mut self, trans: &'a mut T) -> TransferFunction<'a, T> {
+        TransferFunction { 
+            trans, 
+            kill_ops: &mut self.kill_ops, 
+            expr_table: &mut self.expr_table }
     }
 
-    pub(super) fn new<'tcx>(body: &Body<'tcx>) -> AnticipatedExpressions {
+    fn count_statements(body: &Body<'_>) -> usize {
+        let mut statement_count = 0;
+        for block in body.basic_blocks.iter() {
+            for _statement in &block.statements {
+                // Count only statements, not terminators
+                //if !matches!(statement.kind, StatementKind::Terminator(_)) {
+                    statement_count += 1;
+                //}
+            }
+        }
+        statement_count
+    }
+
+    #[allow(dead_code)]
+    pub fn new<'tcx>(body: &Body<'tcx>) -> AnticipatedExpressions {
+        let size = Self::count_statements(body);
         AnticipatedExpressions {
-            kill_ops: IndexVec::from_elem(BitSet::new(), body.basic_blocks),
+            kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
             expr_table: ExprHashMap::new()
         }
     }
@@ -115,9 +146,9 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
 
     fn terminator_effect<'mir>(
         &mut self,
-        trans: &mut Self::Domain,
+        _trans: &mut Self::Domain,
         terminator: &'mir Terminator<'tcx>,
-        location: Location,
+        _location: Location,
     ) -> TerminatorEdges<'mir, 'tcx> {
         // TODO: We probably have to do something with SwitchInt or one of them, but I believe the engine
         // considers that with merges, though I need to look back again
@@ -125,6 +156,8 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
 
         // self.transfer_function(trans).visit_terminator(terminator, location);
         // terminator.edges()
+        //TerminatorEdges::default()
+        terminator.edges()
     }
 
     fn call_return_effect(
@@ -150,22 +183,26 @@ where
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
         println!("stmt visited {:?}", stmt);
 
-        if let StatementKind::Assign(box (place, rvalue)) = stmt.kind {
+        if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
 
             // If current rvalue operands match no assigned operands in current BB, add to gen
             match rvalue {
                 Rvalue::BinaryOp(bin_op, box (operand1, operand2))
                 | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
                     // We need some way of dealing with constants
-                    if let (Some(Place { local1, .. }), Some(Place { local2, .. })) = (operand1.place(), operand2.place()) {
+                    if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) = (operand1.place(), operand2.place()) {
                         if !self.kill_ops[location.block].contains(local1) && !self.kill_ops[location.block].contains(local2) {
-                            println!("GEN expr {:?}", rvalue);
-                            self.trans.gen(self.expr_table.expr_idx(ExprSetElem { bin_op, local1, local2 }));
+                            println!("GEN expr {:?}", rvalue.clone());
+                            self.trans.gen(self.expr_table.expr_idx(
+                                ExprSetElem { bin_op: *bin_op, local1, local2 }));
                         }
                     }
                 }
+                
                 Rvalue::Cast(..)
-                | Rvalue::Ref(_, BorrowKind::Fake, _)
+                | Rvalue::Ref(_, _, _)
+                // | Rvalue::Ref(_, BorrowKind::Fake, _)
+                | Rvalue::AddressOf(..)
                 | Rvalue::ShallowInitBox(..)
                 | Rvalue::Use(..)
                 | Rvalue::ThreadLocalRef(..)

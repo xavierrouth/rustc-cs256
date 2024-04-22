@@ -1,2 +1,0 @@
-Running PartialRedundancyElimination on MirSource { instance: Item(DefId(0:4 ~ binary_op_on_fn_ptr_eq[0db0]::main)), promoted: None }
-Running PartialRedundancyElimination on MirSource { instance: Item(DefId(0:3 ~ binary_op_on_fn_ptr_eq[0db0]::foo)), promoted: None }

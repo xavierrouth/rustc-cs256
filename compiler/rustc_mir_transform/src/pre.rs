@@ -27,19 +27,19 @@ use rustc_mir_dataflow::{
 };
 use rustc_mir_dataflow::impls::{
     AnticipatedExpressions
-}
+};
 
 pub struct PartialRedundancyElimination;
 
 impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
-    fn is_enabled(&self, sess: &rustc_session::Session) -> bool {
-        sess.mir_opt_level() >= 1
+    fn is_enabled(&self, _sess: &rustc_session::Session) -> bool {
+        false //sess.mir_opt_level() >= 1
     }
 
     #[instrument(level = "trace", skip(self, tcx, body))]
     fn run_pass(&self, tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
         debug!(def_id = ?body.source.def_id());
-        let anticipated = AnticipatedExpressions::new(body)
+        let _anticipated = AnticipatedExpressions::new(body)
             .into_engine(tcx, body)
             .pass_name("anticipated_exprs")
             .iterate_to_fixpoint()

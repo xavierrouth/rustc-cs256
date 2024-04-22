@@ -84,7 +84,6 @@ mod errors;
 mod ffi_unwind_calls;
 mod function_item_references;
 mod gvn;
-mod pre;
 pub mod inline;
 mod instsimplify;
 mod jump_threading;
