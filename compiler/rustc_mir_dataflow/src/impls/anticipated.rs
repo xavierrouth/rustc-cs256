@@ -55,19 +55,65 @@ pub struct ExprSetElem {
 
 #[allow(rustc::default_hash_types)]
 pub struct ExprHashMap {
-    table: HashMap<ExprSetElem, ExprIdx>,
+    expr_table: HashMap<ExprSetElem, ExprIdx>,
+    operand_table: HashMap<Local, ExprIdx>
 }
 
 impl ExprHashMap {
+
+    fn parse_body(&mut self, body: &Body<'_>) -> &mut ExprHashMap {
+        for block in body.basic_blocks.iter() {
+            for statement in &block.statements {
+                
+                // We only care about assignments for now
+                if let StatementKind::Assign(box (_place, rvalue)) = &statement.kind {
+        
+                    // If current rvalue operands match no assigned operands in current BB, add to gen
+                    match rvalue {
+                        Rvalue::BinaryOp(bin_op, box (operand1, operand2))
+                        | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
+                            // We need some way of dealing with constants
+                            if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) = (operand1.place(), operand2.place()) {
+                                let expr_idx = self.expr_idx(
+                                    ExprSetElem { bin_op: *bin_op, local1, local2 });
+                                self.operand_table.insert(local1, expr_idx);
+                                self.operand_table.insert(local2, expr_idx);
+                            }
+                        }
+                        
+                        Rvalue::Cast(..)
+                        | Rvalue::Ref(_, _, _)
+                        // | Rvalue::Ref(_, BorrowKind::Fake, _)
+                        | Rvalue::AddressOf(..)
+                        | Rvalue::ShallowInitBox(..)
+                        | Rvalue::Use(..)
+                        | Rvalue::ThreadLocalRef(..)
+                        | Rvalue::Repeat(..)
+                        | Rvalue::Len(..)
+                        | Rvalue::NullaryOp(..)
+                        | Rvalue::UnaryOp(..)
+                        | Rvalue::Discriminant(..)
+                        | Rvalue::Aggregate(..)
+                        | Rvalue::CopyForDeref(..) => {}
+                    }
+                }
+            }
+        }
+        self
+    }
+
     #[allow(dead_code)]
-    fn new() -> ExprHashMap {
+    fn new(body: &Body<'_>) -> ExprHashMap {
         #[allow(rustc::default_hash_types)]
-        return ExprHashMap { table: HashMap::new() }
+        let mut _self = ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new() };
+        // Iterate through exprs and add all expressions to table
+        _self.parse_body(body);
+        _self
     }
 
     fn expr_idx(&mut self, expr: ExprSetElem) -> ExprIdx {
-        let len = self.table.len();
-        self.table.entry(expr).or_insert(ExprIdx::new(len)).clone()
+        let len = self.expr_table.len();
+        self.expr_table.entry(expr).or_insert(ExprIdx::new(len)).clone()
     }
 }
 
@@ -102,11 +148,13 @@ impl AnticipatedExpressions {
     #[allow(dead_code)]
     pub fn new<'tcx>(body: &Body<'tcx>) -> AnticipatedExpressions {
         let size = Self::count_statements(body);
-        AnticipatedExpressions {
+        let _self = AnticipatedExpressions {
             kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
-            expr_table: ExprHashMap::new(),
+            expr_table: ExprHashMap::new(body),
             bitset_size: size
-        }
+        };
+        
+        _self
     }
 }
 
