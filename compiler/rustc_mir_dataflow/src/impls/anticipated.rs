@@ -1,7 +1,7 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use rustc_middle::mir::*;
 
@@ -55,20 +55,69 @@ pub struct ExprSetElem {
 
 #[allow(rustc::default_hash_types)]
 pub struct ExprHashMap {
-    table: HashMap<ExprSetElem, ExprIdx>,
+    expr_table: HashMap<ExprSetElem, ExprIdx>,
+    operand_table: HashMap<Local, HashSet<ExprIdx>>
 }
 
 impl ExprHashMap {
+
+    /// We now parse the body to add a global operand -> expression mapping
+    /// This now enables kill to do a lookup to add expressions to the kill set based on
+    /// defs in the basic block
+    fn parse_body(&mut self, body: &Body<'_>) -> &mut ExprHashMap {
+        for block in body.basic_blocks.iter() {
+            for statement in &block.statements {
+                
+                // We only care about assignments for now
+                if let StatementKind::Assign(box (_place, rvalue)) = &statement.kind {
+        
+                    // If current rvalue operands match no assigned operands in current BB, add to gen
+                    match rvalue {
+                        Rvalue::BinaryOp(bin_op, box (operand1, operand2))
+                        | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
+                            // We need some way of dealing with constants
+                            if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) = (operand1.place(), operand2.place()) {
+                                let expr_idx = self.expr_idx(
+                                    ExprSetElem { bin_op: *bin_op, local1, local2 });
+                                
+                                // Map operands to expressions
+                                if let Some(local1_exprs) = self.operand_table.get_mut(&local1) {
+                                    local1_exprs.insert(expr_idx);
+                                }
+                                else {
+                                    #[allow(rustc::default_hash_types)]
+                                    self.operand_table.insert(local1, HashSet::from([expr_idx]));
+                                }
+                                if let Some(local2_exprs) = self.operand_table.get_mut(&local2) {
+                                    local2_exprs.insert(expr_idx);
+                                }
+                                else {
+                                    #[allow(rustc::default_hash_types)]
+                                    self.operand_table.insert(local2, HashSet::from([expr_idx]));
+                                }
+                            }
+                        }
+                        
+                        _ => {}
+                    }
+                }
+            }
+        }
+        self
+    }
+
     #[allow(dead_code)]
-    pub fn new() -> ExprHashMap {
+    pub fn new(body: &Body<'_>) -> ExprHashMap {
         #[allow(rustc::default_hash_types)]
-        return ExprHashMap { table: HashMap::new() }
+        let mut _self = ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new() };
+        // Iterate through exprs and add all expressions to table
+        _self.parse_body(body);
+        _self
     }
 
     fn expr_idx(&mut self, expr: ExprSetElem) -> ExprIdx {
-        let len = self.table.len();
-        println!("hash table len: {len}");
-        self.table.entry(expr).or_insert(ExprIdx::new(len)).clone()
+        let len = self.expr_table.len();
+        self.expr_table.entry(expr).or_insert(ExprIdx::new(len)).clone()
     }
 }
 
@@ -107,7 +156,7 @@ impl AnticipatedExpressions {
         println!("size: {size}");
         AnticipatedExpressions {
             kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks),
-            expr_table: ExprHashMap::new(),
+            expr_table: ExprHashMap::new(body),
             bitset_size: size
         }
     }
@@ -191,6 +240,7 @@ where
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
         println!("stmt visited {:?}", stmt);
 
+        // We only care about assignments for now
         if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
 
             // If current rvalue operands match no assigned operands in current BB, add to gen
@@ -207,149 +257,22 @@ where
                     }
                 }
                 
-                Rvalue::Cast(..)
-                | Rvalue::Ref(_, _, _)
-                // | Rvalue::Ref(_, BorrowKind::Fake, _)
-                | Rvalue::AddressOf(..)
-                | Rvalue::ShallowInitBox(..)
-                | Rvalue::Use(..)
-                | Rvalue::ThreadLocalRef(..)
-                | Rvalue::Repeat(..)
-                | Rvalue::Len(..)
-                | Rvalue::NullaryOp(..)
-                | Rvalue::UnaryOp(..)
-                | Rvalue::Discriminant(..)
-                | Rvalue::Aggregate(..)
-                | Rvalue::CopyForDeref(..) => {}
+                _ => {}
             }
             
             // Any expressions in this BB that now contain this will need to be recalculated
             // And aren't anticipated anymore
             self.kill_ops[location.block].insert(place.local);
 
-            // TODO: figure out how to actually kill stuff using kill_ops
-            // Using GenKillAnalysis makes stuff trickier because it caches the state updates in its own function
-            // Using Analysis directly, we could use statement_effect to get the input state for the current block and kill
-            // inputs selectively.
+            // We consider any assignments to be defs, and so we add all expressions that
+            // use that def'd operand to kill
+            // We do this using the previously calculated operand -> exprs mapping in the expr_table
+            if let Some(exprs) = self.expr_table.operand_table.get(&place.local) {
+                #[allow(rustc::potential_query_instability)]
+                for expr_id in exprs.iter() {
+                    self.trans.kill(*expr_id);
+                }
+            }
         }
-
-        // We don't care about expressions that aren't assignments for now
     }
-
-    // fn visit_rvalue(&mut self, rvalue: &Rvalue<'tcx>, location: Location) {
-    //     self.super_rvalue(rvalue, location);
-
-    //     match rvalue {
-    //         // We ignore fake borrows as these get removed after analysis and shouldn't effect
-    //         // the layout of generators.
-    //         Rvalue::AddressOf(_, borrowed_place)
-    //         | Rvalue::Ref(_, BorrowKind::Mut { .. } | BorrowKind::Shared, borrowed_place) => {
-    //             if !borrowed_place.is_indirect() {
-    //                 println!("rvalue {:?}", rvalue);
-    //                 println!("stmt place {:?}", borrowed_place);
-
-    //                 self.trans.gen(borrowed_place.local);
-    //             }
-    //         }
-
-    //         Rvalue::BinaryOp(_, operands) => {
-    //             println!("operand 1: {:?}\n", operands.0);
-    //             println!("operand 2: {:?}\n", operands.1);
-    //             println!("place of operand 1: {:?}\n", operands.0.place());
-    //             println!("place of operand 2: {:?}\n", operands.1.place());
-    //             if !operands.0.place().is_none() && !operands.1.place().is_none() {
-    //                 let op_1 = operands.0.place().unwrap();
-    //                 let op_2 = operands.1.place().unwrap();
-    //                 println!("local associated with op 1 {:?}", op_1.local);
-    //                 println!("local associated with op 2 {:?}", op_2.local);
-    //                 println!("bb at location {:?}\n", location.block);
-    //                 // use external function to lookup data for bb
-
-    //                 /* for statement in basic_blocks[location.block].statements {
-    //                     match statement.kind {
-    //                         StatementKind::Assign(assign_pair) => {
-    //                             if assign_pair.0 == op_1 {
-    //                                 println!("FOUND A MATCH for OP 1\n");
-    //                             }
-    //                             if assign_pair.0 == op_2 {
-    //                                 println!("FOUND A MATCH for OP 2\n");
-    //                             }
-    //                         }
-    //                         _ => {}
-    //                     }
-    //                 } */
-    //                 // self.trans.gen(operands.0.place().unwrap().local);
-    //             }
-    //         }
-
-    //         Rvalue::Cast(..)
-    //         | Rvalue::Ref(_, BorrowKind::Fake, _)
-    //         | Rvalue::ShallowInitBox(..)
-    //         | Rvalue::Use(..)
-    //         | Rvalue::ThreadLocalRef(..)
-    //         | Rvalue::Repeat(..)
-    //         | Rvalue::Len(..)
-    //         | Rvalue::CheckedBinaryOp(..)
-    //         | Rvalue::NullaryOp(..)
-    //         | Rvalue::UnaryOp(..)
-    //         | Rvalue::Discriminant(..)
-    //         | Rvalue::Aggregate(..)
-    //         | Rvalue::CopyForDeref(..) => {}
-    //     }
-    // }
-
-    // fn visit_terminator(&mut self, terminator: &Terminator<'tcx>, location: Location) {
-    //     self.super_terminator(terminator, location);
-
-    //     match terminator.kind {
-    //         TerminatorKind::Drop { place: dropped_place, .. } => {
-    //             // Drop terminators may call custom drop glue (`Drop::drop`), which takes `&mut
-    //             // self` as a parameter. In the general case, a drop impl could launder that
-    //             // reference into the surrounding environment through a raw pointer, thus creating
-    //             // a valid `*mut` pointing to the dropped local. We are not yet willing to declare
-    //             // this particular case UB, so we must treat all dropped locals as mutably borrowed
-    //             // for now. See discussion on [#61069].
-    //             //
-    //             // [#61069]: https://github.com/rust-lang/rust/pull/61069
-    //             if !dropped_place.is_indirect() {
-    //                 self.trans.gen(dropped_place.local);
-    //             }
-    //         }
-
-    //         TerminatorKind::UnwindTerminate(_)
-    //         | TerminatorKind::Assert { .. }
-    //         | TerminatorKind::Call { .. }
-    //         | TerminatorKind::FalseEdge { .. }
-    //         | TerminatorKind::FalseUnwind { .. }
-    //         | TerminatorKind::CoroutineDrop
-    //         | TerminatorKind::Goto { .. }
-    //         | TerminatorKind::InlineAsm { .. }
-    //         | TerminatorKind::UnwindResume
-    //         | TerminatorKind::Return
-    //         | TerminatorKind::SwitchInt { .. }
-    //         | TerminatorKind::Unreachable
-    //         | TerminatorKind::Yield { .. } => {}
-    //     }
-    // }
 }
-
-// #[allow(dead_code)]
-// /// The set of locals that are borrowed at some point in the MIR body.
-// pub fn anticipated_exprs(body: &Body<'_>) -> BitSet<Local> {
-//     struct Anticipated(BitSet<Local>);
-
-//     impl GenKill<Local> for Anticipated {
-//         #[inline]
-//         fn gen(&mut self, elem: Local) {
-//             self.0.gen(elem)
-//         }
-//         #[inline]
-//         fn kill(&mut self, _: Local) {
-//             // Ignore borrow invalidation.
-//         }
-//     }
-
-//     let mut anticipated = Anticipated(BitSet::new_empty(body.local_decls.len()));
-//     TransferFunction { trans: &mut anticipated }.visit_body(body);
-//     anticipated.0
-// }
