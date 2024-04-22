@@ -1,7 +1,7 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use rustc_middle::mir::*;
 
@@ -56,7 +56,7 @@ pub struct ExprSetElem {
 #[allow(rustc::default_hash_types)]
 pub struct ExprHashMap {
     expr_table: HashMap<ExprSetElem, ExprIdx>,
-    operand_table: HashMap<Local, ExprIdx>
+    operand_table: HashMap<Local, HashSet<ExprIdx>>
 }
 
 impl ExprHashMap {
@@ -76,8 +76,20 @@ impl ExprHashMap {
                             if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) = (operand1.place(), operand2.place()) {
                                 let expr_idx = self.expr_idx(
                                     ExprSetElem { bin_op: *bin_op, local1, local2 });
-                                self.operand_table.insert(local1, expr_idx);
-                                self.operand_table.insert(local2, expr_idx);
+                                
+                                // Map operands to expressions (useful for kill)
+                                if let Some(local1_exprs) = self.operand_table.get_mut(&local1) {
+                                    local1_exprs.insert(expr_idx);
+                                }
+                                else {
+                                    self.operand_table.insert(local1, HashSet::from([expr_idx]));
+                                }
+                                if let Some(local2_exprs) = self.operand_table.get_mut(&local2) {
+                                    local2_exprs.insert(expr_idx);
+                                }
+                                else {
+                                    self.operand_table.insert(local2, HashSet::from([expr_idx]));
+                                }
                             }
                         }
                         
@@ -277,6 +289,7 @@ where
             // Using GenKillAnalysis makes stuff trickier because it caches the state updates in its own function
             // Using Analysis directly, we could use statement_effect to get the input state for the current block and kill
             // inputs selectively.
+
         }
     }
 }
