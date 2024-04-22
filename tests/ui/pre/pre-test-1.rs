@@ -1,5 +1,5 @@
 // build-pass
-// compile-flags: -Zmir-opt-level=0 -Zmir-enable-passes=+PartialRedundancyElimination
+// compile-flags: -Zdump_mir=main -Zmir-enable-passes=-GVN,+CopyProp,+ConstProp,+PartialRedundancyElimination
 
 fn main() {
     let mut x: i32 = 0;

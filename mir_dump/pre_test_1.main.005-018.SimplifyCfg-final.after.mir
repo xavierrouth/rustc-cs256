@@ -1,0 +1,137 @@
+// MIR for `main` after SimplifyCfg-final
+
+fn main() -> () {
+    let mut _0: ();
+    let mut _1: i32;
+    let mut _4: i32;
+    let mut _5: i32;
+    let mut _6: (i32, bool);
+    let mut _8: bool;
+    let mut _9: i32;
+    let mut _10: i32;
+    let mut _11: i32;
+    let mut _12: i32;
+    let mut _13: (i32, bool);
+    let mut _14: (i32, bool);
+    let mut _15: i32;
+    let mut _16: i32;
+    let mut _17: i32;
+    let mut _18: i32;
+    let mut _19: (i32, bool);
+    let mut _20: bool;
+    let mut _21: (i32, bool);
+    let _22: ();
+    let mut _23: std::fmt::Arguments<'_>;
+    let mut _24: &[&str];
+    let mut _25: &[&str; 2];
+    let _26: &[&str; 2];
+    let mut _27: &[core::fmt::rt::Argument<'_>];
+    let mut _28: &[core::fmt::rt::Argument<'_>; 1];
+    let _29: &[core::fmt::rt::Argument<'_>; 1];
+    let _30: [core::fmt::rt::Argument<'_>; 1];
+    let mut _31: core::fmt::rt::Argument<'_>;
+    let mut _32: &i32;
+    let _33: &i32;
+    scope 1 {
+        debug x => const 0_i32;
+        let mut _2: i32;
+        scope 2 {
+            debug y => const 0_i32;
+            let mut _3: i32;
+            scope 3 {
+                debug t => _3;
+                let mut _7: i32;
+                scope 4 {
+                    debug f => _7;
+                    let mut _34: &[&str; 2];
+                }
+            }
+        }
+    }
+
+    bb0: {
+        _1 = const 0_i32;
+        _2 = const 0_i32;
+        _4 = _1;
+        _5 = _2;
+        _6 = CheckedAdd(_4, _5);
+        assert(!move (_6.1: bool), "attempt to compute `{} + {}`, which would overflow", move _4, move _5) -> [success: bb1, unwind continue];
+    }
+
+    bb1: {
+        _3 = move (_6.0: i32);
+        _7 = _3;
+        _9 = _1;
+        _10 = _2;
+        _8 = Ge(move _9, move _10);
+        switchInt(move _8) -> [0: bb5, otherwise: bb2];
+    }
+
+    bb2: {
+        _11 = _1;
+        _12 = _2;
+        _13 = CheckedAdd(_11, _12);
+        assert(!move (_13.1: bool), "attempt to compute `{} + {}`, which would overflow", move _11, move _12) -> [success: bb3, unwind continue];
+    }
+
+    bb3: {
+        _7 = move (_13.0: i32);
+        _14 = CheckedMul(_7, const 2_i32);
+        assert(!move (_14.1: bool), "attempt to compute `{} * {}`, which would overflow", _7, const 2_i32) -> [success: bb4, unwind continue];
+    }
+
+    bb4: {
+        _7 = move (_14.0: i32);
+        goto -> bb9;
+    }
+
+    bb5: {
+        _17 = _1;
+        _18 = _2;
+        _19 = CheckedAdd(_17, _18);
+        assert(!move (_19.1: bool), "attempt to compute `{} + {}`, which would overflow", move _17, move _18) -> [success: bb6, unwind continue];
+    }
+
+    bb6: {
+        _16 = move (_19.0: i32);
+        _20 = Eq(_16, const i32::MIN);
+        assert(!move _20, "attempt to negate `{}`, which would overflow", _16) -> [success: bb7, unwind continue];
+    }
+
+    bb7: {
+        _15 = Neg(move _16);
+        _21 = CheckedAdd(_15, const 2_i32);
+        assert(!move (_21.1: bool), "attempt to compute `{} + {}`, which would overflow", move _15, const 2_i32) -> [success: bb8, unwind continue];
+    }
+
+    bb8: {
+        _7 = move (_21.0: i32);
+        goto -> bb9;
+    }
+
+    bb9: {
+        _34 = const _;
+        _26 = _34;
+        _25 = _26;
+        _24 = move _25 as &[&str] (PointerCoercion(Unsize));
+        _33 = &_7;
+        _32 = _33;
+        _31 = core::fmt::rt::Argument::<'_>::new_display::<i32>(move _32) -> [return: bb10, unwind continue];
+    }
+
+    bb10: {
+        _30 = [move _31];
+        _29 = &_30;
+        _28 = _29;
+        _27 = move _28 as &[core::fmt::rt::Argument<'_>] (PointerCoercion(Unsize));
+        _23 = Arguments::<'_>::new_v1(move _24, move _27) -> [return: bb11, unwind continue];
+    }
+
+    bb11: {
+        _22 = _print(move _23) -> [return: bb12, unwind continue];
+    }
+
+    bb12: {
+        return;
+    }
+}

@@ -21,7 +21,7 @@ use rustc_macros::HashStable;
 use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
-use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
+use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, BackwardForward, GenKill, GenKillAnalysis};
 
 rustc_index::newtype_index! {
     #[orderable]
@@ -153,7 +153,7 @@ impl AnticipatedExpressions {
     pub fn new<'tcx>(body: &Body<'tcx>) -> AnticipatedExpressions {
         let size = Self::count_statements(body);
         let _self = AnticipatedExpressions {
-            kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
+            kill_ops: IndexVec::from_elem(BitSet::new_empty(size+1), &body.basic_blocks), // FIXME: This size '100'
             expr_table: ExprHashMap::new(body),
             bitset_size: size
         };
@@ -167,7 +167,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
 
     // domain for analysis is Local since i
 
-    type Direction = Backward;
+    type Direction = BackwardForward;
     const NAME: &'static str = "anticipated_expr";
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
@@ -250,6 +250,10 @@ where
                     // We need some way of dealing with constants
                     if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) = (operand1.place(), operand2.place()) {
                         if !self.kill_ops[location.block].contains(local1) && !self.kill_ops[location.block].contains(local2) {
+                            println!("Ops in kill_ops[{:?}]:\n", location.block);
+                            for op in self.kill_ops[location.block].iter() {
+                                println!("{:?}\n", op);
+                            }
                             println!("GEN expr {:?}", rvalue.clone());
                             self.trans.gen(self.expr_table.expr_idx(
                                 ExprSetElem { bin_op: *bin_op, local1, local2 }));
@@ -263,6 +267,10 @@ where
             // Any expressions in this BB that now contain this will need to be recalculated
             // And aren't anticipated anymore
             self.kill_ops[location.block].insert(place.local);
+            // println!("Ops in kill_ops[{:?}] after insertion of {:?}:\n", location.block, place.local);
+            // for op in self.kill_ops[location.block].iter() {
+            //     println!("{:?}\n", op);
+            // }
 
             // We consider any assignments to be defs, and so we add all expressions that
             // use that def'd operand to kill

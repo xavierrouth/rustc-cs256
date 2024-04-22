@@ -46,7 +46,7 @@ pub mod lattice;
 mod visitor;
 
 pub use self::cursor::ResultsCursor;
-pub use self::direction::{Backward, Direction, Forward};
+pub use self::direction::{Backward, Direction, Forward, BackwardForward};
 pub use self::engine::{Engine, Results};
 pub use self::lattice::{JoinSemiLattice, MaybeReachable};
 pub use self::visitor::{visit_results, ResultsVisitable, ResultsVisitor};
