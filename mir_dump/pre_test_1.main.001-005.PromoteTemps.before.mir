@@ -1,16 +1,16 @@
 // MIR for `main` before PromoteTemps
 
 | User Type Annotations
-| 0: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:5:16: 5:19, inferred_ty: i32
-| 1: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:5:16: 5:19, inferred_ty: i32
-| 2: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:6:16: 6:19, inferred_ty: i32
-| 3: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:6:16: 6:19, inferred_ty: i32
-| 4: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:7:16: 7:19, inferred_ty: i32
-| 5: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:7:16: 7:19, inferred_ty: i32
-| 6: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:8:16: 8:19, inferred_ty: i32
-| 7: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:8:16: 8:19, inferred_ty: i32
+| 0: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:5:16: 5:19, inferred_ty: i32
+| 1: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:5:16: 5:19, inferred_ty: i32
+| 2: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:6:16: 6:19, inferred_ty: i32
+| 3: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:6:16: 6:19, inferred_ty: i32
+| 4: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:7:16: 7:19, inferred_ty: i32
+| 5: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:7:16: 7:19, inferred_ty: i32
+| 6: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:8:16: 8:19, inferred_ty: i32
+| 7: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:8:16: 8:19, inferred_ty: i32
 | 8: user_ty: Canonical { value: TypeOf(DefId(2:9984 ~ core[e3d0]::fmt::{impl#2}::new_v1), UserArgs { args: [ReBound(DebruijnIndex(0), BoundRegion { var: 0, kind: BrAnon })], user_self_ty: Some(UserSelfTy { impl_def_id: DefId(2:9981 ~ core[e3d0]::fmt::{impl#2}), self_ty: std::fmt::Arguments<ReBound(DebruijnIndex(0), BoundRegion { var: 1, kind: BrAnon })> }) }), max_universe: U0, variables: [CanonicalVarInfo { kind: Region(U0) }, CanonicalVarInfo { kind: Region(U0) }] }, span: /rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61, inferred_ty: fn(&[&'static str], &[core::fmt::rt::Argument<'_>]) -> std::fmt::Arguments<'_> {std::fmt::Arguments::<'_>::new_v1}
-| 9: user_ty: Canonical { value: TypeOf(DefId(2:9904 ~ core[e3d0]::fmt::rt::{impl#1}::new_display), UserArgs { args: [ReBound(DebruijnIndex(0), BoundRegion { var: 0, kind: BrAnon }), ^1], user_self_ty: Some(UserSelfTy { impl_def_id: DefId(2:9899 ~ core[e3d0]::fmt::rt::{impl#1}), self_ty: core::fmt::rt::Argument<ReBound(DebruijnIndex(0), BoundRegion { var: 2, kind: BrAnon })> }) }), max_universe: U0, variables: [CanonicalVarInfo { kind: Region(U0) }, CanonicalVarInfo { kind: Ty(General(U0)) }, CanonicalVarInfo { kind: Region(U0) }] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17, inferred_ty: for<'b> fn(&'b i32) -> core::fmt::rt::Argument<'b> {core::fmt::rt::Argument::<'_>::new_display::<i32>}
+| 9: user_ty: Canonical { value: TypeOf(DefId(2:9904 ~ core[e3d0]::fmt::rt::{impl#1}::new_display), UserArgs { args: [ReBound(DebruijnIndex(0), BoundRegion { var: 0, kind: BrAnon }), ^1], user_self_ty: Some(UserSelfTy { impl_def_id: DefId(2:9899 ~ core[e3d0]::fmt::rt::{impl#1}), self_ty: core::fmt::rt::Argument<ReBound(DebruijnIndex(0), BoundRegion { var: 2, kind: BrAnon })> }) }), max_universe: U0, variables: [CanonicalVarInfo { kind: Region(U0) }, CanonicalVarInfo { kind: Ty(General(U0)) }, CanonicalVarInfo { kind: Region(U0) }] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17, inferred_ty: for<'b> fn(&'b i32) -> core::fmt::rt::Argument<'b> {core::fmt::rt::Argument::<'_>::new_display::<i32>}
 |
 fn main() -> () {
     let mut _0: ();

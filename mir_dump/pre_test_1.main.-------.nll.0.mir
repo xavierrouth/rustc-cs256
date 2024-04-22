@@ -100,25 +100,25 @@
 | '?50 live at {bb9[22]}
 | '?51 live at {bb11[2]}
 | '?0: '?23 due to BoringNoLocation at Single(bb10[7]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
-| '?2: '?8 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?3: '?2 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?4: '?2 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?5: '?6 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?6: '?9 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?7: '?10 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?8: '?7 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?9: '?6 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?9: '?42 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?10: '?7 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?10: '?43 due to Boring at Single(bb9[8]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?11: '?29 due to Boring at Single(bb9[9]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?12: '?27 due to Boring at Single(bb9[10]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?13: '?25 due to Boring at Single(bb9[11]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?14: '?26 due to Boring at Single(bb9[11]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?14: '?28 due to Cast { unsize_to: Some(&ReErased [&ReErased str]) } at Single(bb9[11]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?15: '?41 due to Boring at Single(bb9[20]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:20: 17:21 (#5)
-| '?16: '?40 due to Boring at Single(bb9[21]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:20: 17:21 (#5)
-| '?17: '?45 due to Boring at Single(bb9[22]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5)
+| '?2: '?8 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?3: '?2 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?4: '?2 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?5: '?6 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?6: '?9 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?7: '?10 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?8: '?7 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?9: '?6 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?9: '?42 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?10: '?7 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?10: '?43 due to Boring at Single(bb9[8]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?11: '?29 due to Boring at Single(bb9[9]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?12: '?27 due to Boring at Single(bb9[10]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?13: '?25 due to Boring at Single(bb9[11]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?14: '?26 due to Boring at Single(bb9[11]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?14: '?28 due to Cast { unsize_to: Some(&ReErased [&ReErased str]) } at Single(bb9[11]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?15: '?41 due to Boring at Single(bb9[20]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:20: 16:21 (#5)
+| '?16: '?40 due to Boring at Single(bb9[21]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:20: 16:21 (#5)
+| '?17: '?45 due to Boring at Single(bb9[22]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5)
 | '?18: '?38 due to Boring at Single(bb10[1]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?19: '?36 due to Boring at Single(bb10[3]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?20: '?34 due to Boring at Single(bb10[4]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
@@ -130,10 +130,10 @@
 | '?24: '?51 due to CallArgument(Some(FnDef(DefId(1:3402 ~ std[167b]::io::stdio::_print), []))) at Single(bb11[2]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:9: 143:62 (#4)
 | '?25: '?23 due to CallArgument(Some(FnDef(DefId(2:9984 ~ core[e3d0]::fmt::{impl#2}::new_v1), [ReErased]))) at Single(bb10[7]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?26: '?0 due to CallArgument(Some(FnDef(DefId(2:9984 ~ core[e3d0]::fmt::{impl#2}::new_v1), [ReErased]))) at Single(bb10[7]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
-| '?27: '?13 due to Cast { unsize_to: Some(&ReErased [&ReErased str]) } at Single(bb9[11]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?28: '?14 due to Cast { unsize_to: Some(&ReErased [&ReErased str]) } at Single(bb9[11]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?29: '?12 due to Boring at Single(bb9[10]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?30: '?28 due to Boring at Single(bb9[10]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
+| '?27: '?13 due to Cast { unsize_to: Some(&ReErased [&ReErased str]) } at Single(bb9[11]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?28: '?14 due to Cast { unsize_to: Some(&ReErased [&ReErased str]) } at Single(bb9[11]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?29: '?12 due to Boring at Single(bb9[10]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?30: '?28 due to Boring at Single(bb9[10]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
 | '?32: '?23 due to CallArgument(Some(FnDef(DefId(2:9984 ~ core[e3d0]::fmt::{impl#2}::new_v1), [ReErased]))) at Single(bb10[7]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?33: '?23 due to CallArgument(Some(FnDef(DefId(2:9984 ~ core[e3d0]::fmt::{impl#2}::new_v1), [ReErased]))) at Single(bb10[7]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?34: '?21 due to Cast { unsize_to: Some(&ReErased [core::fmt::rt::Argument<ReErased>]) } at Single(bb10[5]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
@@ -142,33 +142,33 @@
 | '?37: '?35 due to Boring at Single(bb10[4]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?38: '?37 due to Boring at Single(bb10[3]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?39: '?18 due to Boring at Single(bb10[1]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
-| '?40: '?50 due to CallArgument(Some(FnDef(DefId(2:9904 ~ core[e3d0]::fmt::rt::{impl#1}::new_display), [ReErased, i32]))) at Single(bb9[22]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5)
-| '?41: '?16 due to Boring at Single(bb9[21]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:20: 17:21 (#5)
-| '?42: '?11 due to Boring at Single(bb9[9]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
-| '?43: '?30 due to Boring at Single(bb9[9]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:14: 17:18 (#0)
+| '?40: '?50 due to CallArgument(Some(FnDef(DefId(2:9904 ~ core[e3d0]::fmt::rt::{impl#1}::new_display), [ReErased, i32]))) at Single(bb9[22]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5)
+| '?41: '?16 due to Boring at Single(bb9[21]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:20: 16:21 (#5)
+| '?42: '?11 due to Boring at Single(bb9[9]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
+| '?43: '?30 due to Boring at Single(bb9[9]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:14: 16:18 (#0)
 | '?44: '?23 due to Boring at Single(bb10[7]) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?44: '?47 due to BoringNoLocation at All(/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
-| '?45: '?17 due to Boring at Single(bb9[22]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5)
-| '?45: '?49 due to BoringNoLocation at All(/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5)
+| '?45: '?17 due to Boring at Single(bb9[22]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5)
+| '?45: '?49 due to BoringNoLocation at All(/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5)
 | '?46: '?47 due to BoringNoLocation at All(/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?47: '?44 due to BoringNoLocation at All(/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
 | '?47: '?46 due to BoringNoLocation at All(/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61) (/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5)
-| '?48: '?49 due to BoringNoLocation at All(/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5)
-| '?49: '?45 due to BoringNoLocation at All(/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5)
-| '?49: '?48 due to BoringNoLocation at All(/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5)
-| '?50: '?39 due to Boring at Single(bb9[22]) (/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5)
+| '?48: '?49 due to BoringNoLocation at All(/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5)
+| '?49: '?45 due to BoringNoLocation at All(/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5)
+| '?49: '?48 due to BoringNoLocation at All(/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5)
+| '?50: '?39 due to Boring at Single(bb9[22]) (/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5)
 |
 | User Type Annotations
-| 0: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:5:16: 5:19, inferred_ty: i32
-| 1: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:5:16: 5:19, inferred_ty: i32
-| 2: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:6:16: 6:19, inferred_ty: i32
-| 3: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:6:16: 6:19, inferred_ty: i32
-| 4: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:7:16: 7:19, inferred_ty: i32
-| 5: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:7:16: 7:19, inferred_ty: i32
-| 6: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:8:16: 8:19, inferred_ty: i32
-| 7: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:8:16: 8:19, inferred_ty: i32
+| 0: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:5:16: 5:19, inferred_ty: i32
+| 1: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:5:16: 5:19, inferred_ty: i32
+| 2: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:6:16: 6:19, inferred_ty: i32
+| 3: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:6:16: 6:19, inferred_ty: i32
+| 4: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:7:16: 7:19, inferred_ty: i32
+| 5: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:7:16: 7:19, inferred_ty: i32
+| 6: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:8:16: 8:19, inferred_ty: i32
+| 7: user_ty: Canonical { value: Ty(i32), max_universe: U0, variables: [] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:8:16: 8:19, inferred_ty: i32
 | 8: user_ty: Canonical { value: TypeOf(DefId(2:9984 ~ core[e3d0]::fmt::{impl#2}::new_v1), UserArgs { args: [ReBound(DebruijnIndex(0), BoundRegion { var: 0, kind: BrAnon })], user_self_ty: Some(UserSelfTy { impl_def_id: DefId(2:9981 ~ core[e3d0]::fmt::{impl#2}), self_ty: std::fmt::Arguments<ReBound(DebruijnIndex(0), BoundRegion { var: 1, kind: BrAnon })> }) }), max_universe: U0, variables: [CanonicalVarInfo { kind: Region(U0) }, CanonicalVarInfo { kind: Region(U0) }] }, span: /rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61, inferred_ty: fn(&[&'static str], &[core::fmt::rt::Argument<'_>]) -> std::fmt::Arguments<'_> {std::fmt::Arguments::<'_>::new_v1}
-| 9: user_ty: Canonical { value: TypeOf(DefId(2:9904 ~ core[e3d0]::fmt::rt::{impl#1}::new_display), UserArgs { args: [ReBound(DebruijnIndex(0), BoundRegion { var: 0, kind: BrAnon }), ^1], user_self_ty: Some(UserSelfTy { impl_def_id: DefId(2:9899 ~ core[e3d0]::fmt::rt::{impl#1}), self_ty: core::fmt::rt::Argument<ReBound(DebruijnIndex(0), BoundRegion { var: 2, kind: BrAnon })> }) }), max_universe: U0, variables: [CanonicalVarInfo { kind: Region(U0) }, CanonicalVarInfo { kind: Ty(General(U0)) }, CanonicalVarInfo { kind: Region(U0) }] }, span: /home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17, inferred_ty: for<'b> fn(&'b i32) -> core::fmt::rt::Argument<'b> {core::fmt::rt::Argument::<'_>::new_display::<i32>}
+| 9: user_ty: Canonical { value: TypeOf(DefId(2:9904 ~ core[e3d0]::fmt::rt::{impl#1}::new_display), UserArgs { args: [ReBound(DebruijnIndex(0), BoundRegion { var: 0, kind: BrAnon }), ^1], user_self_ty: Some(UserSelfTy { impl_def_id: DefId(2:9899 ~ core[e3d0]::fmt::rt::{impl#1}), self_ty: core::fmt::rt::Argument<ReBound(DebruijnIndex(0), BoundRegion { var: 2, kind: BrAnon })> }) }), max_universe: U0, variables: [CanonicalVarInfo { kind: Region(U0) }, CanonicalVarInfo { kind: Ty(General(U0)) }, CanonicalVarInfo { kind: Region(U0) }] }, span: /home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17, inferred_ty: for<'b> fn(&'b i32) -> core::fmt::rt::Argument<'b> {core::fmt::rt::Argument::<'_>::new_display::<i32>}
 |
 fn main() -> () {
     let mut _0: ();

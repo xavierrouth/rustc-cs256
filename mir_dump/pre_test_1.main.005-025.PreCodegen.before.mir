@@ -1,4 +1,4 @@
-// MIR for `main` after runtime-optimized
+// MIR for `main` before PreCodegen
 
 fn main() -> () {
     let mut _0: ();

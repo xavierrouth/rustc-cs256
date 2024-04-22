@@ -55,10 +55,10 @@ digraph RegionInferenceContext {
     r47 -> r44[label="All(/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5))"];
     r46 -> r47[label="All(/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5))"];
     r47 -> r46[label="All(/rustc/FAKE_PREFIX/library/std/src/macros.rs:143:28: 143:61 (#5))"];
-    r45 -> r49[label="All(/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5))"];
-    r49 -> r45[label="All(/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5))"];
-    r48 -> r49[label="All(/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5))"];
-    r49 -> r48[label="All(/home/isquared/rust/tests/ui/pre/pre-test-1.rs:17:15: 17:17 (#5))"];
+    r45 -> r49[label="All(/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5))"];
+    r49 -> r45[label="All(/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5))"];
+    r48 -> r49[label="All(/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5))"];
+    r49 -> r48[label="All(/home/boron/college/sp24/cs526/proj-2/pre/rustc-cs256/tests/ui/pre/pre-test-1.rs:16:15: 16:17 (#5))"];
     r2 -> r8[label="Single(bb9[8])"];
     r3 -> r2[label="Single(bb9[8])"];
     r4 -> r2[label="Single(bb9[8])"];

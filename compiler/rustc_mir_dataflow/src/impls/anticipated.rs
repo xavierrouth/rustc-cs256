@@ -11,17 +11,17 @@ use rustc_middle::mir::{
 };
 use rustc_middle::ty::{self, Ty, TyCtxt};
 
-use rustc_index::bit_set::{BitSet, ChunkedBitSet};
-use rustc_index::{
-    Idx, IndexVec
-};
 use rustc_data_structures::stable_hasher::{HashStable, StableHasher};
+use rustc_index::bit_set::{BitSet, ChunkedBitSet};
+use rustc_index::{Idx, IndexVec};
 use rustc_macros::HashStable;
 
 use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
-use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, BackwardForward, GenKill, GenKillAnalysis};
+use crate::{
+    fmt::DebugWithContext, Analysis, AnalysisDomain, BackwardForward, GenKill, GenKillAnalysis,
+};
 
 rustc_index::newtype_index! {
     #[orderable]
@@ -38,7 +38,7 @@ impl DebugWithContext<Borrows<'_, '_>> for BorrowIndex {
     }
 }*/
 
-impl <A> DebugWithContext<A> for ExprIdx {
+impl<A> DebugWithContext<A> for ExprIdx {
     fn fmt_with(&self, _ctxt: &A, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "hi")
         // write!(f, "{:?}", ctxt.location(*self))
@@ -52,52 +52,50 @@ pub struct ExprSetElem {
     local2: Local,
 }
 
-
 #[allow(rustc::default_hash_types)]
 pub struct ExprHashMap {
     expr_table: HashMap<ExprSetElem, ExprIdx>,
-    operand_table: HashMap<Local, HashSet<ExprIdx>>
+    operand_table: HashMap<Local, HashSet<ExprIdx>>,
 }
 
 impl ExprHashMap {
-
     /// We now parse the body to add a global operand -> expression mapping
     /// This now enables kill to do a lookup to add expressions to the kill set based on
     /// defs in the basic block
     fn parse_body(&mut self, body: &Body<'_>) -> &mut ExprHashMap {
         for block in body.basic_blocks.iter() {
             for statement in &block.statements {
-                
                 // We only care about assignments for now
                 if let StatementKind::Assign(box (_place, rvalue)) = &statement.kind {
-        
                     // If current rvalue operands match no assigned operands in current BB, add to gen
                     match rvalue {
                         Rvalue::BinaryOp(bin_op, box (operand1, operand2))
                         | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
                             // We need some way of dealing with constants
-                            if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) = (operand1.place(), operand2.place()) {
-                                let expr_idx = self.expr_idx(
-                                    ExprSetElem { bin_op: *bin_op, local1, local2 });
-                                
+                            if let (
+                                Some(Place { local: local1, .. }),
+                                Some(Place { local: local2, .. }),
+                            ) = (operand1.place(), operand2.place())
+                            {
+                                let expr_idx =
+                                    self.expr_idx(ExprSetElem { bin_op: *bin_op, local1, local2 });
+
                                 // Map operands to expressions
                                 if let Some(local1_exprs) = self.operand_table.get_mut(&local1) {
                                     local1_exprs.insert(expr_idx);
-                                }
-                                else {
+                                } else {
                                     #[allow(rustc::default_hash_types)]
                                     self.operand_table.insert(local1, HashSet::from([expr_idx]));
                                 }
                                 if let Some(local2_exprs) = self.operand_table.get_mut(&local2) {
                                     local2_exprs.insert(expr_idx);
-                                }
-                                else {
+                                } else {
                                     #[allow(rustc::default_hash_types)]
                                     self.operand_table.insert(local2, HashSet::from([expr_idx]));
                                 }
                             }
                         }
-                        
+
                         _ => {}
                     }
                 }
@@ -128,12 +126,12 @@ pub struct AnticipatedExpressions {
 }
 
 impl AnticipatedExpressions {
-    // Can we return this? 
-    pub(super) fn transfer_function<'a, T>(&'a mut self, trans: &'a mut T) -> TransferFunction<'a, T> {
-        TransferFunction { 
-            trans, 
-            kill_ops: &mut self.kill_ops, 
-            expr_table: &mut self.expr_table }
+    // Can we return this?
+    pub(super) fn transfer_function<'a, T>(
+        &'a mut self,
+        trans: &'a mut T,
+    ) -> TransferFunction<'a, T> {
+        TransferFunction { trans, kill_ops: &mut self.kill_ops, expr_table: &mut self.expr_table }
     }
 
     fn count_statements(body: &Body<'_>) -> usize {
@@ -142,7 +140,7 @@ impl AnticipatedExpressions {
             for _statement in &block.statements {
                 // Count only statements, not terminators
                 //if !matches!(statement.kind, StatementKind::Terminator(_)) {
-                    statement_count += 1;
+                statement_count += 1;
                 //}
             }
         }
@@ -157,7 +155,7 @@ impl AnticipatedExpressions {
         AnticipatedExpressions {
             kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks),
             expr_table: ExprHashMap::new(body),
-            bitset_size: size
+            bitset_size: size,
         }
     }
 }
@@ -229,7 +227,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
 /// A `Visitor` that defines the transfer function for `AnticipatedExpressions`.
 pub(super) struct TransferFunction<'a, T> {
     trans: &'a mut T,
-    kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in 
+    kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: &'a mut ExprHashMap,
 }
 
@@ -242,28 +240,41 @@ where
 
         // We only care about assignments for now
         if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
-
             // If current rvalue operands match no assigned operands in current BB, add to gen
             match rvalue {
                 Rvalue::BinaryOp(bin_op, box (operand1, operand2))
                 | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
                     // We need some way of dealing with constants
-                    if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) = (operand1.place(), operand2.place()) {
-                        if !self.kill_ops[location.block].contains(local1) && !self.kill_ops[location.block].contains(local2) {
+                    if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
+                        (operand1.place(), operand2.place())
+                    {
+                        if !self.kill_ops[location.block].contains(local1)
+                            && !self.kill_ops[location.block].contains(local2)
+                        {
                             println!("Ops in kill_ops[{:?}]:\n", location.block);
                             for op in self.kill_ops[location.block].iter() {
                                 println!("{:?}\n", op);
                             }
                             println!("GEN expr {:?}", rvalue.clone());
-                            self.trans.gen(self.expr_table.expr_idx(
-                                ExprSetElem { bin_op: *bin_op, local1, local2 }));
+                            self.trans.gen(self.expr_table.expr_idx(ExprSetElem {
+                                bin_op: *bin_op,
+                                local1,
+                                local2,
+                            }));
+                        } else {
+                            println!("KILL expr {:?}", rvalue.clone());
+                            self.trans.kill(self.expr_table.expr_idx(ExprSetElem {
+                                bin_op: *bin_op,
+                                local1,
+                                local2,
+                            }));
                         }
                     }
                 }
-                
+
                 _ => {}
             }
-            
+
             // Any expressions in this BB that now contain this will need to be recalculated
             // And aren't anticipated anymore
             self.kill_ops[location.block].insert(place.local);
