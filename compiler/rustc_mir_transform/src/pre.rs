@@ -47,7 +47,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             .into_results_cursor(body);
         println!("----------------ANTICIPATED DEBUG END----------------\n\n\n");
 
-        for (bb, _block) in body.basic_blocks.iter_enumerated() {
+        /* for (bb, _block) in body.basic_blocks.iter_enumerated() {
             // anticipated.seek_to_block_end(block);
             let state = anticipated.get();
             // anticipated.results().analysis.fmt_domain(state);
@@ -67,6 +67,39 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
                 bb,
                 anticipated.seek_to_block_end(bb)
             );
+        } */
+
+        for (bb, _block) in body.basic_blocks.iter_enumerated() {
+            // anticipated.seek_to_block_end(block);
+            println!("----------- {:?} ----------- ", bb);
+            let mut state = anticipated.get();
+            // anticipated.results().analysis.fmt_domain(state);
+            println!("before seek state {:?}", state);
+            println!(
+                "entry set for block {:?} : {:?}",
+                bb,
+                anticipated.results().entry_set_for_block(bb)
+            );
+            /* println!(
+                "anticipated at end of current block {:?} : {:?}",
+                bb,
+                anticipated.seek_to_block_start(bb)
+            ); */
+            anticipated.seek_to_block_start(bb);
+            state = anticipated.get();
+            // anticipated.results().analysis.fmt_domain(state);
+            println!("start of BB seek state {:?}", state);
+            /* println!(
+                "anticipated at start of current block {:?} : {:?}",
+                bb,
+                anticipated.seek_to_block_end(bb)
+            ); */
+            anticipated.seek_to_block_end(bb);
+
+            state = anticipated.get();
+            // anticipated.results().analysis.fmt_domain(state);
+            println!("end of BB seek state {:?}", state);
+            println!("----------- {:?} ----------- \n\n\n", bb);
         }
 
         /* let _available = AvailableExpressions::new(body, anticipated)

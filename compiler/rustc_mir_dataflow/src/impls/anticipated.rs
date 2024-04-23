@@ -5,7 +5,6 @@ use std::collections::{HashMap, HashSet};
 
 use rustc_middle::mir::*;
 
-
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
 use rustc_middle::mir::{
     self, CallReturnPlaces, Local, Location, Place, StatementKind, TerminatorEdges,
@@ -21,8 +20,8 @@ use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{
-    fmt::DebugWithContext, Analysis, AnalysisDomain, BackwardForward, Backward, Forward, 
-    GenKill, GenKillAnalysis, JoinSemiLattice, lattice::Dual
+    fmt::DebugWithContext, lattice::Dual, Analysis, AnalysisDomain, Backward, BackwardForward,
+    Forward, GenKill, GenKillAnalysis, JoinSemiLattice,
 };
 
 rustc_index::newtype_index! {
@@ -129,7 +128,10 @@ pub struct AnticipatedExpressions {
 
 impl AnticipatedExpressions {
     // Can we return this?
-    pub fn fmt_domain(&self, domain: &<AnticipatedExpressions as AnalysisDomain<'_>>::Domain) -> () {
+    pub fn fmt_domain(
+        &self,
+        domain: &<AnticipatedExpressions as AnalysisDomain<'_>>::Domain,
+    ) -> () {
         let bitset: &Dual<BitSet<ExprIdx>> = domain;
 
         #[allow(rustc::potential_query_instability)]
@@ -140,7 +142,6 @@ impl AnticipatedExpressions {
         // let idx: ExprIdx = domain.
     }
 
-    
     pub(super) fn transfer_function<'a, T>(
         &'a mut self,
         trans: &'a mut T,
@@ -174,24 +175,19 @@ impl AnticipatedExpressions {
     }
 }
 
-
-
 impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
     type Domain = Dual<BitSet<ExprIdx>>;
 
     // domain for analysis is Local since i
-
-    type Direction = BackwardForward;
+    type Direction = Forward;
     const NAME: &'static str = "anticipated_expr";
-
-
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
         // bottom = nothing anticipated yet
         // TODO: update
         // let len = body.local_decls().len()
         // Should size be local_decls.len() or count of all statements?
-        Dual(BitSet::new_empty(self.bitset_size))
+        Dual(BitSet::new_filled(self.bitset_size))
     }
 
     fn initialize_start_block(&self, _: &Body<'tcx>, _: &mut Self::Domain) {
@@ -252,7 +248,7 @@ pub(super) struct TransferFunction<'a, T> {
 impl<'tcx, T> Visitor<'tcx> for TransferFunction<'_, T>
 where
     T: GenKill<ExprIdx>,
-{   
+{
     fn visit_body(&mut self, body: &Body<'tcx>) {
         println!("visit body: {:?}", body);
     }
