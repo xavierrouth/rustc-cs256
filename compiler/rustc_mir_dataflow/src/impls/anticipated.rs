@@ -47,7 +47,7 @@ impl<A> DebugWithContext<A> for ExprIdx {
     }
 }
 
-#[derive(Hash, Eq, PartialEq)]
+#[derive(Hash, Eq, PartialEq, Debug)]
 pub struct ExprSetElem {
     bin_op: BinOp,
     local1: Local,
@@ -132,9 +132,12 @@ impl AnticipatedExpressions {
     pub fn fmt_domain(&self, domain: &<AnticipatedExpressions as AnalysisDomain<'_>>::Domain) -> () {
         let bitset: &Dual<BitSet<ExprIdx>> = domain;
 
+        #[allow(rustc::potential_query_instability)]
+        for (key, val) in self.expr_table.expr_table.iter() {
+            println!("{:?}, {:?}", key, val);
+        }
         println!("{:?}", bitset);
         // let idx: ExprIdx = domain.
-        println!("hello\n");
     }
 
     

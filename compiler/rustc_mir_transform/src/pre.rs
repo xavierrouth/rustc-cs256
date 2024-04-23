@@ -52,10 +52,12 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             anticipated.seek_after_primary_effect(body.terminator_loc(bb));
             let state = anticipated.get();
 
+            println!("block: {:?}", bb);
+
             //state. 
             //state.
             anticipated.results().analysis.fmt_domain(state);
-            // println!("anticipated: {:?}", state);
+            // 
         }
 
         
