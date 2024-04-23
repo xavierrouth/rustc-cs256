@@ -3,6 +3,9 @@
 
 use std::collections::{HashMap, HashSet};
 
+use rustc_data_structures::fx::FxHashMap;
+use rustc_data_structures::graph::{WithStartNode, WithSuccessors};
+use rustc_data_structures::sync::HashMapExt;
 use rustc_middle::mir::*;
 
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
@@ -20,7 +23,7 @@ use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{
-    fmt::DebugWithContext, lattice::Dual, Analysis, AnalysisDomain, Backward, BackwardForward,
+    fmt::DebugWithContext, lattice::Dual, Analysis, AnalysisDomain, Backward,
     Forward, GenKill, GenKillAnalysis, JoinSemiLattice,
 };
 
@@ -59,69 +62,32 @@ pub struct ExprHashMap {
     operand_table: HashMap<Local, HashSet<ExprIdx>>,
 }
 
+#[allow(rustc::default_hash_types)]
 impl ExprHashMap {
     /// We now parse the body to add a global operand -> expression mapping
     /// This now enables kill to do a lookup to add expressions to the kill set based on
     /// defs in the basic block
-    fn parse_body(&mut self, body: &Body<'_>) -> &mut ExprHashMap {
-        for block in body.basic_blocks.iter() {
-            for statement in &block.statements {
-                // We only care about assignments for now
-                if let StatementKind::Assign(box (_place, rvalue)) = &statement.kind {
-                    // If current rvalue operands match no assigned operands in current BB, add to gen
-                    match rvalue {
-                        Rvalue::BinaryOp(bin_op, box (operand1, operand2))
-                        | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
-                            // We need some way of dealing with constants
-                            if let (
-                                Some(Place { local: local1, .. }),
-                                Some(Place { local: local2, .. }),
-                            ) = (operand1.place(), operand2.place())
-                            {
-                                let expr_idx =
-                                    self.expr_idx(ExprSetElem { bin_op: *bin_op, local1, local2 });
-
-                                // Map operands to expressions
-                                if let Some(local1_exprs) = self.operand_table.get_mut(&local1) {
-                                    local1_exprs.insert(expr_idx);
-                                } else {
-                                    #[allow(rustc::default_hash_types)]
-                                    self.operand_table.insert(local1, HashSet::from([expr_idx]));
-                                }
-                                if let Some(local2_exprs) = self.operand_table.get_mut(&local2) {
-                                    local2_exprs.insert(expr_idx);
-                                } else {
-                                    #[allow(rustc::default_hash_types)]
-                                    self.operand_table.insert(local2, HashSet::from([expr_idx]));
-                                }
-                            }
-                        }
-
-                        _ => {}
-                    }
-                }
-            }
-        }
-        self
-    }
-
+    
     #[allow(dead_code)]
-    pub fn new(body: &Body<'_>) -> ExprHashMap {
-        #[allow(rustc::default_hash_types)]
-        let mut _self = ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new() };
-        // Iterate through exprs and add all expressions to table
-        _self.parse_body(body);
-        _self
+    pub fn new() -> ExprHashMap {
+        ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new() }
     }
 
     fn expr_idx(&mut self, expr: ExprSetElem) -> ExprIdx {
         let len = self.expr_table.len();
         self.expr_table.entry(expr).or_insert(ExprIdx::new(len)).clone()
     }
+
+    fn get_operand_mapping(&mut self, op: Local) -> Option<&HashSet<ExprIdx>> {
+        self.operand_table.get(&op)
+    }
+
+    fn add_operand_mapping(&mut self, op: Local, expr: ExprIdx) -> bool {
+        self.operand_table.entry(op).or_insert(HashSet::new()).insert(expr)
+    }
 }
 
 pub struct AnticipatedExpressions {
-    kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
     expr_table: ExprHashMap,
     pub bitset_size: usize,
 }
@@ -146,7 +112,7 @@ impl AnticipatedExpressions {
         &'a mut self,
         trans: &'a mut T,
     ) -> TransferFunction<'a, T> {
-        TransferFunction { trans, kill_ops: &mut self.kill_ops, expr_table: &mut self.expr_table }
+        TransferFunction { trans, expr_table: &mut self.expr_table }
     }
 
     fn count_statements(body: &Body<'_>) -> usize {
@@ -168,8 +134,7 @@ impl AnticipatedExpressions {
 
         println!("size: {size}");
         AnticipatedExpressions {
-            kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks),
-            expr_table: ExprHashMap::new(body),
+            expr_table: ExprHashMap::new(),
             bitset_size: size,
         }
     }
@@ -179,7 +144,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
     type Domain = Dual<BitSet<ExprIdx>>;
 
     // domain for analysis is Local since i
-    type Direction = Forward;
+    type Direction = Backward;
     const NAME: &'static str = "anticipated_expr";
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
@@ -226,6 +191,11 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
         // self.transfer_function(trans).visit_terminator(terminator, location);
         // terminator.edges()
         //TerminatorEdges::default()
+
+        // Clear all elements if the terminator has no outgoing edges
+        if let TerminatorEdges::None = terminator.edges() {
+            _trans.0.clear();
+        }
         terminator.edges()
     }
 
@@ -241,7 +211,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for AnticipatedExpressions {
 /// A `Visitor` that defines the transfer function for `AnticipatedExpressions`.
 pub(super) struct TransferFunction<'a, T> {
     trans: &'a mut T,
-    kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
+    // kill_ops: &'a mut IndexVec<BasicBlock, FxHashMap<Local, usize>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: &'a mut ExprHashMap,
 }
 
@@ -270,38 +240,30 @@ where
                     if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
                         (operand1.place(), operand2.place())
                     {
-                        if !self.kill_ops[location.block].contains(local1)
-                            && !self.kill_ops[location.block].contains(local2)
-                        {
-                            // println!("Ops in kill_ops[{:?}]:\n", location.block);
-                            // for op in self.kill_ops[location.block].iter() {
-                            //     println!("{:?}\n", op);
-                            // }
-                            println!("GEN expr {:?}", rvalue.clone());
-                            self.trans.gen(self.expr_table.expr_idx(ExprSetElem {
-                                bin_op: *bin_op,
-                                local1,
-                                local2,
-                            }));
-                        }
+                        // Add expressions as we encounter them to the GEN set
+                        // Expressions that have re-defined args within the basic block will naturally be killed
+                        // as those defs are reached
+                        println!("GEN expr {:?}", rvalue.clone());
+                        let expr_idx = self.expr_table.expr_idx(ExprSetElem {
+                            bin_op: *bin_op,
+                            local1,
+                            local2,
+                        });
+                        self.trans.gen(expr_idx);
+
+                        // Add to the expr_set
+                        self.expr_table.add_operand_mapping(local1, expr_idx);
+                        self.expr_table.add_operand_mapping(local2, expr_idx);
                     }
                 }
 
                 _ => {}
             }
 
-            // Any expressions in this BB that now contain this will need to be recalculated
-            // And aren't anticipated anymore
-            self.kill_ops[location.block].insert(place.local);
-            // println!("Ops in kill_ops[{:?}] after insertion of {:?}:\n", location.block, place.local);
-            // for op in self.kill_ops[location.block].iter() {
-            //     println!("{:?}\n", op);
-            // }
-
             // We consider any assignments to be defs, and so we add all expressions that
             // use that def'd operand to kill
             // We do this using the previously calculated operand -> exprs mapping in the expr_table
-            if let Some(exprs) = self.expr_table.operand_table.get(&place.local) {
+            if let Some(exprs) = self.expr_table.get_operand_mapping(place.local) {
                 #[allow(rustc::potential_query_instability)]
                 for expr_id in exprs.iter() {
                     println!("KILL expr {:?}", expr_id);
