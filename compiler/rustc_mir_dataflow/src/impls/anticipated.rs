@@ -178,7 +178,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
 
     // domain for analysis is Local since i
 
-    type Direction = Forward;
+    type Direction = BackwardForward;
     const NAME: &'static str = "anticipated_expr";
 
 

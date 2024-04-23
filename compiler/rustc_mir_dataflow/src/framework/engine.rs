@@ -191,7 +191,7 @@ where
 
         let mut dirty_queue: WorkQueue<BasicBlock> = WorkQueue::with_none(body.basic_blocks.len());
 
-        if A::Direction::IS_FORWARD {
+        if !A::Direction::IS_BACKWARD {
             for (bb, _) in traversal::reverse_postorder(body) {
                 dirty_queue.insert(bb);
             }

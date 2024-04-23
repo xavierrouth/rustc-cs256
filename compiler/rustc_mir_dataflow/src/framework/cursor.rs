@@ -135,7 +135,7 @@ where
     /// For forward analyses, this is the state that will be propagated to its
     /// successors (ignoring edge-specific effects).
     pub fn seek_to_block_end(&mut self, block: BasicBlock) {
-        if A::Direction::IS_BACKWARD {
+        if !A::Direction::IS_FORWARD {
             self.seek_to_block_entry(block)
         } else {
             self.seek_after(self.body.terminator_loc(block), Effect::Primary)
@@ -169,7 +169,7 @@ where
             self.seek_to_block_entry(target.block);
         } else if let Some(curr_effect) = self.pos.curr_effect_index {
             let mut ord = curr_effect.statement_index.cmp(&target.statement_index);
-            if A::Direction::IS_BACKWARD {
+            if !A::Direction::IS_FORWARD {
                 ord = ord.reverse()
             }
 

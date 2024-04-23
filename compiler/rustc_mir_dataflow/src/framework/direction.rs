@@ -322,7 +322,8 @@ where
 pub struct BackwardForward;
 
 impl Direction for BackwardForward {
-    const IS_FORWARD: bool = false;
+    const IS_FORWARD: bool = true;  // For results cursor
+    const IS_BACKWARD: bool = true; // For engine 
 
     fn apply_effects_in_block<'mir, 'tcx, A>(
         analysis: &mut A,
