@@ -5,6 +5,7 @@ use std::collections::{HashMap, HashSet};
 
 use rustc_middle::mir::*;
 
+
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
 use rustc_middle::mir::{
     self, CallReturnPlaces, Local, Location, Place, StatementKind, TerminatorEdges,
@@ -20,7 +21,8 @@ use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{
-    fmt::DebugWithContext, Analysis, AnalysisDomain, BackwardForward, GenKill, GenKillAnalysis,
+    fmt::DebugWithContext, Analysis, AnalysisDomain, BackwardForward, Backward, Forward, 
+    GenKill, GenKillAnalysis, JoinSemiLattice, lattice::Dual
 };
 
 rustc_index::newtype_index! {
@@ -160,12 +162,13 @@ impl AnticipatedExpressions {
     }
 }
 
+
 impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
-    type Domain = BitSet<ExprIdx>;
+    type Domain = Dual<BitSet<ExprIdx>>;
 
     // domain for analysis is Local since i
 
-    type Direction = BackwardForward;
+    type Direction = Backward;
     const NAME: &'static str = "anticipated_expr";
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
@@ -173,7 +176,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
         // TODO: update
         // let len = body.local_decls().len()
         // Should size be local_decls.len() or count of all statements?
-        BitSet::new_empty(self.bitset_size)
+        Dual(BitSet::new_empty(self.bitset_size))
     }
 
     fn initialize_start_block(&self, _: &Body<'tcx>, _: &mut Self::Domain) {
@@ -234,7 +237,15 @@ pub(super) struct TransferFunction<'a, T> {
 impl<'tcx, T> Visitor<'tcx> for TransferFunction<'_, T>
 where
     T: GenKill<ExprIdx>,
-{
+{   
+    fn visit_body(&mut self, body: &Body<'tcx>) {
+        println!("visit body: {:?}", body);
+    }
+
+    fn visit_basic_block_data(&mut self, block: BasicBlock, data: &BasicBlockData<'tcx>) {
+        println!("visit block: {:?} {:?}", block, data);
+    }
+
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
         println!("stmt visited {:?}", stmt);
 

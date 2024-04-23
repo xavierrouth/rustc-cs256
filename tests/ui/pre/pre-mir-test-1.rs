@@ -1,5 +1,5 @@
 // build-pass
-// compile-flags: -Zdump_mir=f -Zmir-opt-level=0 -Zmir-enable-passes=+PartialRedundancyElimination
+// compile-flags: -Zdump_mir=f -Zdump-mir-dataflow=y -Zmir-opt-level=0 -Zmir-enable-passes=+PartialRedundancyElimination
 // -Zmir-enable-passes=-GVN,+CopyProp,+ConstProp,+PartialRedundancyElimination,+ReorderBasicBlocks,+ReorderLocals,+AfterGVN,ReferencePropagation,
 // -Zmir-opt-level=0
 
