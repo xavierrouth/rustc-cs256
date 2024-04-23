@@ -262,7 +262,7 @@ where
     }
 
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
-        println!("stmt visited {:?}", stmt);
+        println!("{:?}: stmt visited {:?}", location, stmt);
 
         // We only care about assignments for now
         if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
@@ -277,10 +277,10 @@ where
                         if !self.kill_ops[location.block].contains(local1)
                             && !self.kill_ops[location.block].contains(local2)
                         {
-                            println!("Ops in kill_ops[{:?}]:\n", location.block);
-                            for op in self.kill_ops[location.block].iter() {
-                                println!("{:?}\n", op);
-                            }
+                            // println!("Ops in kill_ops[{:?}]:\n", location.block);
+                            // for op in self.kill_ops[location.block].iter() {
+                            //     println!("{:?}\n", op);
+                            // }
                             println!("GEN expr {:?}", rvalue.clone());
                             self.trans.gen(self.expr_table.expr_idx(ExprSetElem {
                                 bin_op: *bin_op,
@@ -288,12 +288,12 @@ where
                                 local2,
                             }));
                         } else {
-                            println!("KILL expr {:?}", rvalue.clone());
-                            self.trans.kill(self.expr_table.expr_idx(ExprSetElem {
-                                bin_op: *bin_op,
-                                local1,
-                                local2,
-                            }));
+                            // println!("KILL expr {:?}", rvalue.clone());
+                            // self.trans.kill(self.expr_table.expr_idx(ExprSetElem {
+                            //     bin_op: *bin_op,
+                            //     local1,
+                            //     local2,
+                            // }));
                         }
                     }
                 }
@@ -315,6 +315,7 @@ where
             if let Some(exprs) = self.expr_table.operand_table.get(&place.local) {
                 #[allow(rustc::potential_query_instability)]
                 for expr_id in exprs.iter() {
+                    println!("KILL expr {:?}", expr_id);
                     self.trans.kill(*expr_id);
                 }
             }
