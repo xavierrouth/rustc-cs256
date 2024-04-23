@@ -15,6 +15,8 @@ use rustc_index::Idx;
 use rustc_mir_dataflow::drop_flag_effects_for_function_entry;
 use rustc_mir_dataflow::drop_flag_effects_for_location;
 use rustc_mir_dataflow::elaborate_drops::DropFlagState;
+use rustc_mir_dataflow::impls::AnticipatedExpressions;
+// use rustc_mir_dataflow::impls::AvailableExpressions;
 use rustc_mir_dataflow::move_paths::{
     HasMoveData, InitIndex, InitKind, LookupResult, MoveData, MovePathIndex,
 };
@@ -25,10 +27,6 @@ use rustc_mir_dataflow::{drop_flag_effects, on_all_children_bits};
 use rustc_mir_dataflow::{
     lattice, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis, MaybeReachable,
 };
-use rustc_mir_dataflow::impls::{
-    AnticipatedExpressions, // AvailableExpressions
-};
-
 
 pub struct PartialRedundancyElimination;
 
@@ -40,34 +38,41 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
     #[instrument(level = "trace", skip(self, tcx, body))]
     fn run_pass(&self, tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
         debug!(def_id = ?body.source.def_id());
-        println!("running PRE on {:?}", body.source.def_id());
+        println!("Body that analysis is running on {:?}", &body.basic_blocks);
+        println!("----------------ANTICIPATED DEBUG BEGIN----------------");
         let mut anticipated = AnticipatedExpressions::new(body)
             .into_engine(tcx, body)
             .pass_name("anticipated_exprs")
             .iterate_to_fixpoint()
             .into_results_cursor(body);
+        println!("----------------ANTICIPATED DEBUG END----------------\n\n\n");
 
-        
         for (bb, _block) in body.basic_blocks.iter_enumerated() {
-            anticipated.seek_after_primary_effect(body.terminator_loc(bb));
+            // anticipated.seek_to_block_end(block);
             let state = anticipated.get();
-
-            println!("block: {:?}", bb);
-
-            //state. 
-            //state.
-            anticipated.results().analysis.fmt_domain(state);
-            // 
+            // anticipated.results().analysis.fmt_domain(state);
+            println!("state {:?}", state);
+            println!(
+                "entry set for block {:?} : {:?}",
+                bb,
+                anticipated.results().entry_set_for_block(bb)
+            );
+            println!(
+                "anticipated at end of current block {:?} : {:?}",
+                bb,
+                anticipated.seek_to_block_start(bb)
+            );
+            println!(
+                "anticipated at start of current block {:?} : {:?}",
+                bb,
+                anticipated.seek_to_block_end(bb)
+            );
         }
 
-        
-
-        /*
-        let _available = AvailableExpressions::new(body, _anticipated)
-            .into_engine(tcx, body)
-            .pass_name("available_exprs")
-            .iterate_to_fixpoint()
-            .into_results_cursor(body);
-        */
+        /* let _available = AvailableExpressions::new(body, anticipated)
+        .into_engine(tcx, body)
+        .pass_name("available_exprs")
+        .iterate_to_fixpoint()
+        .into_results_cursor(body); */
     }
 }

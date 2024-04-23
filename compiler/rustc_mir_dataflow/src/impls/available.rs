@@ -11,23 +11,20 @@ use rustc_middle::mir::{
 };
 use rustc_middle::ty::{self, Ty, TyCtxt};
 
-use rustc_index::bit_set::{BitSet, ChunkedBitSet};
-use rustc_index::{
-    Idx, IndexVec
-};
 use rustc_data_structures::stable_hasher::{HashStable, StableHasher};
+use rustc_index::bit_set::{BitSet, ChunkedBitSet};
+use rustc_index::{Idx, IndexVec};
 use rustc_macros::HashStable;
 
 use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
-use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill,
-    GenKillAnalysis
-};
+use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
 
 use crate::impls::anticipated::{ExprHashMap, ExprIdx};
 use crate::impls::AnticipatedExpressions;
 
+use crate::Results;
 use crate::ResultsCursor;
 
 type AnticipatedExpressionsResults<'mir, 'tcx> = ResultsCursor<'mir, 'tcx, AnticipatedExpressions>;
@@ -39,13 +36,18 @@ pub struct AvailableExpressions<'mir, 'tcx> {
     bitset_size: usize,
 }
 
-impl <'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
-    // Can we return this? 
-    pub(super) fn transfer_function<'a, T>(&'a mut self, trans: &'a mut T) -> TransferFunction<'a, T> {
-        TransferFunction { 
-            trans, 
-            kill_ops: &mut self.kill_ops, 
-            expr_table: &mut self.expr_table }
+impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
+    // Can we return this?
+    pub(super) fn transfer_function<'a, T>(
+        &'a mut self,
+        trans: &'a mut T,
+    ) -> TransferFunction<'a, 'tcx, T> {
+        TransferFunction {
+            anticipated_exprs: self.anticipated_exprs,
+            trans,
+            kill_ops: &mut self.kill_ops,
+            expr_table: &mut self.expr_table,
+        }
     }
 
     fn count_statements(body: &Body<'_>) -> usize {
@@ -54,7 +56,7 @@ impl <'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
             for _statement in &block.statements {
                 // Count only statements, not terminators
                 //if !matches!(statement.kind, StatementKind::Terminator(_)) {
-                    statement_count += 1;
+                statement_count += 1;
                 //}
             }
         }
@@ -62,16 +64,18 @@ impl <'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
     }
 
     #[allow(dead_code)]
-    pub fn new(body: &Body<'tcx>, anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>) -> AvailableExpressions<'mir, 'tcx> {
-        
-        let size = Self::count_statements(body); // Should be same as Anticipated expressions bitvec size.
+    pub fn new(
+        body: &Body<'tcx>,
+        anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
+    ) -> AvailableExpressions<'mir, 'tcx> {
+        let size = Self::count_statements(body) + body.local_decls.len();
         assert!(size == anticipated_exprs.results().analysis.bitset_size);
 
         AvailableExpressions {
-            anticipated_exprs,
+            anticipated_exprs: anticipated_exprs,
             kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
-            expr_table: ExprHashMap::new(),
-            bitset_size: size
+            expr_table: ExprHashMap::new(body),
+            bitset_size: size,
         }
     }
 }
@@ -81,7 +85,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
 
     // domain for analysis is Local since i
 
-    const NAME: &'static str = "Available_expr";
+    const NAME: &'static str = "available_expr";
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
         // bottom = nothing Available yet
@@ -140,13 +144,14 @@ impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'_, 'tcx> {
 }
 
 /// A `Visitor` that defines the transfer function for `AvailableExpressions`.
-pub(super) struct TransferFunction<'a, T> {
+pub(super) struct TransferFunction<'a, 'tcx, T> {
+    anticipated_exprs: AnticipatedExpressionsResults<'a, 'tcx>,
     trans: &'a mut T,
-    kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in 
+    kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: &'a mut ExprHashMap,
 }
 
-impl<'tcx, T> Visitor<'tcx> for TransferFunction<'_, T>
+impl<'tcx, T> Visitor<'tcx> for TransferFunction<'_, 'tcx, T>
 where
     T: GenKill<ExprIdx>,
 {
@@ -154,6 +159,14 @@ where
         println!("stmt visited {:?}", stmt);
 
         // We don't care about expressions that aren't assignments for now
+    }
+
+    fn visit_basic_block_data(&mut self, block: BasicBlock, data: &BasicBlockData<'tcx>) {
+        println!(
+            "anticipated exprs for current BB {:?}",
+            self.anticipated_exprs.seek_to_block_start(block)
+        );
+        println!("BB data {:?}", data);
     }
 
     // fn visit_rvalue(&mut self, rvalue: &Rvalue<'tcx>, location: Location) {
