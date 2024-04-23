@@ -129,6 +129,15 @@ pub struct AnticipatedExpressions {
 
 impl AnticipatedExpressions {
     // Can we return this?
+    pub fn fmt_domain(&self, domain: &<AnticipatedExpressions as AnalysisDomain<'_>>::Domain) -> () {
+        let bitset: &Dual<BitSet<ExprIdx>> = domain;
+
+        println!("{:?}", bitset);
+        // let idx: ExprIdx = domain.
+        println!("hello\n");
+    }
+
+    
     pub(super) fn transfer_function<'a, T>(
         &'a mut self,
         trans: &'a mut T,
@@ -163,13 +172,16 @@ impl AnticipatedExpressions {
 }
 
 
+
 impl<'tcx> AnalysisDomain<'tcx> for AnticipatedExpressions {
     type Domain = Dual<BitSet<ExprIdx>>;
 
     // domain for analysis is Local since i
 
-    type Direction = Backward;
+    type Direction = Forward;
     const NAME: &'static str = "anticipated_expr";
+
+
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
         // bottom = nothing anticipated yet
