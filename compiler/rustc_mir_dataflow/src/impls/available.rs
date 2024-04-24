@@ -165,7 +165,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'_, 'tcx> {
 pub(super) struct AvailTransferFunction<'a, 'mir, 'tcx, T> {
     anticipated_exprs: &'a mut AnticipatedExpressionsResults<'mir, 'tcx>,
     trans: &'a mut T,
-    // kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
+    //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: &'a mut ExprHashMap,
 }
 
@@ -175,6 +175,18 @@ where
     T: GenKill<ExprIdx>,
 {
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
+
+        if location.statement_index == 0 {
+            println!("Entering BB: {:?}", location.block);
+
+            let anticipated_exprs = self.anticipated_exprs.results().entry_set_for_block(location.block);
+            
+            for expr in anticipated_exprs.0.iter() {
+                //println!("adding anticipated expr: {:?}", expr);
+                self.trans.gen(expr);
+            }
+        }
+
         self.super_statement(stmt, location);
         println!("stmt visited {:?}", stmt);
 
@@ -223,25 +235,13 @@ where
 
     fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {
         self.super_terminator(terminator, location); // What??
-        println!(
-            "visit terminator {:?}",
-            terminator
-        );
+        // println!( "visit terminator {:?}", terminator);
         
         // For each expression that is anticipated in this block, mark it as available.
-        let anticipated_exprs = self.anticipated_exprs.results().entry_set_for_block(location.block);
 
-        for expr in anticipated_exprs.0.iter() {
-            println!("adding anticipated expr: {:?}", expr);
-            self.trans.gen(expr);
-        }
 
-        /* Kill All expressions that are in the expression table */
+        /* Kill All expressions that have been assigned to are in the expression table */
         // FIXME: How do we only kill expressions that are assigned to after the expression is gen'd
-        for expr in self.expr_table. {
-
-        }
-        
     }
 
     fn visit_basic_block_data(&mut self, block: BasicBlock, data: &BasicBlockData<'tcx>) {
