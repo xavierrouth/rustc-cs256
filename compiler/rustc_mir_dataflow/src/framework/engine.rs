@@ -146,7 +146,7 @@ where
     /// better performance.
     pub fn new_generic(tcx: TyCtxt<'tcx>, body: &'mir mir::Body<'tcx>, analysis: A) -> Self {
         Self::new(tcx, body, analysis, None)
-    }
+    } 
 
     fn new(
         tcx: TyCtxt<'tcx>,

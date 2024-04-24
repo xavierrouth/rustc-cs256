@@ -16,6 +16,7 @@ use rustc_mir_dataflow::drop_flag_effects_for_location;
 use rustc_mir_dataflow::elaborate_drops::DropFlagState;
 use rustc_mir_dataflow::impls::AnticipatedExpressions;
 use rustc_mir_dataflow::impls::AvailableExpressions;
+use rustc_mir_dataflow::impls::PostponableExpressions;
 use rustc_mir_dataflow::move_paths::{
     HasMoveData, InitIndex, InitKind, LookupResult, MoveData, MovePathIndex,
 };
@@ -135,6 +136,27 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
                 "entry set for block {:?} : {:?}",
                 bb,
                 available.results().entry_set_for_block(bb)
+            );
+            // available.seek_to_block_start(bb);
+        }
+
+        println!("----------------POSTPONABLE DEBUG BEGIN----------------");
+        let postponable = PostponableExpressions::new(body, anticipated, available)
+            .into_engine(tcx, body)
+            .pass_name("postponable_exprs")
+            .iterate_to_fixpoint()
+            .into_results_cursor(body);
+        println!("----------------POSTPONABLE DEBUG END----------------\n\n\n");
+
+        for (bb, _block) in body.basic_blocks.iter_enumerated() {
+            // available.seek_to_block_end(bb);
+            println!("----------- {:?} ----------- ", bb);
+            let _state = available.get();
+            // anticipated.results().analysis.fmt_domain(state);
+            println!(
+                "entry set for block {:?} : {:?}",
+                bb,
+                postponable.results().entry_set_for_block(bb)
             );
             // available.seek_to_block_start(bb);
         }

@@ -187,9 +187,9 @@ where
 
             let anticipated_exprs = self.anticipated_exprs.results().entry_set_for_block(location.block);
             
-            for _expr in anticipated_exprs.0.iter() {
+            for expr in anticipated_exprs.0.iter() {
                 //println!("adding anticipated expr: {:?}", expr);
-                // self.trans.gen(expr);
+                self.trans.gen(expr);
             }
         }
 

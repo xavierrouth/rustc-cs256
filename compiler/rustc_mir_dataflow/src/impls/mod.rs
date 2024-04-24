@@ -8,9 +8,11 @@ mod borrowed_locals;
 mod initialized;
 mod liveness;
 mod storage_liveness;
+mod postponable;
 
 pub use self::available::AvailableExpressions;
 pub use self::anticipated::AnticipatedExpressions;
+pub use self::postponable::PostponableExpressions;
 pub use self::borrowed_locals::borrowed_locals;
 pub use self::borrowed_locals::MaybeBorrowedLocals;
 pub use self::initialized::{
