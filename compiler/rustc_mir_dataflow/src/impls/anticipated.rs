@@ -44,7 +44,8 @@ impl DebugWithContext<Borrows<'_, '_>> for BorrowIndex {
 
 impl<A> DebugWithContext<A> for ExprIdx {
     fn fmt_with(&self, _ctxt: &A, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "hi")
+        // ctxt.
+        write!(f, "{:?}", self)
         // write!(f, "{:?}", ctxt.location(*self))
     }
 }

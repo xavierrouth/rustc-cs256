@@ -37,14 +37,29 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
     #[instrument(level = "trace", skip(self, tcx, body))]
     fn run_pass(&self, tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
         debug!(def_id = ?body.source.def_id());
-        //println!("Body that analysis is running on {:?}", &body.basic_blocks);
-        //println!("----------------ANTICIPATED DEBUG BEGIN----------------");
+        println!("Body that analysis is running on {:?}", &body.source.def_id());
+        println!("----------------ANTICIPATED DEBUG BEGIN----------------");
         let anticipated = AnticipatedExpressions::new(body)
             .into_engine(tcx, body)
             .pass_name("anticipated_exprs")
             .iterate_to_fixpoint()
             .into_results_cursor(body);
-        //println!("----------------ANTICIPATED DEBUG END----------------\n\n\n");
+        println!("----------------ANTICIPATED DEBUG END----------------\n\n\n");
+
+        let state = anticipated.get();
+        anticipated.results().analysis.fmt_domain(state);
+
+        for (bb, _block) in body.basic_blocks.iter_enumerated() {
+            //anticipated.seek_to_block_end(bb);
+            println!("----------- {:?} ----------- ", bb);
+            
+            println!(
+                "entry set for block {:?} : {:?}",
+                bb,
+                anticipated.results().entry_set_for_block(bb)
+            );
+            //anticipated.seek_to_block_start(bb);
+        }
 
         /* for (bb, _block) in body.basic_blocks.iter_enumerated() {
             // anticipated.seek_to_block_end(block);
@@ -104,7 +119,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
 
         
         println!("----------------AVAILABLE DEBUG BEGIN----------------");
-        let mut available = AvailableExpressions::new(body, anticipated)
+        let available = AvailableExpressions::new(body, anticipated)
             .into_engine(tcx, body)
             .pass_name("available_exprs")
             .iterate_to_fixpoint()
@@ -112,7 +127,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         println!("----------------AVAILABLE DEBUG END----------------\n\n\n");
 
         for (bb, _block) in body.basic_blocks.iter_enumerated() {
-            available.seek_to_block_end(bb);
+            // available.seek_to_block_end(bb);
             println!("----------- {:?} ----------- ", bb);
             let _state = available.get();
             // anticipated.results().analysis.fmt_domain(state);
@@ -121,7 +136,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
                 bb,
                 available.results().entry_set_for_block(bb)
             );
-            available.seek_to_block_start(bb);
+            // available.seek_to_block_start(bb);
         }
     }
 }

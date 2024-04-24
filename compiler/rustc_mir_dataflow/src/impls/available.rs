@@ -23,6 +23,7 @@ use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, 
 
 use crate::impls::anticipated::{ExprHashMap, ExprIdx};
 use crate::impls::AnticipatedExpressions;
+use crate::lattice::Dual;
 
 use crate::Results;
 use crate::ResultsCursor;
@@ -36,6 +37,7 @@ pub struct AvailableExpressions<'mir, 'tcx> {
     expr_table: ExprHashMap,
     bitset_size: usize,
 }
+
 
 impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
 
@@ -111,8 +113,9 @@ impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
         BitSet::new_empty(self.bitset_size)
     }
 
-    fn initialize_start_block(&self, _: &Body<'tcx>, _: &mut Self::Domain) {
+    fn initialize_start_block(&self, _: &Body<'tcx>, _domain: &mut Self::Domain) {
         // should be set of all expressions; Not supported for backward analyses
+        //domain.clear();
     }
 }
 
@@ -181,9 +184,9 @@ where
 
             let anticipated_exprs = self.anticipated_exprs.results().entry_set_for_block(location.block);
             
-            for expr in anticipated_exprs.0.iter() {
+            for _expr in anticipated_exprs.0.iter() {
                 //println!("adding anticipated expr: {:?}", expr);
-                self.trans.gen(expr);
+                // self.trans.gen(expr);
             }
         }
 
@@ -218,7 +221,7 @@ where
                 _ => {}
             }
             
-            // Go back and kill any assigned ops that we previously gend
+            // Kill any expressions that have their operands reassigned here.
 
             // We consider any assignments to be defs, and so we add all expressions that
             // use that def'd operand to kill
