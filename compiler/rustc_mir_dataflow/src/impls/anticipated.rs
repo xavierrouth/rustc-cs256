@@ -51,15 +51,15 @@ impl<A> DebugWithContext<A> for ExprIdx {
 
 #[derive(Hash, Eq, PartialEq, Debug)]
 pub struct ExprSetElem {
-    bin_op: BinOp,
-    local1: Local,
-    local2: Local,
+    pub bin_op: BinOp,
+    pub local1: Local,
+    pub local2: Local,
 }
 
 #[allow(rustc::default_hash_types)]
 pub struct ExprHashMap {
-    expr_table: HashMap<ExprSetElem, ExprIdx>,
-    operand_table: HashMap<Local, HashSet<ExprIdx>>,
+    pub expr_table: HashMap<ExprSetElem, ExprIdx>,
+    pub operand_table: HashMap<Local, HashSet<ExprIdx>>,
 }
 
 #[allow(rustc::default_hash_types)]
@@ -73,16 +73,16 @@ impl ExprHashMap {
         ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new() }
     }
 
-    fn expr_idx(&mut self, expr: ExprSetElem) -> ExprIdx {
+    pub fn expr_idx(&mut self, expr: ExprSetElem) -> ExprIdx {
         let len = self.expr_table.len();
         self.expr_table.entry(expr).or_insert(ExprIdx::new(len)).clone()
     }
 
-    fn get_operand_mapping(&mut self, op: Local) -> Option<&HashSet<ExprIdx>> {
+    pub fn get_operand_mapping(&mut self, op: Local) -> Option<&HashSet<ExprIdx>> {
         self.operand_table.get(&op)
     }
 
-    fn add_operand_mapping(&mut self, op: Local, expr: ExprIdx) -> bool {
+    pub fn add_operand_mapping(&mut self, op: Local, expr: ExprIdx) -> bool {
         self.operand_table.entry(op).or_insert(HashSet::new()).insert(expr)
     }
 }

@@ -26,26 +26,42 @@ use crate::impls::AnticipatedExpressions;
 
 use crate::Results;
 use crate::ResultsCursor;
+use crate::impls::anticipated::ExprSetElem;
 
 type AnticipatedExpressionsResults<'mir, 'tcx> = ResultsCursor<'mir, 'tcx, AnticipatedExpressions>;
 
 pub struct AvailableExpressions<'mir, 'tcx> {
     anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
-    kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
+    // kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
     expr_table: ExprHashMap,
     bitset_size: usize,
 }
 
 impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
+
+    pub fn fmt_domain(
+        &self,
+        domain: &<AnticipatedExpressions as AnalysisDomain<'_>>::Domain,
+    ) -> () {
+        let bitset = domain;
+
+        #[allow(rustc::potential_query_instability)]
+        for (key, val) in self.expr_table.expr_table.iter() {
+            println!("{:?}, {:?}", key, val);
+        }
+        println!("{:?}", bitset);
+        // let idx: ExprIdx = domain.
+    }
+
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
         &'a mut self,
         trans: &'a mut T,
-    ) -> TransferFunction<'a, 'tcx, T> {
-        TransferFunction {
-            anticipated_exprs: self.anticipated_exprs,
+    ) -> AvailTransferFunction<'a, 'mir, 'tcx, T> {
+        AvailTransferFunction {
+            anticipated_exprs: &mut self.anticipated_exprs,
             trans,
-            kill_ops: &mut self.kill_ops,
+            // kill_ops: &mut self.kill_ops,
             expr_table: &mut self.expr_table,
         }
     }
@@ -73,8 +89,8 @@ impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
 
         AvailableExpressions {
             anticipated_exprs: anticipated_exprs,
-            kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
-            expr_table: ExprHashMap::new(body),
+            // kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
+            expr_table: ExprHashMap::new(),
             bitset_size: size,
         }
     }
@@ -120,17 +136,17 @@ impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'_, 'tcx> {
 
     fn terminator_effect<'mir>(
         &mut self,
-        _trans: &mut Self::Domain,
+        trans: &mut Self::Domain,
         terminator: &'mir Terminator<'tcx>,
-        _location: Location,
+        location: Location,
     ) -> TerminatorEdges<'mir, 'tcx> {
         // TODO: We probably have to do something with SwitchInt or one of them, but I believe the engine
         // considers that with merges, though I need to look back again
         // For now, ignoring
 
-        // self.transfer_function(trans).visit_terminator(terminator, location);
+        self.transfer_function(trans).visit_terminator(terminator, location);
         // terminator.edges()
-        //TerminatorEdges::default()
+        // TerminatorEdges::default()
         terminator.edges()
     }
 
@@ -143,22 +159,89 @@ impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'_, 'tcx> {
     }
 }
 
-/// A `Visitor` that defines the transfer function for `AvailableExpressions`.
-pub(super) struct TransferFunction<'a, 'tcx, T> {
-    anticipated_exprs: AnticipatedExpressionsResults<'a, 'tcx>,
+// A `Visitor` that defines the transfer function for `AvailableExpressions`.
+// 
+#[allow(dead_code)]
+pub(super) struct AvailTransferFunction<'a, 'mir, 'tcx, T> {
+    anticipated_exprs: &'a mut AnticipatedExpressionsResults<'mir, 'tcx>,
     trans: &'a mut T,
-    kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
+    // kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: &'a mut ExprHashMap,
 }
 
-impl<'tcx, T> Visitor<'tcx> for TransferFunction<'_, 'tcx, T>
+// Join needs to be intersect..., so domain should probably have Dual
+impl<'a, 'mir, 'tcx, T> Visitor<'tcx> for AvailTransferFunction<'a, 'mir, 'tcx, T>
 where
     T: GenKill<ExprIdx>,
 {
-    fn visit_statement(&mut self, stmt: &Statement<'tcx>, _location: Location) {
+    fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
+        self.super_statement(stmt, location);
         println!("stmt visited {:?}", stmt);
 
-        // We don't care about expressions that aren't assignments for now
+        // For an assignment place = rvalue
+        if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
+            match rvalue {
+                Rvalue::BinaryOp(bin_op, box (operand1, operand2))
+                | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
+                    // We need some way of dealing with constants
+                    if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
+                        (operand1.place(), operand2.place())
+                    {
+                        // Add expressions as we encounter them to the GEN set
+                        // Expressions that have re-defined args within the basic block will naturally be killed
+                        // as those defs are reached
+                        println!("GEN expr {:?}", rvalue.clone());
+                        let expr_idx = self.expr_table.expr_idx(ExprSetElem {
+                            bin_op: *bin_op,
+                            local1,
+                            local2,
+                        });
+                        self.trans.gen(expr_idx);
+
+                        // Add a mapping from these operands to this expression.
+                        self.expr_table.add_operand_mapping(local1, expr_idx);
+                        self.expr_table.add_operand_mapping(local2, expr_idx);
+                    }
+                }
+                _ => {}
+            }
+            
+            // Go back and kill any assigned ops that we previously gend
+
+            // We consider any assignments to be defs, and so we add all expressions that
+            // use that def'd operand to kill
+            // We do this using the previously calculated operand -> exprs mapping in the expr_table
+            if let Some(exprs) = self.expr_table.get_operand_mapping(place.local) {
+                #[allow(rustc::potential_query_instability)]
+                for expr_id in exprs.iter() {
+                    println!("KILL expr {:?}", expr_id);
+                    self.trans.kill(*expr_id);
+                }
+            }
+        }
+    }
+
+    fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {
+        self.super_terminator(terminator, location); // What??
+        println!(
+            "visit terminator {:?}",
+            terminator
+        );
+        
+        // For each expression that is anticipated in this block, mark it as available.
+        let anticipated_exprs = self.anticipated_exprs.results().entry_set_for_block(location.block);
+
+        for expr in anticipated_exprs.0.iter() {
+            println!("adding anticipated expr: {:?}", expr);
+            self.trans.gen(expr);
+        }
+
+        /* Kill All expressions that are in the expression table */
+        // FIXME: How do we only kill expressions that are assigned to after the expression is gen'd
+        for expr in self.expr_table. {
+
+        }
+        
     }
 
     fn visit_basic_block_data(&mut self, block: BasicBlock, data: &BasicBlockData<'tcx>) {
@@ -265,24 +348,3 @@ where
     //     }
     // }
 }
-
-// #[allow(dead_code)]
-// /// The set of locals that are borrowed at some point in the MIR body.
-// pub fn Available_exprs(body: &Body<'_>) -> BitSet<Local> {
-//     struct Available(BitSet<Local>);
-
-//     impl GenKill<Local> for Available {
-//         #[inline]
-//         fn gen(&mut self, elem: Local) {
-//             self.0.gen(elem)
-//         }
-//         #[inline]
-//         fn kill(&mut self, _: Local) {
-//             // Ignore borrow invalidation.
-//         }
-//     }
-
-//     let mut Available = Available(BitSet::new_empty(body.local_decls.len()));
-//     TransferFunction { trans: &mut Available }.visit_body(body);
-//     Available.0
-// }
