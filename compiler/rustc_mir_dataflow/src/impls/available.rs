@@ -112,7 +112,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
         // TODO: update
         // let len = body.local_decls().len()
         // Should size be local_decls.len() or count of all statements?
-        Dual(BitSet::new_empty(self.bitset_size))
+        Dual(BitSet::new_filled(self.bitset_size))
     }
 
     fn initialize_start_block(&self, _: &Body<'tcx>, domain: &mut Self::Domain) {
