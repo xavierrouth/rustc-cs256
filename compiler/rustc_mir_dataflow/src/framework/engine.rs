@@ -106,9 +106,10 @@ where
         // transfer function for each block exactly once (assuming that we process blocks in RPO).
         //
         // In this case, there's no need to compute the block transfer functions ahead of time.
-        if !body.basic_blocks.is_cfg_cyclic() {
-            return Self::new(tcx, body, analysis, None);
-        }
+        
+        //if !body.basic_blocks.is_cfg_cyclic() {
+        //    return Self::new(tcx, body, analysis, None);
+        //}
 
         // Otherwise, compute and store the cumulative transfer function for each block.
 

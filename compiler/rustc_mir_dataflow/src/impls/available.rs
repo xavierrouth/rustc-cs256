@@ -17,6 +17,7 @@ use rustc_index::{Idx, IndexVec};
 use rustc_macros::HashStable;
 
 use std::fmt;
+use crate::Forward;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
@@ -99,7 +100,8 @@ impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
 }
 
 impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
-    type Domain = BitSet<ExprIdx>;
+    type Domain = Dual<BitSet<ExprIdx>>;
+    type Direction = Forward;
 
     // domain for analysis is Local since i
 
@@ -110,12 +112,12 @@ impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
         // TODO: update
         // let len = body.local_decls().len()
         // Should size be local_decls.len() or count of all statements?
-        BitSet::new_empty(self.bitset_size)
+        Dual(BitSet::new_empty(self.bitset_size))
     }
 
-    fn initialize_start_block(&self, _: &Body<'tcx>, _domain: &mut Self::Domain) {
+    fn initialize_start_block(&self, _: &Body<'tcx>, domain: &mut Self::Domain) {
         // should be set of all expressions; Not supported for backward analyses
-        //domain.clear();
+        domain.0.clear();
     }
 }
 
@@ -160,6 +162,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'_, 'tcx> {
         _return_places: CallReturnPlaces<'_, 'tcx>,
     ) {
     }
+
 }
 
 // A `Visitor` that defines the transfer function for `AvailableExpressions`.
