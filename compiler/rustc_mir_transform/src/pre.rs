@@ -120,7 +120,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
 
         
         println!("----------------AVAILABLE DEBUG BEGIN----------------");
-        let available = AvailableExpressions::new(body, anticipated)
+        let available = AvailableExpressions::new(body, anticipated.results().clone())
             .into_engine(tcx, body)
             .pass_name("available_exprs")
             .iterate_to_fixpoint()
@@ -140,8 +140,9 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             // available.seek_to_block_start(bb);
         }
 
+
         println!("----------------POSTPONABLE DEBUG BEGIN----------------");
-        let postponable = PostponableExpressions::new(body, anticipated, available)
+        let postponable = PostponableExpressions::new(body, anticipated.results().clone(), available.results().clone())
             .into_engine(tcx, body)
             .pass_name("postponable_exprs")
             .iterate_to_fixpoint()
@@ -151,7 +152,6 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         for (bb, _block) in body.basic_blocks.iter_enumerated() {
             // available.seek_to_block_end(bb);
             println!("----------- {:?} ----------- ", bb);
-            let _state = available.get();
             // anticipated.results().analysis.fmt_domain(state);
             println!(
                 "entry set for block {:?} : {:?}",

@@ -24,15 +24,15 @@ use crate::Forward;
 use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
 
 use crate::impls::anticipated::{ExprHashMap, ExprIdx};
-use crate::impls::AnticipatedExpressions;
+use crate::impls::{AnticipatedExpressions, AvailableExpressions};
 use crate::lattice::Dual;
 
 use crate::Results;
 use crate::ResultsCursor;
 use crate::impls::anticipated::ExprSetElem;
 
-type AnticipatedExpressionsResults<'mir, 'tcx> = ResultsCursor<'mir, 'tcx, AnticipatedExpressions>;
-type AvailableExpressionsResults<'mir, 'tcx> = ResultsCursor<'mir, 'tcx, AvailableExpressions>;
+type AnticipatedExpressionsResults<'tcx> = Results<'tcx, AnticipatedExpressions>;
+type AvailableExpressionsResults<'tcx> = Results<'tcx, AvailableExpressions<'tcx>>;
 
 
 pub struct PostponableExpressions<'tcx> {
@@ -44,13 +44,13 @@ pub struct PostponableExpressions<'tcx> {
 }
 
 
-impl<'mir, 'tcx> PostponableExpressions<'tcx> {
+impl<'tcx> PostponableExpressions<'tcx> {
 
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
         &'a mut self,
         trans: &'a mut T,
-    ) -> PostTransferFunction<'a, 'mir, 'tcx, T> {
+    ) -> PostTransferFunction<'a, 'tcx, T> {
         PostTransferFunction {
             earliest_exprs: &mut self.earliest_exprs,
             trans,
@@ -74,20 +74,26 @@ impl<'mir, 'tcx> PostponableExpressions<'tcx> {
     #[allow(dead_code)]
     pub fn new(
         body: &Body<'tcx>,
-        anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
-        available_exprs: AvailableExpressionsResults<'mir, 'tcx>,
-    ) -> PostponableExpressions<'mir, 'tcx> {
+        anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
+        available_exprs: AvailableExpressionsResults<'tcx>,
+    ) -> PostponableExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
-        assert!(size == anticipated_exprs.results().analysis.bitset_size);
 
-        let set_diff = |i: BasicBlock| -> <PostponableExpressions as AnalysisDomain<'_>>::Domain {
-            let anticpated = anticipated_exprs.results().entry_set_for_block(i);
-            let available = available_exprs.results().entry_set_for_block(i);
-            anticpated.subtract(available)
+        let set_diff = |i: BasicBlock| -> <PostponableExpressions<'_> as AnalysisDomain<'_>>::Domain {
+            let anticpated = anticipated_exprs.entry_set_for_block(i);
+            let available = available_exprs.entry_set_for_block(i);
+            println!("anticipated: {:?}", anticpated.clone());
+            println!("available: {:?}", available.clone());
+            let mut earliest = anticpated.clone();
+            earliest.0.subtract(&available.0);
+            println!("earliest: {:?}", earliest.clone());
+            earliest
         };
+
         
         let earliest_exprs = IndexVec::from_fn_n(set_diff, body.basic_blocks.len());
 
+        println!("earliest_results: {:?} ", earliest_exprs);
 
         PostponableExpressions {
             earliest_exprs: earliest_exprs,
@@ -98,7 +104,7 @@ impl<'mir, 'tcx> PostponableExpressions<'tcx> {
     }
 }
 
-impl<'tcx> AnalysisDomain<'tcx> for PostponableExpressions<'_, '_> {
+impl<'tcx> AnalysisDomain<'tcx> for PostponableExpressions<'_> {
     type Domain = Dual<BitSet<ExprIdx>>;
     type Direction = Forward;
 
@@ -120,7 +126,7 @@ impl<'tcx> AnalysisDomain<'tcx> for PostponableExpressions<'_, '_> {
     }
 }
 
-impl<'tcx> GenKillAnalysis<'tcx> for PostponableExpressions<'_, 'tcx> {
+impl<'tcx> GenKillAnalysis<'tcx> for PostponableExpressions<'tcx> {
     type Idx = ExprIdx;
 
     fn domain_size(&self, _body: &Body<'tcx>) -> usize {
@@ -174,7 +180,7 @@ pub(super) struct PostTransferFunction<'a, 'tcx, T> {
 }
 
 // Join needs to be intersect..., so domain should probably have Dual
-impl<'a, 'mir, 'tcx, T> Visitor<'tcx> for PostTransferFunction<'a, 'tcx, T>
+impl<'a, 'tcx, T> Visitor<'tcx> for PostTransferFunction<'a, 'tcx, T>
 where
     T: GenKill<ExprIdx>,
 {

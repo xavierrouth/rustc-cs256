@@ -50,7 +50,7 @@ impl<A> DebugWithContext<A> for ExprIdx {
     }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug)]
+#[derive(Hash, Eq, PartialEq, Debug, Clone)]
 pub struct ExprSetElem {
     pub bin_op: BinOp,
     pub local1: Local,
@@ -58,6 +58,7 @@ pub struct ExprSetElem {
 }
 
 #[allow(rustc::default_hash_types)]
+#[derive(Clone)]
 pub struct ExprHashMap {
     pub expr_table: HashMap<ExprSetElem, ExprIdx>,
     pub operand_table: HashMap<Local, HashSet<ExprIdx>>,
@@ -88,6 +89,7 @@ impl ExprHashMap {
     }
 }
 
+#[derive(Clone)]
 pub struct AnticipatedExpressions {
     expr_table: ExprHashMap,
     pub bitset_size: usize,

@@ -30,17 +30,18 @@ use crate::Results;
 use crate::ResultsCursor;
 use crate::impls::anticipated::ExprSetElem;
 
-type AnticipatedExpressionsResults<'mir, 'tcx> = ResultsCursor<'mir, 'tcx, AnticipatedExpressions>;
+type AnticipatedExpressionsResults<'tcx> = Results<'tcx, AnticipatedExpressions>;
 
-pub struct AvailableExpressions<'mir, 'tcx> {
-    anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
+#[derive(Clone)]
+pub struct AvailableExpressions<'tcx> {
+    anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
     // kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
     expr_table: ExprHashMap,
     bitset_size: usize,
 }
 
 
-impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
+impl<'tcx> AvailableExpressions<'tcx> {
 
     pub fn fmt_domain(
         &self,
@@ -60,9 +61,9 @@ impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
     pub(super) fn transfer_function<'a, T>(
         &'a mut self,
         trans: &'a mut T,
-    ) -> AvailTransferFunction<'a, 'mir, 'tcx, T> {
+    ) -> AvailTransferFunction<'a, 'tcx, T> {
         AvailTransferFunction {
-            anticipated_exprs: &mut self.anticipated_exprs,
+            anticipated_exprs: &self.anticipated_exprs,
             trans,
             // kill_ops: &mut self.kill_ops,
             expr_table: &mut self.expr_table,
@@ -85,10 +86,9 @@ impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
     #[allow(dead_code)]
     pub fn new(
         body: &Body<'tcx>,
-        anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
-    ) -> AvailableExpressions<'mir, 'tcx> {
+        anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
+    ) -> AvailableExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
-        assert!(size == anticipated_exprs.results().analysis.bitset_size);
 
         AvailableExpressions {
             anticipated_exprs: anticipated_exprs,
@@ -99,7 +99,7 @@ impl<'mir, 'tcx> AvailableExpressions<'mir, 'tcx> {
     }
 }
 
-impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
+impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_> {
     type Domain = Dual<BitSet<ExprIdx>>;
     type Direction = Forward;
 
@@ -121,7 +121,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_, '_> {
     }
 }
 
-impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'_, 'tcx> {
+impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'tcx> {
     type Idx = ExprIdx;
 
     fn domain_size(&self, _body: &Body<'tcx>) -> usize {
@@ -168,15 +168,15 @@ impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'_, 'tcx> {
 // A `Visitor` that defines the transfer function for `AvailableExpressions`.
 // 
 #[allow(dead_code)]
-pub(super) struct AvailTransferFunction<'a, 'mir, 'tcx, T> {
-    anticipated_exprs: &'a mut AnticipatedExpressionsResults<'mir, 'tcx>,
+pub(super) struct AvailTransferFunction<'a, 'tcx, T> {
+    anticipated_exprs: &'a AnticipatedExpressionsResults<'tcx>,
     trans: &'a mut T,
     //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: &'a mut ExprHashMap,
 }
 
 // Join needs to be intersect..., so domain should probably have Dual
-impl<'a, 'mir, 'tcx, T> Visitor<'tcx> for AvailTransferFunction<'a, 'mir, 'tcx, T>
+impl<'a, 'tcx, T> Visitor<'tcx> for AvailTransferFunction<'a, 'tcx, T>
 where
     T: GenKill<ExprIdx>,
 {
@@ -185,7 +185,7 @@ where
         if location.statement_index == 0 {
             println!("Entering BB: {:?}", location.block);
 
-            let anticipated_exprs = self.anticipated_exprs.results().entry_set_for_block(location.block);
+            let anticipated_exprs = self.anticipated_exprs.entry_set_for_block(location.block);
             
             for expr in anticipated_exprs.0.iter() {
                 //println!("adding anticipated expr: {:?}", expr);
@@ -250,12 +250,8 @@ where
         // FIXME: How do we only kill expressions that are assigned to after the expression is gen'd
     }
 
-    fn visit_basic_block_data(&mut self, block: BasicBlock, data: &BasicBlockData<'tcx>) {
-        println!(
-            "anticipated exprs for current BB {:?}",
-            self.anticipated_exprs.seek_to_block_start(block)
-        );
-        println!("BB data {:?}", data);
+    fn visit_basic_block_data(&mut self, _block: BasicBlock, _data: &BasicBlockData<'tcx>) {
+
     }
 
     // fn visit_rvalue(&mut self, rvalue: &Rvalue<'tcx>, location: Location) {
