@@ -1,5 +1,9 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
+#[allow(unused_lifetimes)]
+
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use std::collections::HashMap;
 
@@ -23,23 +27,20 @@ use crate::Forward;
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
 
-use crate::impls::anticipated::{ExprHashMap, ExprIdx};
 use crate::impls::{AnticipatedExpressions, AvailableExpressions};
 use crate::lattice::Dual;
 
 use crate::Results;
 use crate::ResultsCursor;
-use crate::impls::anticipated::ExprSetElem;
 
-type AnticipatedExpressionsResults<'tcx> = Results<'tcx, AnticipatedExpressions>;
-type AvailableExpressionsResults<'tcx> = Results<'tcx, AvailableExpressions<'tcx>>;
+use crate::impls::{ExprHashMap, ExprIdx, ExprSetElem};
 
 
-pub struct PostponableExpressions<'tcx> {
+pub struct PostponableExpressions< 'tcx> {
     //anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
     //available_exprs: AvailableExpressionsResults<'mir, 'tcx>,
     earliest_exprs: IndexVec<BasicBlock, <PostponableExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
-    expr_table: ExprHashMap,
+    expr_table: Rc<RefCell<ExprHashMap>>,
     bitset_size: usize,
 }
 
@@ -48,13 +49,13 @@ impl<'tcx> PostponableExpressions<'tcx> {
 
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
-        &'a mut self,
+        &'a self,
         trans: &'a mut T,
     ) -> PostTransferFunction<'a, 'tcx, T> {
         PostTransferFunction {
-            earliest_exprs: &mut self.earliest_exprs,
+            earliest_exprs: & self.earliest_exprs,
             trans,
-            expr_table: &mut self.expr_table,
+            expr_table: self.expr_table.clone(),
         }
     }
 
@@ -74,37 +75,21 @@ impl<'tcx> PostponableExpressions<'tcx> {
     #[allow(dead_code)]
     pub fn new(
         body: &Body<'tcx>,
-        anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
-        available_exprs: AvailableExpressionsResults<'tcx>,
+        expr_table: Rc<RefCell<ExprHashMap>>,
+        earliest_exprs: IndexVec<BasicBlock, <PostponableExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     ) -> PostponableExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
 
-        let set_diff = |i: BasicBlock| -> <PostponableExpressions<'_> as AnalysisDomain<'_>>::Domain {
-            let anticpated = anticipated_exprs.entry_set_for_block(i);
-            let available = available_exprs.entry_set_for_block(i);
-            println!("anticipated: {:?}", anticpated.clone());
-            println!("available: {:?}", available.clone());
-            let mut earliest = anticpated.clone();
-            earliest.0.subtract(&available.0);
-            println!("earliest: {:?}", earliest.clone());
-            earliest
-        };
-
-        
-        let earliest_exprs = IndexVec::from_fn_n(set_diff, body.basic_blocks.len());
-
-        println!("earliest_results: {:?} ", earliest_exprs);
-
         PostponableExpressions {
-            earliest_exprs: earliest_exprs,
+            earliest_exprs,
             // kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
-            expr_table: ExprHashMap::new(),
+            expr_table,
             bitset_size: size,
         }
     }
 }
 
-impl<'tcx> AnalysisDomain<'tcx> for PostponableExpressions<'_> {
+impl<'tcx> AnalysisDomain<'tcx> for PostponableExpressions<'tcx> {
     type Domain = Dual<BitSet<ExprIdx>>;
     type Direction = Forward;
 
@@ -176,7 +161,7 @@ pub(super) struct PostTransferFunction<'a, 'tcx, T> {
     trans: &'a mut T,
     earliest_exprs: &'a IndexVec<BasicBlock, <PostponableExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
-    expr_table: &'a mut ExprHashMap,
+    expr_table: Rc<RefCell<ExprHashMap>>,
 }
 
 // Join needs to be intersect..., so domain should probably have Dual

@@ -2,14 +2,16 @@
 //! bitvectors attached to each basic block, represented via a
 //! zero-sized structure.
 
-mod anticipated;
-mod available;
+pub mod anticipated;
+pub mod available;
 mod borrowed_locals;
 mod initialized;
 mod liveness;
 mod storage_liveness;
-mod postponable;
+pub mod postponable;
+pub mod pre_analysis;
 
+pub use self::pre_analysis::*;
 pub use self::available::AvailableExpressions;
 pub use self::anticipated::AnticipatedExpressions;
 pub use self::postponable::PostponableExpressions;

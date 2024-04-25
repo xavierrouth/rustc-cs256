@@ -1,8 +1,10 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
+#[allow(unused_lifetimes)]
 
 use std::collections::HashMap;
-
+use std::cell::RefCell;
+use std::rc::Rc;
 use rustc_middle::mir::*;
 
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
@@ -22,40 +24,25 @@ use crate::Forward;
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
 
-use crate::impls::anticipated::{ExprHashMap, ExprIdx};
 use crate::impls::AnticipatedExpressions;
 use crate::lattice::Dual;
 
 use crate::Results;
 use crate::ResultsCursor;
-use crate::impls::anticipated::ExprSetElem;
+use crate::impls::{ExprHashMap, ExprIdx, ExprSetElem};
 
 type AnticipatedExpressionsResults<'tcx> = Results<'tcx, AnticipatedExpressions>;
 
 #[derive(Clone)]
 pub struct AvailableExpressions<'tcx> {
-    anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
+    anticipated_exprs: AnticipatedExpressionsResults< 'tcx>,
     // kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
-    expr_table: ExprHashMap,
+    expr_table: Rc<RefCell<ExprHashMap>>,
     bitset_size: usize,
 }
 
 
 impl<'tcx> AvailableExpressions<'tcx> {
-
-    pub fn fmt_domain(
-        &self,
-        domain: &<AnticipatedExpressions as AnalysisDomain<'_>>::Domain,
-    ) -> () {
-        let bitset = domain;
-
-        #[allow(rustc::potential_query_instability)]
-        for (key, val) in self.expr_table.expr_table.iter() {
-            println!("{:?}, {:?}", key, val);
-        }
-        println!("{:?}", bitset);
-        // let idx: ExprIdx = domain.
-    }
 
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
@@ -66,7 +53,7 @@ impl<'tcx> AvailableExpressions<'tcx> {
             anticipated_exprs: &self.anticipated_exprs,
             trans,
             // kill_ops: &mut self.kill_ops,
-            expr_table: &mut self.expr_table,
+            expr_table: self.expr_table.clone(),
         }
     }
 
@@ -86,20 +73,21 @@ impl<'tcx> AvailableExpressions<'tcx> {
     #[allow(dead_code)]
     pub fn new(
         body: &Body<'tcx>,
+        expr_table: Rc<RefCell<ExprHashMap>>,
         anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
     ) -> AvailableExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
 
         AvailableExpressions {
-            anticipated_exprs: anticipated_exprs,
+            anticipated_exprs,
             // kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
-            expr_table: ExprHashMap::new(),
+            expr_table,
             bitset_size: size,
         }
     }
 }
 
-impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_> {
+impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'tcx> {
     type Domain = Dual<BitSet<ExprIdx>>;
     type Direction = Forward;
 
@@ -121,8 +109,9 @@ impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'_> {
     }
 }
 
-impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions<'tcx> {
+impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions< 'tcx> {
     type Idx = ExprIdx;
+    
 
     fn domain_size(&self, _body: &Body<'tcx>) -> usize {
         // TODO: depends on how I see us doing stuff with the Idx
@@ -172,7 +161,7 @@ pub(super) struct AvailTransferFunction<'a, 'tcx, T> {
     anticipated_exprs: &'a AnticipatedExpressionsResults<'tcx>,
     trans: &'a mut T,
     //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
-    expr_table: &'a mut ExprHashMap,
+    expr_table: Rc<RefCell<ExprHashMap>>,
 }
 
 // Join needs to be intersect..., so domain should probably have Dual
@@ -209,16 +198,16 @@ where
                         // Expressions that have re-defined args within the basic block will naturally be killed
                         // as those defs are reached
                         println!("GEN expr {:?}", rvalue.clone());
-                        let expr_idx = self.expr_table.expr_idx(ExprSetElem {
+                        let expr_idx = self.expr_table.as_ref().borrow_mut().expr_idx(ExprSetElem {
                             bin_op: *bin_op,
                             local1,
                             local2,
-                        });
+                        }).unwrap();
                         self.trans.gen(expr_idx);
 
                         // Add a mapping from these operands to this expression.
-                        self.expr_table.add_operand_mapping(local1, expr_idx);
-                        self.expr_table.add_operand_mapping(local2, expr_idx);
+                        //self.expr_table.add_operand_mapping(local1, expr_idx);
+                        //self.expr_table.add_operand_mapping(local2, expr_idx);
                     }
                 }
                 _ => {}
@@ -229,7 +218,7 @@ where
             // We consider any assignments to be defs, and so we add all expressions that
             // use that def'd operand to kill
             // We do this using the previously calculated operand -> exprs mapping in the expr_table
-            if let Some(exprs) = self.expr_table.get_operand_mapping(place.local) {
+            if let Some(exprs) = self.expr_table.as_ref().borrow_mut().get_operand_mapping(place.local) {
                 #[allow(rustc::potential_query_instability)]
                 for expr_id in exprs.iter() {
                     println!("KILL expr {:?}", expr_id);
