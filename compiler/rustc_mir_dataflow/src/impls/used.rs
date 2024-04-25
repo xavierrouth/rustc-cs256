@@ -35,17 +35,17 @@ use crate::ResultsCursor;
 
 use crate::impls::{ExprHashMap, ExprIdx, ExprSetElem};
 
-#[derive(Clone)]
-pub struct PostponableExpressions< 'tcx> {
+
+pub struct UsedExpressions< 'tcx> {
     //anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
     //available_exprs: AvailableExpressionsResults<'mir, 'tcx>,
-    earliest_exprs: IndexVec<BasicBlock, <PostponableExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
+    earliest_exprs: IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     expr_table: Rc<RefCell<ExprHashMap>>,
     bitset_size: usize,
 }
 
 
-impl<'tcx> PostponableExpressions<'tcx> {
+impl<'tcx> UsedExpressions<'tcx> {
 
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
@@ -76,11 +76,11 @@ impl<'tcx> PostponableExpressions<'tcx> {
     pub fn new(
         body: &Body<'tcx>,
         expr_table: Rc<RefCell<ExprHashMap>>,
-        earliest_exprs: IndexVec<BasicBlock, <PostponableExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
-    ) -> PostponableExpressions<'tcx> {
+        earliest_exprs: IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
+    ) -> UsedExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
 
-        PostponableExpressions {
+        UsedExpressions {
             earliest_exprs,
             // kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
             expr_table,
@@ -89,16 +89,16 @@ impl<'tcx> PostponableExpressions<'tcx> {
     }
 }
 
-impl<'tcx> AnalysisDomain<'tcx> for PostponableExpressions<'tcx> {
+impl<'tcx> AnalysisDomain<'tcx> for UsedExpressions<'tcx> {
     type Domain = Dual<BitSet<ExprIdx>>;
     type Direction = Forward;
 
     // domain for analysis is Local since i
 
-    const NAME: &'static str = "postponable_expr";
+    const NAME: &'static str = "used_expr";
 
     fn bottom_value(&self, _body: &Body<'tcx>) -> Self::Domain {
-        // bottom = nothing Postponable yet
+        // bottom = nothing Used yet
         // TODO: update
         // let len = body.local_decls().len()
         // Should size be local_decls.len() or count of all statements?
@@ -111,7 +111,7 @@ impl<'tcx> AnalysisDomain<'tcx> for PostponableExpressions<'tcx> {
     }
 }
 
-impl<'tcx> GenKillAnalysis<'tcx> for PostponableExpressions<'tcx> {
+impl<'tcx> GenKillAnalysis<'tcx> for UsedExpressions<'tcx> {
     type Idx = ExprIdx;
 
     fn domain_size(&self, _body: &Body<'tcx>) -> usize {
@@ -154,12 +154,12 @@ impl<'tcx> GenKillAnalysis<'tcx> for PostponableExpressions<'tcx> {
 
 }
 
-// A `Visitor` that defines the transfer function for `PostponableExpressions`.
+// A `Visitor` that defines the transfer function for `UsedExpressions`.
 // 
 #[allow(dead_code)]
 pub(super) struct PostTransferFunction<'a, 'tcx, T> {
     trans: &'a mut T,
-    earliest_exprs: &'a IndexVec<BasicBlock, <PostponableExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
+    earliest_exprs: &'a IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: Rc<RefCell<ExprHashMap>>,
 }
@@ -211,7 +211,7 @@ where
         self.super_terminator(terminator, location); // What??
         // println!( "visit terminator {:?}", terminator);
         
-        // For each expression that is anticipated in this block, mark it as Postponable.
+        // For each expression that is anticipated in this block, mark it as Used.
 
 
         /* Kill All expressions that have been assigned to are in the expression table */
