@@ -1,7 +1,7 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use rustc_middle::mir::*;
 
@@ -43,7 +43,7 @@ pub struct PostponableExpressions<'tcx> {
     bitset_size: usize,
 }
 
-
+#[allow(rustc::default_hash_types)]
 impl<'tcx> PostponableExpressions<'tcx> {
 
     // Can we return this?
@@ -71,6 +71,17 @@ impl<'tcx> PostponableExpressions<'tcx> {
         statement_count
     }
 
+    #[allow(rustc::default_hash_types)]
+    fn terminal_blocks(body: &Body<'tcx>) -> HashSet<BasicBlock> {
+        let mut terminals = HashSet::new();
+        for (block, block_data) in body.basic_blocks.iter_enumerated() {
+            if let TerminatorEdges::None = block_data.terminator().edges() {
+                terminals.insert(block);
+            }
+        }
+        terminals
+    }
+
     #[allow(dead_code)]
     pub fn new(
         body: &Body<'tcx>,
@@ -78,13 +89,18 @@ impl<'tcx> PostponableExpressions<'tcx> {
         available_exprs: AvailableExpressionsResults<'tcx>,
     ) -> PostponableExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
+        let terminals = Self::terminal_blocks(body);
 
         let set_diff = |i: BasicBlock| -> <PostponableExpressions<'_> as AnalysisDomain<'_>>::Domain {
-            let anticpated = anticipated_exprs.entry_set_for_block(i);
+            let anticipated = anticipated_exprs.entry_set_for_block(i);
             let available = available_exprs.entry_set_for_block(i);
-            println!("anticipated: {:?}", anticpated.clone());
+            println!("anticipated: {:?}", anticipated.clone());
             println!("available: {:?}", available.clone());
-            let mut earliest = anticpated.clone();
+            let mut earliest = if terminals.contains(&i) {
+                Dual(BitSet::new_empty(size))
+            } else {
+                anticipated.clone()
+            };
             earliest.0.subtract(&available.0);
             println!("earliest: {:?}", earliest.clone());
             earliest
