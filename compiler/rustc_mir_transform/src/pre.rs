@@ -40,6 +40,9 @@ use rustc_mir_dataflow::impls::pre_analysis::{ExprHashMap, ExprIdx, ExprSetElem}
 
 use rustc_mir_dataflow::Results;
 
+use itertools::Itertools;
+use rustc_data_structures::graph::WithSuccessors;
+
 type AnticipatedExpressionsResults<'tcx> = Results<'tcx, AnticipatedExpressions>;
 type AvailableExpressionsResults<'tcx> = Results<'tcx, AvailableExpressions<'tcx>>;
 type PostponableExpressionsResults<'tcx> = Results<'tcx, PostponableExpressions<'tcx>>;
@@ -110,37 +113,35 @@ impl<'tcx> PartialRedundancyElimination {
         // 2.a check if used in this BB (need to figure out how to get the BB an Expr is used in)
         // 2.a maybe store this in shared HashMap as well?
         // 2.b OR check if there is some successor of B for which (1) does not hold
-        let terminal_blocks = expr_table.as_ref().borrow().terminal_blocks.clone(); // println!("anticipated: {:?}", anticpated.clone());
 
         // this is just so everything compiles, but define this within closure
-        let is_latest = |i: BasicBlock| -> Domain {
+        let latest_gen_used = |i: BasicBlock| -> Domain {
             let postponable = postponable_exprs.entry_set_for_block(i);
-            let size: usize = postponable.0.domain_size();
             let exprs_in_bb =
                 expr_table.as_ref().borrow_mut().bb_expr_map.entry(i).or_default().clone();
+            let mut ret = BitSet::new_empty(exprs_in_bb.len());
+
             for expr in exprs_in_bb.iter() {
                 if earliest_exprs[i].0.contains(*expr) || postponable.0.contains(*expr) {
-                    println!("CHECK 1 for latest passed by {:?} in {:?}", *expr, i);
+                    ret.insert(*expr);
                 }
             }
+
+            // let term = body.basic_blocks[i].terminator();
+            // for s in term.successors() {}
+
+            //println!(" successors of bb {succ:?}");
             // println!("available: {:?}", available.clone());
             /* println!(
                 "The Exprs in BB {:?} are {:?}",
                 i,
                 expr_table.as_ref().borrow_mut().bb_expr_map.entry(i).or_default()
             ); */
-
-            let latest = if terminal_blocks.contains(&i) {
-                BitSet::new_empty(size)
-            } else {
-                earliest_exprs[i].0.clone()
-            };
-
-            latest
+            ret
         };
 
         let latest_exprs: IndexVec<_, BitSet<_>> =
-            IndexVec::from_fn_n(is_latest, body.basic_blocks.len());
+            IndexVec::from_fn_n(latest_gen_used, body.basic_blocks.len());
         latest_exprs
     }
 }
@@ -289,7 +290,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             earliest.clone(),
             postponable.results().clone(),
         );
-
+        println!("earliest {earliest:?}");
         println!("latest {:?}", latest);
     }
 }
