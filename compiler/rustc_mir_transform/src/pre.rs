@@ -93,6 +93,7 @@ impl<'tcx> PartialRedundancyElimination {
     }
 
     #[allow(rustc::default_hash_types)]
+    #[allow(rustc::potential_query_instability)]
     fn compute_latest(
         &self,
         body: &mut Body<'tcx>,
@@ -109,12 +110,19 @@ impl<'tcx> PartialRedundancyElimination {
         // 2.a check if used in this BB (need to figure out how to get the BB an Expr is used in)
         // 2.a maybe store this in shared HashMap as well?
         // 2.b OR check if there is some successor of B for which (1) does not hold
+        let terminal_blocks = expr_table.as_ref().borrow().terminal_blocks.clone(); // println!("anticipated: {:?}", anticpated.clone());
 
         // this is just so everything compiles, but define this within closure
         let is_latest = |i: BasicBlock| -> Domain {
             let postponable = postponable_exprs.entry_set_for_block(i);
             let size: usize = postponable.0.domain_size();
-            let terminal_blocks = expr_table.as_ref().borrow().terminal_blocks.clone(); // println!("anticipated: {:?}", anticpated.clone());
+            let exprs_in_bb =
+                expr_table.as_ref().borrow_mut().bb_expr_map.entry(i).or_default().clone();
+            for expr in exprs_in_bb.iter() {
+                if earliest_exprs[i].0.contains(*expr) || postponable.0.contains(*expr) {
+                    println!("CHECK 1 for latest passed by {:?} in {:?}", *expr, i);
+                }
+            }
             // println!("available: {:?}", available.clone());
             /* println!(
                 "The Exprs in BB {:?} are {:?}",
