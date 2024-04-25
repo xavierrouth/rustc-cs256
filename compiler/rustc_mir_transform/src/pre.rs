@@ -1,10 +1,11 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
 use rustc_middle::mir::*;
-
+#[allow(rustc::default_hash_types)]
 use std::cell::RefCell;
 use std::rc::Rc;
-
+use std::collections::HashSet;
+#[allow(rustc::default_hash_types)]
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
 use rustc_middle::mir::{
     self, CallReturnPlaces, Local, Location, Place, StatementKind, TerminatorEdges,
@@ -49,7 +50,7 @@ type Domain = BitSet<ExprIdx>;
 pub struct PartialRedundancyElimination;
 
 impl <'tcx> PartialRedundancyElimination {
-
+    #[allow(rustc::default_hash_types)]
     fn terminal_blocks(&self, body: &Body<'tcx>) -> HashSet<BasicBlock> {
         let mut terminals = HashSet::new();
         for (block, block_data) in body.basic_blocks.iter_enumerated() {
@@ -59,27 +60,30 @@ impl <'tcx> PartialRedundancyElimination {
         }
         terminals
     }
-
+    #[allow(rustc::default_hash_types)]
     fn compute_earliest(&self, 
         body: &mut Body<'tcx>,
         anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
         available_exprs: AvailableExpressionsResults<'tcx>,
+        #[allow(rustc::default_hash_types)]
         terminal_blocks: HashSet<BasicBlock>
     )
         -> IndexVec<BasicBlock, Dual<Domain>>
     {
+
         let set_diff = |i: BasicBlock| -> Dual<Domain> {
-            let anticpated = anticipated_exprs.entry_set_for_block(i);
+            let anticipated = anticipated_exprs.entry_set_for_block(i);
+            let size = anticipated.0.domain_size();
             let available = available_exprs.entry_set_for_block(i);
             // println!("anticipated: {:?}", anticpated.clone());
             // println!("available: {:?}", available.clone());
 
-            let mut earliest = if terminals.contains(&i) {
+            let mut earliest = if terminal_blocks.contains(&i) {
                 Dual(BitSet::new_empty(size))
             } else {
                 anticipated.clone()
             };
-            
+
             earliest.0.subtract(&available.0);
             // println!("earliest: {:?}", earliest.clone());
             earliest
@@ -121,7 +125,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         println!("----------------ANTICIPATED DEBUG BEGIN----------------");
         let expr_hash_map = Rc::new(RefCell::new(ExprHashMap::new()));
 
-        let terminal_blocks = self.terminal_blocks();
+        let terminal_blocks = self.terminal_blocks(body);
         let anticipated = AnticipatedExpressions::new(body, expr_hash_map.clone())
             .into_engine(tcx, body)
             .pass_name("anticipated_exprs")
@@ -222,7 +226,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         }
 
 
-        let earliest = self.compute_earliest(body, anticipated.results().clone(), available.results().clone());
+        let earliest = self.compute_earliest(body, anticipated.results().clone(), available.results().clone(), terminal_blocks);
         println!("----------------POSTPONABLE DEBUG BEGIN----------------");
         let postponable = PostponableExpressions::new(body, expr_hash_map.clone(), earliest)
             .into_engine(tcx, body)

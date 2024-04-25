@@ -73,7 +73,7 @@ impl ExprHashMap {
     
     #[allow(dead_code)]
     pub fn new() -> ExprHashMap {
-        ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new() }
+        ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new(), terminal_blocks: HashSet::new() }
     }
 
     pub fn expr_idx(&self, expr: ExprSetElem) -> Option<ExprIdx> {

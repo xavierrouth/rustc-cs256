@@ -197,7 +197,7 @@ where
                             bin_op: *bin_op,
                             local1,
                             local2,
-                        });
+                        }).unwrap();
 
                         self.trans.kill(expr_idx);
                     }
