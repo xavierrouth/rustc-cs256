@@ -117,8 +117,8 @@ impl<'tcx> PartialRedundancyElimination {
         // this is just so everything compiles, but define this within closure
         let latest_gen_used = |i: BasicBlock| -> Domain {
             let postponable = postponable_exprs.entry_set_for_block(i);
-            let exprs_in_bb =
-                expr_table.as_ref().borrow_mut().bb_expr_map.entry(i).or_default().clone();
+            let mut bb_expr_map = expr_table.as_ref().borrow_mut().bb_expr_map.clone();
+            let exprs_in_bb = bb_expr_map.entry(i).or_default();
             let mut ret = BitSet::new_empty(exprs_in_bb.len());
 
             for expr in exprs_in_bb.iter() {
@@ -127,8 +127,15 @@ impl<'tcx> PartialRedundancyElimination {
                 }
             }
 
-            // let term = body.basic_blocks[i].terminator();
-            // for s in term.successors() {}
+            let term = body.basic_blocks[i].terminator();
+            for s in term.successors() {
+                let exprs_in_bb_succ = bb_expr_map.entry(s).or_default();
+                for expr in exprs_in_bb_succ.iter() {
+                    if !earliest_exprs[i].0.contains(*expr) && !postponable.0.contains(*expr) {
+                        ret.insert(*expr);
+                    }
+                }
+            }
 
             //println!(" successors of bb {succ:?}");
             // println!("available: {:?}", available.clone());
