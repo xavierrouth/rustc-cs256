@@ -50,10 +50,21 @@ pub struct PartialRedundancyElimination;
 
 impl <'tcx> PartialRedundancyElimination {
 
+    fn terminal_blocks(&self, body: &Body<'tcx>) -> HashSet<BasicBlock> {
+        let mut terminals = HashSet::new();
+        for (block, block_data) in body.basic_blocks.iter_enumerated() {
+            if let TerminatorEdges::None = block_data.terminator().edges() {
+                terminals.insert(block);
+            }
+        }
+        terminals
+    }
+
     fn compute_earliest(&self, 
         body: &mut Body<'tcx>,
         anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
-        available_exprs: AvailableExpressionsResults<'tcx>
+        available_exprs: AvailableExpressionsResults<'tcx>,
+        terminal_blocks: HashSet<BasicBlock>
     )
         -> IndexVec<BasicBlock, Dual<Domain>>
     {
@@ -62,7 +73,13 @@ impl <'tcx> PartialRedundancyElimination {
             let available = available_exprs.entry_set_for_block(i);
             // println!("anticipated: {:?}", anticpated.clone());
             // println!("available: {:?}", available.clone());
-            let mut earliest = anticpated.clone();
+
+            let mut earliest = if terminals.contains(&i) {
+                Dual(BitSet::new_empty(size))
+            } else {
+                anticipated.clone()
+            };
+            
             earliest.0.subtract(&available.0);
             // println!("earliest: {:?}", earliest.clone());
             earliest
@@ -104,6 +121,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         println!("----------------ANTICIPATED DEBUG BEGIN----------------");
         let expr_hash_map = Rc::new(RefCell::new(ExprHashMap::new()));
 
+        let terminal_blocks = self.terminal_blocks();
         let anticipated = AnticipatedExpressions::new(body, expr_hash_map.clone())
             .into_engine(tcx, body)
             .pass_name("anticipated_exprs")

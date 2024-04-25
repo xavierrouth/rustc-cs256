@@ -39,6 +39,7 @@ pub struct ExprSetElem {
 pub struct ExprHashMap {
     pub expr_table: HashMap<ExprSetElem, ExprIdx>,
     pub operand_table: HashMap<Local, HashSet<ExprIdx>>,
+    pub terminal_blocks: HashSet<BasicBlock>,
 }
 
 rustc_index::newtype_index! {
