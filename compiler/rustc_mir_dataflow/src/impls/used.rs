@@ -1,7 +1,6 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
 #[allow(unused_lifetimes)]
-
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -20,9 +19,9 @@ use rustc_index::bit_set::{BitSet, ChunkedBitSet};
 use rustc_index::{Idx, IndexVec};
 use rustc_macros::HashStable;
 
-use std::fmt;
 use crate::framework::BitSetExt;
 use crate::Forward;
+use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
@@ -35,8 +34,7 @@ use crate::ResultsCursor;
 
 use crate::impls::{ExprHashMap, ExprIdx, ExprSetElem};
 
-
-pub struct UsedExpressions< 'tcx> {
+pub struct UsedExpressions<'tcx> {
     //anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
     //available_exprs: AvailableExpressionsResults<'mir, 'tcx>,
     earliest_exprs: IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
@@ -44,16 +42,14 @@ pub struct UsedExpressions< 'tcx> {
     bitset_size: usize,
 }
 
-
 impl<'tcx> UsedExpressions<'tcx> {
-
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
         &'a self,
         trans: &'a mut T,
     ) -> PostTransferFunction<'a, 'tcx, T> {
         PostTransferFunction {
-            earliest_exprs: & self.earliest_exprs,
+            earliest_exprs: &self.earliest_exprs,
             trans,
             expr_table: self.expr_table.clone(),
         }
@@ -76,7 +72,10 @@ impl<'tcx> UsedExpressions<'tcx> {
     pub fn new(
         body: &Body<'tcx>,
         expr_table: Rc<RefCell<ExprHashMap>>,
-        earliest_exprs: IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
+        earliest_exprs: IndexVec<
+            BasicBlock,
+            <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain,
+        >,
     ) -> UsedExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
 
@@ -151,20 +150,21 @@ impl<'tcx> GenKillAnalysis<'tcx> for UsedExpressions<'tcx> {
         _return_places: CallReturnPlaces<'_, 'tcx>,
     ) {
     }
-
 }
 
 // A `Visitor` that defines the transfer function for `UsedExpressions`.
-// 
+//
 #[allow(dead_code)]
 pub(super) struct PostTransferFunction<'a, 'tcx, T> {
     trans: &'a mut T,
-    earliest_exprs: &'a IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
+    earliest_exprs:
+        &'a IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: Rc<RefCell<ExprHashMap>>,
 }
 
 // Join needs to be intersect..., so domain should probably have Dual
+#[allow(rustc::default_hash_types)]
 impl<'a, 'tcx, T> Visitor<'tcx> for PostTransferFunction<'a, 'tcx, T>
 where
     T: GenKill<ExprIdx>,
@@ -193,11 +193,12 @@ where
                         // Expressions that have re-defined args within the basic block will naturally be killed
                         // as those defs are reached
                         println!("KILL expr {:?}", rvalue.clone());
-                        let expr_idx = self.expr_table.as_ref().borrow().expr_idx(ExprSetElem {
-                            bin_op: *bin_op,
-                            local1,
-                            local2,
-                        }).unwrap();
+                        let expr_idx = self
+                            .expr_table
+                            .as_ref()
+                            .borrow()
+                            .expr_idx(ExprSetElem { bin_op: *bin_op, local1, local2 })
+                            .unwrap();
 
                         self.trans.kill(expr_idx);
                     }
@@ -207,15 +208,13 @@ where
         }
     }
 
-    fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {
+    fn visit_terminator(&mut self, terminator: &mir::Terminator<'tcx>, location: Location) {
         self.super_terminator(terminator, location); // What??
         // println!( "visit terminator {:?}", terminator);
-        
-        // For each expression that is anticipated in this block, mark it as Used.
 
+        // For each expression that is anticipated in this block, mark it as Used.
 
         /* Kill All expressions that have been assigned to are in the expression table */
         // FIXME: How do we only kill expressions that are assigned to after the expression is gen'd
     }
-
 }

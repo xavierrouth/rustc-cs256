@@ -103,14 +103,12 @@ impl<'tcx> PartialRedundancyElimination {
         // No dual as confluence is union for Used
 
         #[allow(rustc::potential_query_instability)]
-
-
         // ALGO
         // 0. have bools for earliest and postponable
         // 1. iterate over both for current BB and get exprs
         // 2.a check if used in this BB (need to figure out how to get the BB an Expr is used in)
         // 2.a maybe store this in shared HashMap as well?
-        // 2.b OR check if there is some successor of B for which (1) does not hold 
+        // 2.b OR check if there is some successor of B for which (1) does not hold
 
         // this is just so everything compiles, but define this within closure
         let is_latest = |i: BasicBlock| -> Domain {
@@ -118,6 +116,11 @@ impl<'tcx> PartialRedundancyElimination {
             let size: usize = postponable.0.domain_size();
             let terminal_blocks = expr_table.as_ref().borrow().terminal_blocks.clone(); // println!("anticipated: {:?}", anticpated.clone());
             // println!("available: {:?}", available.clone());
+            /* println!(
+                "The Exprs in BB {:?} are {:?}",
+                i,
+                expr_table.as_ref().borrow_mut().bb_expr_map.entry(i).or_default()
+            ); */
 
             let latest = if terminal_blocks.contains(&i) {
                 BitSet::new_empty(size)

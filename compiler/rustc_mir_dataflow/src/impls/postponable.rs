@@ -165,6 +165,7 @@ pub(super) struct PostTransferFunction<'a, 'tcx, T> {
 }
 
 // Join needs to be intersect..., so domain should probably have Dual
+#[allow(rustc::default_hash_types)]
 impl<'a, 'tcx, T> Visitor<'tcx> for PostTransferFunction<'a, 'tcx, T>
 where
     T: GenKill<ExprIdx>,
@@ -198,6 +199,15 @@ where
                             local1,
                             local2,
                         }).unwrap();
+
+
+                        self.expr_table
+                            .as_ref()
+                            .borrow_mut()
+                            .bb_expr_map
+                            .entry(location.block)
+                            .or_insert(HashSet::new())
+                            .insert(expr_idx);
 
                         self.trans.kill(expr_idx);
                     }

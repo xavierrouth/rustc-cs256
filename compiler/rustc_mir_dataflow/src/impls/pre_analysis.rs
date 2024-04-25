@@ -22,10 +22,9 @@ use std::fmt;
 
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{
-    fmt::DebugWithContext, lattice::Dual, Analysis, AnalysisDomain, Backward,
-    Forward, GenKill, GenKillAnalysis, JoinSemiLattice,
+    fmt::DebugWithContext, lattice::Dual, Analysis, AnalysisDomain, Backward, Forward, GenKill,
+    GenKillAnalysis, JoinSemiLattice,
 };
-
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone)]
 pub struct ExprSetElem {
@@ -38,6 +37,7 @@ pub struct ExprSetElem {
 #[derive(Clone)]
 pub struct ExprHashMap {
     pub expr_table: HashMap<ExprSetElem, ExprIdx>,
+    pub bb_expr_map: HashMap<BasicBlock, HashSet<ExprIdx>>,
     pub operand_table: HashMap<Local, HashSet<ExprIdx>>,
     pub terminal_blocks: HashSet<BasicBlock>,
 }
@@ -70,10 +70,15 @@ impl ExprHashMap {
     /// We now parse the body to add a global operand -> expression mapping
     /// This now enables kill to do a lookup to add expressions to the kill set based on
     /// defs in the basic block
-    
+
     #[allow(dead_code)]
     pub fn new() -> ExprHashMap {
-        ExprHashMap { expr_table: HashMap::new(), operand_table: HashMap::new(), terminal_blocks: HashSet::new() }
+        ExprHashMap {
+            expr_table: HashMap::new(),
+            bb_expr_map: HashMap::new(),
+            operand_table: HashMap::new(),
+            terminal_blocks: HashSet::new(),
+        }
     }
 
     pub fn expr_idx(&self, expr: ExprSetElem) -> Option<ExprIdx> {
@@ -84,7 +89,6 @@ impl ExprHashMap {
         let len = self.expr_table.len();
         self.expr_table.entry(expr).or_insert(ExprIdx::new(len)).clone()
     }
-    
 
     pub fn get_operand_mapping(&self, op: Local) -> Option<&HashSet<ExprIdx>> {
         self.operand_table.get(&op)
