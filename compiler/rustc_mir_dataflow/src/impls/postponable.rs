@@ -170,9 +170,41 @@ where
     T: GenKill<ExprIdx>,
 {
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
+        if location.statement_index == 0 {
+            println!("Entering BB: {:?}", location.block);
 
-        self.super_statement(stmt, location);
-        println!("stmt visited {:?}", stmt);
+            let earliest_exprs = &self.earliest_exprs[location.block];
+
+            for expr in earliest_exprs.0.iter() {
+                println!("adding earliest expr: {:?}", expr);
+                self.trans.gen(expr);
+            }
+        }
+
+        if let StatementKind::Assign(box (_place, rvalue)) = &stmt.kind {
+            match rvalue {
+                Rvalue::BinaryOp(bin_op, box (operand1, operand2))
+                | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
+                    // We need some way of dealing with constants
+                    if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
+                        (operand1.place(), operand2.place())
+                    {
+                        // Add expressions as we encounter them to the GEN set
+                        // Expressions that have re-defined args within the basic block will naturally be killed
+                        // as those defs are reached
+                        println!("KILL expr {:?}", rvalue.clone());
+                        let expr_idx = self.expr_table.as_ref().borrow().expr_idx(ExprSetElem {
+                            bin_op: *bin_op,
+                            local1,
+                            local2,
+                        });
+
+                        self.trans.kill(expr_idx);
+                    }
+                }
+                _ => {}
+            }
+        }
     }
 
     fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {
