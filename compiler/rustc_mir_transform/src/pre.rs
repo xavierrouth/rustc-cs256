@@ -299,5 +299,21 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         );
         println!("earliest {earliest:?}");
         println!("latest {:?}", latest);
+
+        println!("----------------USED DEBUG BEGIN----------------");
+        let used = UsedExpressions::new(body, expr_hash_map.clone(), latest.clone())
+            .into_engine(tcx, body)
+            .pass_name("used_exprs")
+            .iterate_to_fixpoint()
+            .into_results_cursor(body);
+        println!("----------------USED DEBUG END----------------\n\n\n");
+
+        for (bb, _block) in body.basic_blocks.iter_enumerated() {
+            // available.seek_to_block_end(bb);
+            println!("----------- {:?} ----------- ", bb);
+            // anticipated.results().analysis.fmt_domain(state);
+            println!("entry set for block {:?} : {:?}", bb, used.results().entry_set_for_block(bb));
+            // available.seek_to_block_start(bb);
+        }
     }
 }

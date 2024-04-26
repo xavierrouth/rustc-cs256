@@ -37,7 +37,7 @@ use crate::impls::{ExprHashMap, ExprIdx, ExprSetElem};
 pub struct UsedExpressions<'tcx> {
     //anticipated_exprs: AnticipatedExpressionsResults<'mir, 'tcx>,
     //available_exprs: AvailableExpressionsResults<'mir, 'tcx>,
-    earliest_exprs: IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
+    latest_exprs: IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     expr_table: Rc<RefCell<ExprHashMap>>,
     bitset_size: usize,
 }
@@ -49,7 +49,7 @@ impl<'tcx> UsedExpressions<'tcx> {
         trans: &'a mut T,
     ) -> PostTransferFunction<'a, 'tcx, T> {
         PostTransferFunction {
-            earliest_exprs: &self.earliest_exprs,
+            latest_exprs: &self.latest_exprs,
             trans,
             expr_table: self.expr_table.clone(),
         }
@@ -72,15 +72,12 @@ impl<'tcx> UsedExpressions<'tcx> {
     pub fn new(
         body: &Body<'tcx>,
         expr_table: Rc<RefCell<ExprHashMap>>,
-        earliest_exprs: IndexVec<
-            BasicBlock,
-            <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain,
-        >,
+        latest_exprs: IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     ) -> UsedExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
 
         UsedExpressions {
-            earliest_exprs,
+            latest_exprs,
             // kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
             expr_table,
             bitset_size: size,
@@ -89,8 +86,8 @@ impl<'tcx> UsedExpressions<'tcx> {
 }
 
 impl<'tcx> AnalysisDomain<'tcx> for UsedExpressions<'tcx> {
-    type Domain = Dual<BitSet<ExprIdx>>;
-    type Direction = Forward;
+    type Domain = BitSet<ExprIdx>;
+    type Direction = Backward;
 
     // domain for analysis is Local since i
 
@@ -101,12 +98,11 @@ impl<'tcx> AnalysisDomain<'tcx> for UsedExpressions<'tcx> {
         // TODO: update
         // let len = body.local_decls().len()
         // Should size be local_decls.len() or count of all statements?
-        Dual(BitSet::new_filled(self.bitset_size))
+        BitSet::new_filled(self.bitset_size)
     }
 
-    fn initialize_start_block(&self, _: &Body<'tcx>, domain: &mut Self::Domain) {
+    fn initialize_start_block(&self, _: &Body<'tcx>, _domain: &mut Self::Domain) {
         // should be set of all expressions; Not supported for backward analyses
-        domain.0.clear();
     }
 }
 
@@ -132,14 +128,16 @@ impl<'tcx> GenKillAnalysis<'tcx> for UsedExpressions<'tcx> {
         &mut self,
         trans: &mut Self::Domain,
         terminator: &'mir Terminator<'tcx>,
-        location: Location,
+        _location: Location,
     ) -> TerminatorEdges<'mir, 'tcx> {
         // TODO: We probably have to do something with SwitchInt or one of them, but I believe the engine
         // considers that with merges, though I need to look back again
         // For now, ignoring
 
-        self.transfer_function(trans).visit_terminator(terminator, location);
-
+        // self.transfer_function(trans).visit_terminator(terminator, location);
+        if let TerminatorEdges::None = terminator.edges() {
+            trans.clear();
+        }
         terminator.edges()
     }
 
@@ -157,8 +155,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for UsedExpressions<'tcx> {
 #[allow(dead_code)]
 pub(super) struct PostTransferFunction<'a, 'tcx, T> {
     trans: &'a mut T,
-    earliest_exprs:
-        &'a IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
+    latest_exprs: &'a IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: Rc<RefCell<ExprHashMap>>,
 }
@@ -170,17 +167,6 @@ where
     T: GenKill<ExprIdx>,
 {
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
-        if location.statement_index == 0 {
-            println!("Entering BB: {:?}", location.block);
-
-            let earliest_exprs = &self.earliest_exprs[location.block];
-
-            for expr in earliest_exprs.0.iter() {
-                println!("adding earliest expr: {:?}", expr);
-                self.trans.gen(expr);
-            }
-        }
-
         if let StatementKind::Assign(box (_place, rvalue)) = &stmt.kind {
             match rvalue {
                 Rvalue::BinaryOp(bin_op, box (operand1, operand2))
@@ -192,7 +178,7 @@ where
                         // Add expressions as we encounter them to the GEN set
                         // Expressions that have re-defined args within the basic block will naturally be killed
                         // as those defs are reached
-                        println!("KILL expr {:?}", rvalue.clone());
+                        println!("e-used expr {:?}", rvalue.clone());
                         let expr_idx = self
                             .expr_table
                             .as_ref()
@@ -200,10 +186,21 @@ where
                             .expr_idx(ExprSetElem { bin_op: *bin_op, local1, local2 })
                             .unwrap();
 
-                        self.trans.kill(expr_idx);
+                        self.trans.gen(expr_idx);
                     }
                 }
                 _ => {}
+            }
+        }
+
+        if location.statement_index == 0 {
+            println!("Calculating IN set for BB: {:?}", location.block);
+
+            let latest_exprs = &self.latest_exprs[location.block];
+
+            for expr in latest_exprs.iter() {
+                println!("[USED] killing latest expr: {:?}", expr);
+                self.trans.kill(expr);
             }
         }
     }
