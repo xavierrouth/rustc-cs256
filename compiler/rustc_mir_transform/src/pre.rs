@@ -107,48 +107,25 @@ impl<'tcx> PartialRedundancyElimination {
         // No dual as confluence is union for Used
 
         #[allow(rustc::potential_query_instability)]
-        // ALGO
-        // 0. have bools for earliest and postponable
-        // 1. iterate over both for current BB and get exprs
-        // 2.a check if used in this BB (need to figure out how to get the BB an Expr is used in)
-        // 2.a maybe store this in shared HashMap as well?
-        // 2.b OR check if there is some successor of B for which (1) does not hold
-
-        // this is just so everything compiles, but define this within closure
-        let latest_gen_used = |i: BasicBlock| -> Domain {
-            let postponable = postponable_exprs.entry_set_for_block(i);
-            let mut bb_expr_map = expr_table.as_ref().borrow_mut().bb_expr_map.clone();
-            let exprs_in_bb = bb_expr_map.entry(i).or_default();
-            let mut ret = BitSet::new_empty(exprs_in_bb.len());
-
-            for expr in exprs_in_bb.iter() {
-                if earliest_exprs[i].0.contains(*expr) || postponable.0.contains(*expr) {
-                    ret.insert(*expr);
+        // According to the UCSB slides, the criteria for Latest is pretty well-defined:
+        //  1. Expression must be in earliest or postponable
+        //  2. Expression must be in used or NOT in any successors' earliests or 
+        let mut latest_exprs = IndexVec::from_elem(Domain::new_empty(expr_table.as_ref().borrow().expr_table.len()), &body.basic_blocks);
+        let mut ok_to_place_succ = IndexVec::from_elem(Domain::new_filled(postponable_exprs.analysis.domain_size(body)), &body.basic_blocks);
+        for (bb, _) in traversal::postorder(body) {
+            // Might not even need to clone, as we won't use earliest again afterwards
+            let mut ok_to_place = earliest_exprs[bb].0.clone();
+            println!("{:?} vs. {:?} vs. {:?}\n", ok_to_place.domain_size(), earliest_exprs[bb].0.domain_size(), postponable_exprs.entry_set_for_block(bb).0.domain_size());
+            ok_to_place.union(&postponable_exprs.entry_set_for_block(bb).0);
+            for expr in ok_to_place.iter() {
+                if expr_table.as_ref().borrow().bb_expr_map[&bb].contains(&expr) || !ok_to_place_succ[bb].contains(expr) {
+                    latest_exprs[bb].insert(expr);
                 }
             }
-
-            let term = body.basic_blocks[i].terminator();
-            for s in term.successors() {
-                let exprs_in_bb_succ = bb_expr_map.entry(s).or_default();
-                for expr in exprs_in_bb_succ.iter() {
-                    if !earliest_exprs[i].0.contains(*expr) && !postponable.0.contains(*expr) {
-                        ret.insert(*expr);
-                    }
-                }
+            for pred_bb in body.basic_blocks.predecessors()[bb].iter() {
+                ok_to_place_succ[*pred_bb].intersect(&ok_to_place);
             }
-
-            //println!(" successors of bb {succ:?}");
-            // println!("available: {:?}", available.clone());
-            /* println!(
-                "The Exprs in BB {:?} are {:?}",
-                i,
-                expr_table.as_ref().borrow_mut().bb_expr_map.entry(i).or_default()
-            ); */
-            ret
-        };
-
-        let latest_exprs: IndexVec<_, BitSet<_>> =
-            IndexVec::from_fn_n(latest_gen_used, body.basic_blocks.len());
+        }
         latest_exprs
     }
 }
