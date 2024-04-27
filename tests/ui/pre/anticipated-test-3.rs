@@ -13,6 +13,7 @@ fn simple(c: i32) -> i32 {
         {
             let x = 3;
             let y = 5;
+            let b = x + y;
             Goto(half)
         }
 

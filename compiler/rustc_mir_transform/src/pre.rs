@@ -119,7 +119,7 @@ impl<'tcx> PartialRedundancyElimination {
             let postponable = postponable_exprs.entry_set_for_block(i);
             let mut bb_expr_map = expr_table.as_ref().borrow_mut().bb_expr_map.clone();
             let exprs_in_bb = bb_expr_map.entry(i).or_default();
-            let mut ret = BitSet::new_empty(exprs_in_bb.len());
+            let mut ret = BitSet::new_empty(expr_table.as_ref().borrow_mut().expr_table.len());
 
             for expr in exprs_in_bb.iter() {
                 if earliest_exprs[i].0.contains(*expr) || postponable.0.contains(*expr) {
