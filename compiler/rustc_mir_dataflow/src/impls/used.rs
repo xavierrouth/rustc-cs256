@@ -98,7 +98,7 @@ impl<'tcx> AnalysisDomain<'tcx> for UsedExpressions<'tcx> {
         // TODO: update
         // let len = body.local_decls().len()
         // Should size be local_decls.len() or count of all statements?
-        BitSet::new_filled(self.bitset_size)
+        BitSet::new_empty(self.bitset_size)
     }
 
     fn initialize_start_block(&self, _: &Body<'tcx>, _domain: &mut Self::Domain) {
@@ -126,7 +126,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for UsedExpressions<'tcx> {
 
     fn terminator_effect<'mir>(
         &mut self,
-        trans: &mut Self::Domain,
+        _trans: &mut Self::Domain,
         terminator: &'mir Terminator<'tcx>,
         _location: Location,
     ) -> TerminatorEdges<'mir, 'tcx> {
@@ -135,9 +135,6 @@ impl<'tcx> GenKillAnalysis<'tcx> for UsedExpressions<'tcx> {
         // For now, ignoring
 
         // self.transfer_function(trans).visit_terminator(terminator, location);
-        if let TerminatorEdges::None = terminator.edges() {
-            trans.clear();
-        }
         terminator.edges()
     }
 
