@@ -21,8 +21,8 @@ fn simple(c: i32) -> i32 {
         }
 
         second = {
-            x = 30;
             let a = x + y;
+            x = 30;
             Goto(output)
         }
 
