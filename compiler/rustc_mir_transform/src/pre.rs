@@ -1,5 +1,6 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
+use rustc_middle::mir::visit::MutVisitor;
 #[allow(rustc::default_hash_types)]
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
 use rustc_middle::mir::*;
@@ -7,9 +8,10 @@ use rustc_middle::mir::{
     self, CallReturnPlaces, Local, Location, Place, StatementKind, TerminatorEdges,
 };
 use rustc_middle::ty::{self, Ty, TyCtxt};
+use rustc_span::Span;
 #[allow(rustc::default_hash_types)]
 use std::cell::RefCell;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 
 use rustc_index::bit_set::{BitSet, ChunkedBitSet};
@@ -48,6 +50,64 @@ type AvailableExpressionsResults<'tcx> = Results<'tcx, AvailableExpressions<'tcx
 type PostponableExpressionsResults<'tcx> = Results<'tcx, PostponableExpressions<'tcx>>;
 
 type Domain = BitSet<ExprIdx>;
+
+pub struct TempVisitor<'tcx, 'a> {
+    tcx: TyCtxt<'tcx>,
+    temp_map: &'a HashMap::<ExprIdx, Local>,
+    temp_rvals_map: &'a mut HashMap::<Local, (Rvalue<'tcx>, Span)>,
+    expr_hash_map: Rc<RefCell<ExprHashMap>>,
+    temps: &'a BitSet<ExprIdx>,
+    used_out: &'a BitSet<ExprIdx>,
+    latest: &'a BitSet<ExprIdx>
+}
+
+impl<'tcx, 'a> TempVisitor<'tcx, 'a> {
+    pub fn new(
+        tcx: TyCtxt<'tcx>,
+        temp_map: &'a HashMap::<ExprIdx, Local>,
+        temp_rvals_map: &'a mut HashMap::<Local, (Rvalue<'tcx>, Span)>,
+        expr_hash_map: Rc<RefCell<ExprHashMap>>,
+        temps: &'a BitSet<ExprIdx>,
+        used_out: &'a BitSet<ExprIdx>,
+        latest: &'a BitSet<ExprIdx>
+    ) -> Self {
+        TempVisitor{ tcx, temp_map, temp_rvals_map, expr_hash_map, temps, used_out, latest }
+    }
+}
+
+impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
+
+    fn tcx(&self) -> TyCtxt<'tcx> {
+        self.tcx
+    }
+    
+    fn visit_statement(&mut self, statement: &mut Statement<'tcx>, _: Location) {
+        // We need some way of dealing with constants
+        if let StatementKind::Assign(box (_, ref mut rvalue)) = statement.kind {
+
+            if let Rvalue::BinaryOp(bin_op, box(operand1, operand2)) = rvalue { 
+                if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
+                (operand1.place(), operand2.place())
+                {
+                    if let Some(expr_idx) = self.expr_hash_map.as_ref().borrow().expr_idx(ExprSetElem {
+                        bin_op: *bin_op,
+                        local1,
+                        local2,
+                    }) {
+                        // If expr_idx in Latest and Out Used, add temporary to beginning of basic block
+                        if self.temps.contains(expr_idx) {
+                            self.temp_rvals_map.entry(self.temp_map[&expr_idx]).or_insert((rvalue.clone(), statement.source_info.span.clone()));
+                        }
+                        // Replace expression with temp if not in Latest or in Out Used
+                        if self.used_out.contains(expr_idx) || !self.latest.contains(expr_idx) {
+                            *rvalue = Rvalue::Use(Operand::Copy(self.temp_map[&expr_idx].into()));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 pub struct PartialRedundancyElimination;
 
@@ -129,6 +189,8 @@ impl<'tcx> PartialRedundancyElimination {
         latest_exprs
     }
 }
+
+#[allow(rustc::default_hash_types)]
 impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
     fn is_enabled(&self, _sess: &rustc_session::Session) -> bool {
         false //sess.mir_opt_level() >= 1
@@ -278,7 +340,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         println!("latest {:?}", latest);
 
         println!("----------------USED DEBUG BEGIN----------------");
-        let used = UsedExpressions::new(body, expr_hash_map.clone(), latest.clone())
+        let mut used = UsedExpressions::new(body, expr_hash_map.clone(), latest.clone())
             .into_engine(tcx, body)
             .pass_name("used_exprs")
             .iterate_to_fixpoint()
@@ -291,6 +353,42 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             // anticipated.results().analysis.fmt_domain(state);
             println!("entry set for block {:?} : {:?}", bb, used.results().entry_set_for_block(bb));
             // available.seek_to_block_start(bb);
+        }
+
+        println!("Transforming the code");
+
+        let mut temp_map = HashMap::<ExprIdx, Local>::new();
+        let mut local_cnt = body.local_decls().len();
+        
+        let reverse_postorder = body.basic_blocks.reverse_postorder().to_vec();
+        for bb in reverse_postorder {
+            let data = &mut body.basic_blocks.as_mut_preserves_cfg()[bb];
+            
+            // Generate Local temporaries for block
+            // We will assign them to the proper rvalues later
+            used.seek_to_block_end(bb);
+            let used_out = used.get();
+            let mut temps = used_out.clone();
+            temps.intersect(&latest[bb]);
+            let mut temp_rvalues = HashMap::<Local, (Rvalue<'_ >, Span)>::new();
+            for expr in temps.iter() {
+                let temp = Local::new(local_cnt);
+                local_cnt += 1;
+                temp_map.insert(expr, temp);
+            }
+
+            // Replace expressions in bb with temporaries
+            let mut temp_visitor = TempVisitor::new(
+                tcx, &temp_map, &mut temp_rvalues, expr_hash_map.clone(), &temps, &used_out, &latest[bb]);
+            temp_visitor.visit_basic_block_data(bb, data);
+
+            // Add temporary assignments to basic block
+            temp_rvalues.iter().map(|(temp, (rvalue, span))| {
+                data.statements.insert(0,
+                    Statement { 
+                        source_info: SourceInfo::outermost(*span), 
+                        kind: StatementKind::Assign(Box::new((Into::into(*temp), rvalue.clone())))});
+            });
         }
     }
 }
