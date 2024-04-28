@@ -115,10 +115,10 @@ impl<'tcx> PartialRedundancyElimination {
         for (bb, _) in traversal::postorder(body) {
             // Might not even need to clone, as we won't use earliest again afterwards
             let mut ok_to_place = earliest_exprs[bb].0.clone();
-            println!("{:?} vs. {:?} vs. {:?}\n", ok_to_place.domain_size(), earliest_exprs[bb].0.domain_size(), postponable_exprs.entry_set_for_block(bb).0.domain_size());
+            // println!("{:?} vs. {:?} vs. {:?}\n", ok_to_place.domain_size(), earliest_exprs[bb].0.domain_size(), postponable_exprs.entry_set_for_block(bb).0.domain_size());
             ok_to_place.union(&postponable_exprs.entry_set_for_block(bb).0);
             for expr in ok_to_place.iter() {
-                if expr_table.as_ref().borrow().bb_expr_map[&bb].contains(&expr) || !ok_to_place_succ[bb].contains(expr) {
+                if expr_table.as_ref().borrow_mut().bb_expr_map.entry(bb).or_default().contains(&expr) || !ok_to_place_succ[bb].contains(expr) {
                     latest_exprs[bb].insert(expr);
                 }
             }
