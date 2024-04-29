@@ -11,24 +11,36 @@ fn simple(c: i32) -> i32 {
     mir!(
 
         {
-            let x = 3;
-            let y = 5;
-            let b = x + y;
-            Goto(half)
+            let x: i32 = 3;
+            let y: i32 = 5;
+            let a = 10;
+            let b = 20;
+            let i = 5;
+            Goto(loop_header)
         }
 
-        half = {
-            Goto(second)
+        loop_header = {
+            let c = i < 20;
+
+            match c {
+                true => loop_body,
+                _ => loop_exit,
+            }
         }
 
-        second = {
-            let a = x + y;
-            x = 30;
+        loop_body = {
+            i = i + 1;
+            a = x + y;
+            Goto(loop_header)
+        }
+
+        loop_exit = {
+            a = x + y;
             Goto(output)
         }
 
         output = {
-             RET = 10;
+            RET = 10;
             Return()
         }
     )
