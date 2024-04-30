@@ -13,6 +13,7 @@ use rustc_span::Span;
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
+use rustc_middle::ty::List;
 
 use rustc_index::bit_set::{BitSet, ChunkedBitSet};
 use rustc_index::Idx;
@@ -55,9 +56,9 @@ type Domain = BitSet<ExprIdx>;
 pub struct TempVisitor<'tcx, 'a> {
     tcx: TyCtxt<'tcx>,
     temp_map: &'a HashMap<ExprIdx, Local>,
-    temp_rvals_map: &'a mut HashMap<Local, (Rvalue<'tcx>, Span)>,
+    // temp_rvals_map: &'a mut HashMap<Local, (Rvalue<'tcx>, Span)>,
     expr_hash_map: Rc<RefCell<ExprHashMap>>,
-    temps: &'a BitSet<ExprIdx>,
+    // temps: &'a BitSet<ExprIdx>,
     used_out: &'a BitSet<ExprIdx>,
     latest: &'a BitSet<ExprIdx>
 }
@@ -65,6 +66,7 @@ pub struct TempVisitor<'tcx, 'a> {
 #[allow(dead_code)]
 #[allow(rustc::default_hash_types)]
 impl<'tcx, 'a> TempVisitor<'tcx, 'a> {
+    /* 
     pub fn new(
         tcx: TyCtxt<'tcx>,
         temp_map: &'a HashMap<ExprIdx, Local>,
@@ -75,46 +77,20 @@ impl<'tcx, 'a> TempVisitor<'tcx, 'a> {
         latest: &'a BitSet<ExprIdx>
     ) -> Self {
         TempVisitor{ tcx, temp_map, temp_rvals_map, expr_hash_map, temps, used_out, latest }
+    } */
+
+
+    pub fn new(
+        tcx: TyCtxt<'tcx>,
+        temp_map: &'a HashMap<ExprIdx, Local>,
+        expr_hash_map: Rc<RefCell<ExprHashMap>>,
+        used_out: &'a BitSet<ExprIdx>,
+        latest: &'a BitSet<ExprIdx>
+    ) -> Self {
+        TempVisitor{ tcx, temp_map, expr_hash_map, used_out, latest }
     }
 }
 
-impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
-
-    fn tcx(&self) -> TyCtxt<'tcx> {
-        self.tcx
-    }
-    
-    fn visit_statement(&mut self, statement: &mut Statement<'tcx>, _: Location) {
-        // We need some way of dealing with constants
-        if let StatementKind::Assign(box (_, ref mut rvalue)) = statement.kind {
-
-            if let Rvalue::BinaryOp(bin_op, box(operand1, operand2)) = rvalue { 
-                if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
-                (operand1.place(), operand2.place())
-                {
-                    if let Some(expr_idx) = self.expr_hash_map.as_ref().borrow().expr_idx(ExprSetElem {
-                        bin_op: *bin_op,
-                        local1,
-                        local2,
-                    }) {
-                        // If expr_idx in Latest and Out Used, add temporary to beginning of basic block
-                        if self.temps.contains(expr_idx) {
-                            //
-                            println!("Adding Temporary for: {:?}", expr_idx);
-                            self.temp_rvals_map.entry(self.temp_map[&expr_idx]).or_insert((rvalue.clone(), statement.source_info.span.clone()));
-                        }
-                        // FIXME: This is replacing stuff that isn't marked as used? 
-                        // Replace expression with temp if not in Latest or in Out Used
-                        if self.used_out.contains(expr_idx) || !self.latest.contains(expr_idx) {
-                            println!("Replacing {:?} with temp", expr_idx);
-                            *rvalue = Rvalue::Use(Operand::Copy(self.temp_map[&expr_idx].into()));
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 pub struct PartialRedundancyElimination;
 
@@ -313,60 +289,182 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
 
         println!("Transforming the code");
         
+        // Map 
         let mut temp_map = HashMap::<ExprIdx, Local>::new();
-        let mut local_cnt = body.local_decls().len();
+        // Number of locals. 
+        // let mut local_cnt = body.local_decls().len();
+
+        // let bb_count = body.basic_blocks.len();
 
         let mut used_map = HashMap::<BasicBlock, BitSet<ExprIdx>>::new();
         
+        let mut expressions_to_insert = HashMap::<BasicBlock, (Local, ExprIdx)>::new();
+
         let reverse_postorder = body.basic_blocks.reverse_postorder().to_vec();
 
+        // Preprocessing
         for bb in reverse_postorder.clone() {
-            
-            // Generate Local temporaries for block
-            // We will assign them to the proper rvalues later
-            //used.seek_to_block_end(bb);
-            used.seek_to_block_start(bb);
+            // Seperate 'used' cursor from a shared ref of block
+
+            used.seek_to_block_end(bb);
+            // used.seek_to_block_start(bb);
             let used_out = used.get().clone();
             used_map.entry(bb).or_insert(used_out);
-            // Replace expressions in bb with temporaries
         }
-
-        for bb in reverse_postorder {
-            let data = &mut body.basic_blocks.as_mut_preserves_cfg()[bb];
+        
+        // Rule 1:
+        for bb in reverse_postorder.clone() {
             let used_out = used_map.get(&bb).expect("Oh Nohgawjkegh!");
-            println!("Used out for bb {:?}: {:?}, {:?}", bb, used_out, used_out.domain_size());
             let mut temps = used_out.clone();
             let latest_set = latest.get(bb).expect("Not latest");
-            println!("Latest for bb {:?}: {:?}, {:?}", bb, latest_set, latest_set.domain_size());
             temps.intersect(latest_set);
-            let mut temp_rvalues = HashMap::<Local, (Rvalue<'_ >, Span)>::new();
-            for expr in temps.iter() {
-                println!("Inserting temp");
-                let temp = Local::new(local_cnt);
-                local_cnt += 1;
-                temp_map.insert(expr, temp);
-            }
-
-            let mut temp_visitor = TempVisitor::new(
-                tcx, &temp_map, &mut temp_rvalues, expr_hash_map.clone(), &temps, &used_out, &latest[bb]);
-            temp_visitor.visit_basic_block_data(bb, data);
+            println!("temps for bb {:?} : {:?}", bb, temps);
             
-            // FIXME: Get the type of this expression correctly
-            let ty = body.local_decls[Local::new(0)].ty;
+            
+            for expr in temps.iter() {
+                println!("Inserting temp for {:?}", expr);
 
-            // Define temp
-            // Add temporary assignments to basic block
-            #[allow(rustc::potential_query_instability)]
-            let _ = temp_rvalues.iter().for_each(|(temp, (rvalue, span))| {
-                println!("local: {:?}, rvalue {:?}", temp, rvalue);
-                let local_decl = LocalDecl::new(ty, *span);
-                body.local_decls.push(local_decl); // Jump hope this index returned from here is the same as calculated via local_cnt
-                data.statements.insert(0, // Insert in correct spot.
-                    Statement { 
-                        source_info: SourceInfo::outermost(*span), 
-                        kind: StatementKind::Assign(Box::new((Into::into(*temp), rvalue.clone())))});
-            });
+                let ty = body.local_decls[Local::new(0)].ty; // FIXME: Get type better.
+                let span = body.span;
+
+                let local_decl = LocalDecl::new(ty, span);
+                let temp = body.local_decls.push(local_decl);
+                // Map this expression to the new temp for use in pass 2.
+                temp_map.insert(expr.clone(), temp.clone()); 
+
+                // Remember to insert an assignment to the local 'temp', we will derive the expression from the epxr idx later.
+                expressions_to_insert.insert(bb, (temp, expr));
+            }
         }
 
+        // Rule 2:
+        for bb in reverse_postorder.clone() {
+            let data = &mut body.basic_blocks.as_mut_preserves_cfg()[bb];
+            let used_out = used_map.get(&bb).expect("Oh Nohgawjkegh!");
+            let latest_set = latest.get(bb).expect("Not latest");
+
+
+            // println!("temps for bb {:?} : {:?}", bb, temps);
+            
+            // Get all uses of expressions. 
+            // Get uses for this BB. 
+            // Run visitor:
+
+            // Corny
+            // 
+            // let mut temp_rvalues = HashMap::<Local, (Rvalue<'_ >, Span)>::new();
+
+            let mut visitor = TempVisitor::new(
+                tcx, &temp_map, expr_hash_map.clone(), &used_out, &latest_set
+            );
+
+            // Replace expression with temp if not in Latest or in Out Used
+            visitor.visit_basic_block_data(bb, data);
+        }
+
+        let expr_map = &expr_hash_map.borrow().expr_table;
+
+        let reverse_expr_map: HashMap<ExprIdx, ExprSetElem> = expr_map.iter()
+            .map(|(k, v)| (v.clone(), k.clone())).collect();
+
+        let span = body.span;
+        // Generate assignments
+        for (bb, (temp, expr)) in expressions_to_insert.iter() {
+            let data = &mut body.basic_blocks.as_mut_preserves_cfg()[*bb];
+            let expression = reverse_expr_map.get(expr).expect("rvalue not found"); // Might need to generate this expression again, not sure if i can just summon it on the fly.
+            let ExprSetElem {bin_op, local1, local2} = expression;
+
+            let op1 = Operand::Copy(Place {local: *local1, projection: List::empty() });
+            let op2 = Operand::Copy(Place {local: *local2, projection: List::empty() });
+            // let op1 = // Copy(Place<'tcx>),
+
+            let rvalue = Rvalue::BinaryOp(*bin_op,  Box::new((op1, op2)));
+            
+            data.statements.insert(0, // FIXME: Insert in correct spot.
+                Statement { 
+                    source_info: SourceInfo::outermost(span), 
+                    kind: StatementKind::Assign(Box::new((Into::into(*temp), rvalue.clone())))});
+        }
     }
+}
+
+impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
+
+    fn tcx(&self) -> TyCtxt<'tcx> {
+        self.tcx
+    }
+    
+    fn visit_statement(&mut self, statement: &mut Statement<'tcx>, _: Location) {
+        // We need some way of dealing with constants
+        if let StatementKind::Assign(box (_, ref mut rvalue)) = statement.kind {
+
+            if let Rvalue::BinaryOp(bin_op, box(operand1, operand2)) = rvalue { 
+                if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
+                (operand1.place(), operand2.place())
+                {
+                    if let Some(expr_idx) = self.expr_hash_map.as_ref().borrow().expr_idx(ExprSetElem {
+                        bin_op: *bin_op,
+                        local1,
+                        local2,
+                    }) {
+                        println!("Statement has expression: {:?}", expr_idx);
+                        // If expr_idx in Latest and Out Used, add temporary to beginning of basic block
+
+                        // Replace expression with temp if not in Latest or in Out Used
+                        if self.used_out.contains(expr_idx) || !self.latest.contains(expr_idx) {
+                            let temp = self.temp_map.get(&expr_idx); 
+                            if let Some(temp) = temp {
+                                println!("Replacing {:?} with temp", expr_idx);
+                                *rvalue = Rvalue::Use(Operand::Copy((*temp).into()));
+                            } else {
+                                println!("no temp for {:?} ejalkwehjg", expr_idx);
+                            }
+                            
+                        }
+                    }
+                }
+            }
+             
+        }
+    } 
+    
+    /*
+    fn visit_statement(&mut self, statement: &mut Statement<'tcx>, _: Location) {
+        // We need some way of dealing with constants
+        if let StatementKind::Assign(box (_, ref mut rvalue)) = statement.kind {
+
+            if let Rvalue::BinaryOp(bin_op, box(operand1, operand2)) = rvalue { 
+                if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
+                (operand1.place(), operand2.place())
+                {
+                    if let Some(expr_idx) = self.expr_hash_map.as_ref().borrow().expr_idx(ExprSetElem {
+                        bin_op: *bin_op,
+                        local1,
+                        local2,
+                    }) {
+                        println!("Statement has expression: {:?}", expr_idx);
+                        println!("temps: {:?}", self.temps);
+                        // If expr_idx in Latest and Out Used, add temporary to beginning of basic block
+                        if self.temps.contains(expr_idx) {
+                            //
+                            println!("Adding Temporary for: {:?}", expr_idx);
+                            self.temp_rvals_map.entry(self.temp_map[&expr_idx]).or_insert((rvalue.clone(), statement.source_info.span.clone()));
+                        }
+                        // Replace expression with temp if not in Latest or in Out Used
+                        if self.used_out.contains(expr_idx) || !self.latest.contains(expr_idx) {
+                            let temp = self.temp_map.get(&expr_idx); 
+                            if let Some(temp) = temp {
+                                println!("Replacing {:?} with temp", expr_idx);
+                                *rvalue = Rvalue::Use(Operand::Copy((*temp).into()));
+                            } else {
+                                println!("no temp for {:?} ejalkwehjg", expr_idx);
+                            }
+                            
+                        }
+                    }
+                }
+            }
+             
+        } 
+    } */
 }

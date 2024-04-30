@@ -1,0 +1,473 @@
+Building stage0 library artifacts (x86_64-unknown-linux-gnu)
+Building compiler artifacts (stage0 -> stage1, x86_64-unknown-linux-gnu)
+Creating a sysroot for stage1 compiler (use `rustup toolchain link 'name' build/host/stage1`)
+Building stage1 library artifacts (x86_64-unknown-linux-gnu)
+Building stage0 tool compiletest (x86_64-unknown-linux-gnu)
+Testing stage1 compiletest suite=ui mode=ui (x86_64-unknown-linux-gnu)
+
+running 1 tests
+F
+
+failures:
+
+---- [ui] tests/ui/pre/anticipated-test-5.rs stdout ----
+normalized stdout:
+Body that analysis is running on DefId(0:6 ~ anticipated_test_5[45a5]::main)
+----------------ANTICIPATED DEBUG BEGIN----------------
+size: 5
+bb0[0]: stmt visited StorageLive(_1)
+bb1[1]: stmt visited _0 = const ()
+bb1[0]: stmt visited StorageDead(_1)
+----------------ANTICIPATED DEBUG END----------------
+
+
+
+Anticipated:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4)])
+----------------AVAILABLE DEBUG BEGIN----------------
+Entering BB: bb0
+stmt visited StorageLive(_1)
+Entering BB: bb1
+stmt visited StorageDead(_1)
+stmt visited _0 = const ()
+----------------AVAILABLE DEBUG END----------------
+
+
+
+Available:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([])
+----------------POSTPONABLE DEBUG BEGIN----------------
+Entering BB: bb0
+Entering BB: bb1
+----------------POSTPONABLE DEBUG END----------------
+
+
+
+Postponable:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([])
+earliest : [Dual([]), Dual([])]
+latest : [[], []]
+----------------USED DEBUG BEGIN----------------
+Calculating IN set for BB: bb0
+Calculating IN set for BB: bb1
+----------------USED DEBUG END----------------
+
+
+
+Used:
+entry set for block bb0 : []
+entry set for block bb1 : []
+Transforming the code
+temps for bb bb0 : []
+temps for bb bb1 : []
+Body that analysis is running on DefId(0:5 ~ anticipated_test_5[45a5]::simple)
+----------------ANTICIPATED DEBUG BEGIN----------------
+size: 13
+bb0[3]: stmt visited _5 = const true
+bb0[2]: stmt visited _4 = const 10_i32
+bb0[1]: stmt visited _3 = const 5_i32
+bb0[0]: stmt visited _2 = const 3_i32
+bb2[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb3[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb4[0]: stmt visited _0 = const 10_i32
+bb0[3]: stmt visited _5 = const true
+bb0[2]: stmt visited _4 = const 10_i32
+bb0[1]: stmt visited _3 = const 5_i32
+bb0[0]: stmt visited _2 = const 3_i32
+bb0[3]: stmt visited _5 = const true
+bb0[2]: stmt visited _4 = const 10_i32
+bb0[1]: stmt visited _3 = const 5_i32
+bb0[0]: stmt visited _2 = const 3_i32
+bb2[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb2[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb3[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb3[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb4[0]: stmt visited _0 = const 10_i32
+bb4[0]: stmt visited _0 = const 10_i32
+----------------ANTICIPATED DEBUG END----------------
+
+
+
+Anticipated:
+entry set for block bb0 : Dual([Expr(0)])
+entry set for block bb1 : Dual([Expr(0)])
+entry set for block bb2 : Dual([])
+entry set for block bb3 : Dual([])
+entry set for block bb4 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4), Expr(5), Expr(6), Expr(7), Expr(8), Expr(9), Expr(10), Expr(11), Expr(12)])
+----------------AVAILABLE DEBUG BEGIN----------------
+Entering BB: bb0
+stmt visited _2 = const 3_i32
+stmt visited _3 = const 5_i32
+stmt visited _4 = const 10_i32
+stmt visited _5 = const true
+Entering BB: bb2
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb3
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb4
+stmt visited _0 = const 10_i32
+Entering BB: bb0
+stmt visited _2 = const 3_i32
+stmt visited _3 = const 5_i32
+stmt visited _4 = const 10_i32
+stmt visited _5 = const true
+Entering BB: bb0
+stmt visited _2 = const 3_i32
+stmt visited _3 = const 5_i32
+stmt visited _4 = const 10_i32
+stmt visited _5 = const true
+Entering BB: bb2
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb2
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb3
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb3
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb4
+stmt visited _0 = const 10_i32
+Entering BB: bb4
+stmt visited _0 = const 10_i32
+----------------AVAILABLE DEBUG END----------------
+
+
+
+Available:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([Expr(0)])
+entry set for block bb2 : Dual([Expr(0)])
+entry set for block bb3 : Dual([Expr(0)])
+entry set for block bb4 : Dual([Expr(0)])
+----------------POSTPONABLE DEBUG BEGIN----------------
+Entering BB: bb0
+adding earliest expr: Expr(0)
+Entering BB: bb2
+KILL expr Add(_2, _3)
+Entering BB: bb3
+KILL expr Add(_2, _3)
+Entering BB: bb4
+Entering BB: bb0
+adding earliest expr: Expr(0)
+Entering BB: bb0
+adding earliest expr: Expr(0)
+Entering BB: bb2
+KILL expr Add(_2, _3)
+Entering BB: bb2
+KILL expr Add(_2, _3)
+Entering BB: bb3
+KILL expr Add(_2, _3)
+Entering BB: bb3
+KILL expr Add(_2, _3)
+Entering BB: bb4
+Entering BB: bb4
+----------------POSTPONABLE DEBUG END----------------
+
+
+
+Postponable:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([Expr(0)])
+entry set for block bb2 : Dual([Expr(0)])
+entry set for block bb3 : Dual([Expr(0)])
+entry set for block bb4 : Dual([])
+earliest : [Dual([Expr(0)]), Dual([]), Dual([]), Dual([]), Dual([])]
+latest : [[], [], [Expr(0)], [Expr(0)], []]
+----------------USED DEBUG BEGIN----------------
+Calculating IN set for BB: bb0
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb2
+[USED] killing latest expr: Expr(0)
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb3
+[USED] killing latest expr: Expr(0)
+Calculating IN set for BB: bb4
+Calculating IN set for BB: bb0
+Calculating IN set for BB: bb0
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb2
+[USED] killing latest expr: Expr(0)
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb2
+[USED] killing latest expr: Expr(0)
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb3
+[USED] killing latest expr: Expr(0)
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb3
+[USED] killing latest expr: Expr(0)
+Calculating IN set for BB: bb4
+Calculating IN set for BB: bb4
+----------------USED DEBUG END----------------
+
+
+
+Used:
+entry set for block bb0 : []
+entry set for block bb1 : []
+entry set for block bb2 : []
+entry set for block bb3 : []
+entry set for block bb4 : []
+Transforming the code
+temps for bb bb0 : []
+temps for bb bb1 : []
+temps for bb bb2 : []
+temps for bb bb3 : []
+temps for bb bb4 : []
+Statement has expression: Expr(0)
+Statement has expression: Expr(0)
+
+
+
+The actual stdout differed from the expected stdout.
+Actual stdout saved to /home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/anticipated-test-5/anticipated-test-5.stdout
+To update references, rerun the tests and pass the `--bless` flag
+To only update this specific test, also pass `--test-args pre/anticipated-test-5.rs`
+
+error: 1 errors occurred comparing output.
+status: exit status: 0
+command: RUSTC_ICE="0" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/stage1/bin/rustc" "/home/xavierrouth/dev/rust/tests/ui/pre/anticipated-test-5.rs" "-Zthreads=1" "-Zsimulate-remapped-rust-src-base=/rustc/FAKE_PREFIX" "-Ztranslate-remapped-path-to-local-path=no" "-Z" "ignore-directory-in-diagnostics-source-blocks=/home/xavierrouth/.cargo" "--sysroot" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/stage1" "--target=x86_64-unknown-linux-gnu" "--error-format" "json" "--json" "future-incompat" "-Ccodegen-units=1" "-Zui-testing" "-Zdeduplicate-diagnostics=no" "-Zwrite-long-types-to-disk=no" "-Cstrip=debuginfo" "-C" "prefer-dynamic" "--out-dir" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/anticipated-test-5" "-A" "unused" "-A" "internal_features" "-Crpath" "-Cdebuginfo=0" "-Lnative=/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/native/rust-test-helpers" "-L" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/anticipated-test-5/auxiliary" "-Zdump_mir=simple" "-Zdump-mir-dataflow=y" "-Zmir-opt-level=0" "-Zmir-enable-passes=+PartialRedundancyElimination,-SimplifyCfg-elaborate-drops"
+--- stdout -------------------------------
+Body that analysis is running on DefId(0:6 ~ anticipated_test_5[45a5]::main)
+----------------ANTICIPATED DEBUG BEGIN----------------
+size: 5
+bb0[0]: stmt visited StorageLive(_1)
+bb1[1]: stmt visited _0 = const ()
+bb1[0]: stmt visited StorageDead(_1)
+----------------ANTICIPATED DEBUG END----------------
+
+
+
+Anticipated:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4)])
+----------------AVAILABLE DEBUG BEGIN----------------
+Entering BB: bb0
+stmt visited StorageLive(_1)
+Entering BB: bb1
+stmt visited StorageDead(_1)
+stmt visited _0 = const ()
+----------------AVAILABLE DEBUG END----------------
+
+
+
+Available:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([])
+----------------POSTPONABLE DEBUG BEGIN----------------
+Entering BB: bb0
+Entering BB: bb1
+----------------POSTPONABLE DEBUG END----------------
+
+
+
+Postponable:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([])
+earliest : [Dual([]), Dual([])]
+latest : [[], []]
+----------------USED DEBUG BEGIN----------------
+Calculating IN set for BB: bb0
+Calculating IN set for BB: bb1
+----------------USED DEBUG END----------------
+
+
+
+Used:
+entry set for block bb0 : []
+entry set for block bb1 : []
+Transforming the code
+temps for bb bb0 : []
+temps for bb bb1 : []
+Body that analysis is running on DefId(0:5 ~ anticipated_test_5[45a5]::simple)
+----------------ANTICIPATED DEBUG BEGIN----------------
+size: 13
+bb0[3]: stmt visited _5 = const true
+bb0[2]: stmt visited _4 = const 10_i32
+bb0[1]: stmt visited _3 = const 5_i32
+bb0[0]: stmt visited _2 = const 3_i32
+bb2[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb3[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb4[0]: stmt visited _0 = const 10_i32
+bb0[3]: stmt visited _5 = const true
+bb0[2]: stmt visited _4 = const 10_i32
+bb0[1]: stmt visited _3 = const 5_i32
+bb0[0]: stmt visited _2 = const 3_i32
+bb0[3]: stmt visited _5 = const true
+bb0[2]: stmt visited _4 = const 10_i32
+bb0[1]: stmt visited _3 = const 5_i32
+bb0[0]: stmt visited _2 = const 3_i32
+bb2[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb2[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb3[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb3[0]: stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+bb4[0]: stmt visited _0 = const 10_i32
+bb4[0]: stmt visited _0 = const 10_i32
+----------------ANTICIPATED DEBUG END----------------
+
+
+
+Anticipated:
+entry set for block bb0 : Dual([Expr(0)])
+entry set for block bb1 : Dual([Expr(0)])
+entry set for block bb2 : Dual([])
+entry set for block bb3 : Dual([])
+entry set for block bb4 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4), Expr(5), Expr(6), Expr(7), Expr(8), Expr(9), Expr(10), Expr(11), Expr(12)])
+----------------AVAILABLE DEBUG BEGIN----------------
+Entering BB: bb0
+stmt visited _2 = const 3_i32
+stmt visited _3 = const 5_i32
+stmt visited _4 = const 10_i32
+stmt visited _5 = const true
+Entering BB: bb2
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb3
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb4
+stmt visited _0 = const 10_i32
+Entering BB: bb0
+stmt visited _2 = const 3_i32
+stmt visited _3 = const 5_i32
+stmt visited _4 = const 10_i32
+stmt visited _5 = const true
+Entering BB: bb0
+stmt visited _2 = const 3_i32
+stmt visited _3 = const 5_i32
+stmt visited _4 = const 10_i32
+stmt visited _5 = const true
+Entering BB: bb2
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb2
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb3
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb3
+stmt visited _4 = Add(_2, _3)
+GEN expr Add(_2, _3)
+Entering BB: bb4
+stmt visited _0 = const 10_i32
+Entering BB: bb4
+stmt visited _0 = const 10_i32
+----------------AVAILABLE DEBUG END----------------
+
+
+
+Available:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([Expr(0)])
+entry set for block bb2 : Dual([Expr(0)])
+entry set for block bb3 : Dual([Expr(0)])
+entry set for block bb4 : Dual([Expr(0)])
+----------------POSTPONABLE DEBUG BEGIN----------------
+Entering BB: bb0
+adding earliest expr: Expr(0)
+Entering BB: bb2
+KILL expr Add(_2, _3)
+Entering BB: bb3
+KILL expr Add(_2, _3)
+Entering BB: bb4
+Entering BB: bb0
+adding earliest expr: Expr(0)
+Entering BB: bb0
+adding earliest expr: Expr(0)
+Entering BB: bb2
+KILL expr Add(_2, _3)
+Entering BB: bb2
+KILL expr Add(_2, _3)
+Entering BB: bb3
+KILL expr Add(_2, _3)
+Entering BB: bb3
+KILL expr Add(_2, _3)
+Entering BB: bb4
+Entering BB: bb4
+----------------POSTPONABLE DEBUG END----------------
+
+
+
+Postponable:
+entry set for block bb0 : Dual([])
+entry set for block bb1 : Dual([Expr(0)])
+entry set for block bb2 : Dual([Expr(0)])
+entry set for block bb3 : Dual([Expr(0)])
+entry set for block bb4 : Dual([])
+earliest : [Dual([Expr(0)]), Dual([]), Dual([]), Dual([]), Dual([])]
+latest : [[], [], [Expr(0)], [Expr(0)], []]
+----------------USED DEBUG BEGIN----------------
+Calculating IN set for BB: bb0
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb2
+[USED] killing latest expr: Expr(0)
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb3
+[USED] killing latest expr: Expr(0)
+Calculating IN set for BB: bb4
+Calculating IN set for BB: bb0
+Calculating IN set for BB: bb0
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb2
+[USED] killing latest expr: Expr(0)
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb2
+[USED] killing latest expr: Expr(0)
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb3
+[USED] killing latest expr: Expr(0)
+e-used expr Add(_2, _3)
+Calculating IN set for BB: bb3
+[USED] killing latest expr: Expr(0)
+Calculating IN set for BB: bb4
+Calculating IN set for BB: bb4
+----------------USED DEBUG END----------------
+
+
+
+Used:
+entry set for block bb0 : []
+entry set for block bb1 : []
+entry set for block bb2 : []
+entry set for block bb3 : []
+entry set for block bb4 : []
+Transforming the code
+temps for bb bb0 : []
+temps for bb bb1 : []
+temps for bb bb2 : []
+temps for bb bb3 : []
+temps for bb bb4 : []
+Statement has expression: Expr(0)
+Statement has expression: Expr(0)
+------------------------------------------
+stderr: none
+
+
+
+failures:
+    [ui] tests/ui/pre/anticipated-test-5.rs
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16089 filtered out; finished in 117.05ms
+
+Some tests failed in compiletest suite=ui mode=ui host=x86_64-unknown-linux-gnu target=x86_64-unknown-linux-gnu
