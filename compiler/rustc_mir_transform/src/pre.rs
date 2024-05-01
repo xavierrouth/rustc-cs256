@@ -1,5 +1,6 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports)]
+use rustc_middle::middle::stability::Index;
 use rustc_middle::mir::visit::MutVisitor;
 #[allow(rustc::default_hash_types)]
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
@@ -192,7 +193,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         let expr_hash_map = Rc::new(RefCell::new(ExprHashMap::new()));
 
         let terminal_blocks = self.terminal_blocks(body);
-        let anticipated = AnticipatedExpressions::new(body, expr_hash_map.clone())
+        let mut anticipated = AnticipatedExpressions::new(body, expr_hash_map.clone())
             .into_engine(tcx, body)
             .pass_name("anticipated_exprs")
             .iterate_to_fixpoint()
@@ -201,16 +202,28 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
 
         let _state = anticipated.get();
 
+        let size = Self::count_statements(body) + body.local_decls.len(); // Fixme 
+        let mut anticipated_exprs = IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks);
+
         println!("Anticipated:");
-        for (bb, _block) in body.basic_blocks.iter_enumerated() {
-            //anticipated.seek_to_block_end(bb);
+        for (bb, block) in body.basic_blocks.iter_enumerated() {
+            anticipated.seek_to_block_end(bb);
 
             println!(
-                "entry set for block {:?} : {:?}",
+                "seek to block end {:?} : {:?}",
                 bb,
-                anticipated.results().entry_set_for_block(bb)
+                anticipated.get()
             );
-            //anticipated.seek_to_block_start(bb);
+
+            anticipated.seek_to_block_start(bb);
+            println!(
+                "seek to block start {:?} : {:?}",
+                bb,
+                anticipated.get()
+            );
+
+            let set = anticipated.get();
+            anticipated_exprs.insert(block, set);
         }
 
         println!("----------------AVAILABLE DEBUG BEGIN----------------");
@@ -307,7 +320,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             // Seperate 'used' cursor from a shared ref of block
 
             used.seek_to_block_end(bb);
-            // used.seek_to_block_start(bb);
+            //used.seek_to_block_start(bb);
             let used_out = used.get().clone();
             used_map.entry(bb).or_insert(used_out);
         }

@@ -179,8 +179,8 @@ where
                         self.trans.gen(expr_idx);
 
                         // Add to the expr_set
-                        //self.expr_table.add_operand_mapping(local1, expr_idx);
-                        //self.expr_table.add_operand_mapping(local2, expr_idx);
+                        self.expr_table.as_ref().borrow_mut().add_operand_mapping(local1, expr_idx);
+                        self.expr_table.as_ref().borrow_mut().add_operand_mapping(local2, expr_idx);
                     }
                 }
 

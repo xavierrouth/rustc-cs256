@@ -158,7 +158,7 @@ impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions< 'tcx> {
 // 
 #[allow(dead_code)]
 pub(super) struct AvailTransferFunction<'a, 'tcx, T> {
-    anticipated_exprs: &'a AnticipatedExpressionsResults<'tcx>,
+    anticipated_exprs: IndexVec<BasicBlock, Dual<BitSet<ExprIdx>>>, // &'a AnticipatedExpressionsResults<'tcx>,
     trans: &'a mut T,
     //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: Rc<RefCell<ExprHashMap>>,
@@ -174,7 +174,10 @@ where
         if location.statement_index == 0 {
             println!("Entering BB: {:?}", location.block);
 
-            let anticipated_exprs = self.anticipated_exprs.entry_set_for_block(location.block);
+            // This needs to be  I_anticipated:
+            // anticipated_exprs
+            //.anticipated.seek_to_block_start(bb);
+            let anticipated_exprs = self.anticipated_exprs.get(location.block);
             
             for expr in anticipated_exprs.0.iter() {
                 //println!("adding anticipated expr: {:?}", expr);
