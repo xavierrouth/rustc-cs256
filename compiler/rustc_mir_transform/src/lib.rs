@@ -599,7 +599,7 @@ fn run_optimization_passes<'tcx>(tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
             &simplify::SimplifyLocals::BeforeConstProp,
             &dead_store_elimination::DeadStoreElimination::Initial,
             &gvn::GVN,
-            &pre::PartialRedundancyElimination,
+            // &pre::PartialRedundancyElimination,
             &simplify::SimplifyLocals::AfterGVN,
             // Perform `SeparateConstSwitch` after SSA-based analyses, as cloning blocks may
             // destroy the SSA property. It should still happen before const-propagation, so the
@@ -616,6 +616,7 @@ fn run_optimization_passes<'tcx>(tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
             &o1(remove_noop_landing_pads::RemoveNoopLandingPads),
             &o1(simplify::SimplifyCfg::Final),
             &copy_prop::CopyProp,
+            &pre::PartialRedundancyElimination, 
             &dead_store_elimination::DeadStoreElimination::Final,
             &nrvo::RenameReturnPlace,
             &simplify::SimplifyLocals::Final,

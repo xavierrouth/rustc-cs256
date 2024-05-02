@@ -1,6 +1,7 @@
 // Partial Redundancy Elimination
 #![allow(unused_imports, unreachable_code, dead_code, unused_variables)]
 use rustc_middle::middle::stability::Index;
+use rustc_middle::mir::graphviz::write_mir_fn_graphviz;
 use rustc_middle::mir::visit::MutVisitor;
 #[allow(rustc::default_hash_types)]
 use rustc_middle::mir::visit::{MutatingUseContext, NonMutatingUseContext, PlaceContext, Visitor};
@@ -15,7 +16,7 @@ use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 use std::rc::Rc;
 use rustc_middle::ty::List;
-
+use std::fs::File;
 use rustc_index::bit_set::{BitSet, ChunkedBitSet};
 use rustc_index::Idx;
 
@@ -262,6 +263,8 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
     #[instrument(level = "trace", skip(self, tcx, body))]
     fn run_pass(&self, tcx: TyCtxt<'tcx>, body: &mut Body<'tcx>) {
         //let debug_info = 0;
+        let mut before_file = File::create("before.dot").unwrap();
+        let _ = write_mir_fn_graphviz(tcx, body, false, &mut before_file).expect("failed to write before file");
 
         debug!(def_id = ?body.source.def_id());
         println!("Body that analysis is running on {:?}", &body.source.def_id());
@@ -412,6 +415,36 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         // let mut local_cnt = body.local_decls().len();
 
         // let bb_count = body.basic_blocks.len();
+        let mut expr_type_table: HashMap<ExprIdx, Ty<'tcx>> = HashMap::new();
+
+        for (bb, data) in body.basic_blocks.iter_enumerated() {
+            for stmt in &data.statements {
+                // We only care about assignments for now
+                if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
+                    // If current rvalue operands match no assigned operands in current BB, add to gen
+                    match rvalue {
+                        Rvalue::BinaryOp(bin_op, box (operand1, operand2))
+                        | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) => {
+                            // We need some way of dealing with constants
+                            if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
+                                (operand1.place(), operand2.place())
+                            {
+                                let expr_idx = expr_hash_map.as_ref().borrow_mut().expr_idx_mut(ExprSetElem {
+                                    bin_op: *bin_op,
+                                    local1,
+                                    local2,
+                                });
+                                
+                                expr_type_table.insert(expr_idx, body.local_decls[place.local].ty);
+                            }
+                        }
+
+                        _ => {}
+                    }
+
+                }
+            }
+        }
 
         let mut used_map = HashMap::<BasicBlock, BitSet<ExprIdx>>::new();
         
@@ -450,10 +483,12 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
                         tmp.get().clone()
                     }
                     std::collections::hash_map::Entry::Vacant(a) => {
-                        let ty = body.local_decls[Local::new(0)].ty; // FIXME: Get type better.
+                        //let ty = body.local_decls[Local::new(0)].ty; // FIXME: Get type better.
+                        let ty = expr_type_table.get(&expr).expect("UH OH TYPE MISSING");
+
                         let span = body.span;
         
-                        let local_decl = LocalDecl::new(ty, span);
+                        let local_decl = LocalDecl::new(*ty, span);
                         let temp = body.local_decls.push(local_decl);
 
                         a.insert(temp).clone()
@@ -506,13 +541,16 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             let op2 = Operand::Copy(Place {local: *local2, projection: List::empty() });
             // let op1 = // Copy(Place<'tcx>),
 
-            let rvalue = Rvalue::BinaryOp(*bin_op,  Box::new((op1, op2)));
+            let rvalue = Rvalue::CheckedBinaryOp(*bin_op,  Box::new((op1, op2)));
             
             data.statements.insert(0, // FIXME: Insert in correct spot.
                 Statement { 
                     source_info: SourceInfo::outermost(span), 
                     kind: StatementKind::Assign(Box::new((Into::into(*temp), rvalue.clone())))});
         }
+
+        let mut after_file = File::create("after.dot").unwrap();
+        write_mir_fn_graphviz(tcx, body, false, &mut after_file).expect("failed to write after file");
     }
 }
 
@@ -525,8 +563,9 @@ impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
     fn visit_statement(&mut self, statement: &mut Statement<'tcx>, _: Location) {
         // We need some way of dealing with constants
         if let StatementKind::Assign(box (_, ref mut rvalue)) = statement.kind {
-
-            if let Rvalue::BinaryOp(bin_op, box(operand1, operand2)) = rvalue { 
+            match rvalue { Rvalue::BinaryOp(bin_op, box(operand1, operand2))
+                | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) =>
+            
                 if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
                 (operand1.place(), operand2.place())
                 {
@@ -551,6 +590,7 @@ impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
                         }
                     }
                 }
+                _ => {}
             }
              
         }
