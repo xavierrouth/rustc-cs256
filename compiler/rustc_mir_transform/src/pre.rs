@@ -112,40 +112,58 @@ impl<'tcx> PartialRedundancyElimination {
         // Find predecessors, and terminators to insert
         struct InsertionInfo {
             source: BasicBlock,
-            dest: BasicBlock,
-            // Terminator Index. // If souce has a temrinator with multiple destinations which one 
-            terminator_index: usize,
+            dest: BasicBlock
         }
 
         let mut to_insert = Vec::new();
 
-        to_insert.push(InsertionInfo { source: todo!(), dest: todo!(), terminator_index: todo!() });
+        // Fixme: What if a terminator can go to the same node on multiple edges.
 
-        for block in body.basic_blocks.iter() {
+        for (bb_dest, dest) in body.basic_blocks.iter_enumerated() {
+            let all_predecessors = body.basic_blocks.predecessors();
             // Insert blocks w/ multiple predecessors.
+            let preds = &all_predecessors[bb_dest];
+            if preds.len() > 1 {
+                for p in preds {
+                    let info = InsertionInfo {
+                        source: *p,
+                        dest: bb_dest
+                    };
+                    to_insert.push(info);
+                }
+            }
         }
         // body.
 
-        let blocks = body.basic_blocks.as_mut();
+        
 
-        for InsertionInfo {source, dest, terminator_index} in to_insert {
+        for InsertionInfo {source, dest} in to_insert {
             // Fixme: Is there a better way to get a terminator?
-            let terminator = Terminator {source_info: todo!(), kind: TerminatorKind::Goto {target: dest}}; 
+           
+            let source_info = SourceInfo::outermost(body.span);
+            let terminator = Terminator {source_info, kind: TerminatorKind::Goto {target: dest}}; 
             let new_block_data = BasicBlockData::new(Some(terminator)); 
 
+            let blocks = body.basic_blocks.as_mut();
             let new_block: BasicBlock = blocks.push(new_block_data);
 
             // Edit old terminator
             let old_terminator = body[source].terminator_mut();
 
-            match old_terminator.kind {
+            match &mut old_terminator.kind {
                 TerminatorKind::Goto { target } => {
                     old_terminator.kind = TerminatorKind::Goto{target: new_block};
                 },
-                TerminatorKind::SwitchInt { discr, targets } => todo!(),
+                TerminatorKind::SwitchInt { discr, ref mut targets } => {
+                    for target in targets.all_targets_mut() {
+                        if *target == dest {
+                            *target = new_block;
+                        }
+                    }
+                }
                 TerminatorKind::UnwindResume => todo!(),
                 TerminatorKind::UnwindTerminate(_) => todo!(),
-                TerminatorKind::Return => todo!(),
+                TerminatorKind::Return => (), //todo!(),
                 TerminatorKind::Unreachable => todo!(),
                 TerminatorKind::Drop { place, target, unwind, replace } => todo!(),
                 TerminatorKind::Call { func, args, destination, target, unwind, call_source, fn_span } => todo!(),
