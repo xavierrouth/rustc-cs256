@@ -1,5 +1,5 @@
 // Partial Redundancy Elimination
-#![allow(unused_imports)]
+#![allow(unused_imports, unreachable_code, dead_code, unused_variables)]
 use rustc_middle::middle::stability::Index;
 use rustc_middle::mir::visit::MutVisitor;
 #[allow(rustc::default_hash_types)]
@@ -107,6 +107,62 @@ impl<'tcx> PartialRedundancyElimination {
         }
         terminals
     }
+
+    fn preprocess_blocks(&self, body: &mut Body<'tcx>) {
+        // Find predecessors, and terminators to insert
+        struct InsertionInfo {
+            source: BasicBlock,
+            dest: BasicBlock,
+            // Terminator Index. // If souce has a temrinator with multiple destinations which one 
+            terminator_index: usize,
+        }
+
+        let mut to_insert = Vec::new();
+
+        to_insert.push(InsertionInfo { source: todo!(), dest: todo!(), terminator_index: todo!() });
+
+        for block in body.basic_blocks.iter() {
+            // Insert blocks w/ multiple predecessors.
+        }
+        // body.
+
+        let blocks = body.basic_blocks.as_mut();
+
+        for InsertionInfo {source, dest, terminator_index} in to_insert {
+            // Fixme: Is there a better way to get a terminator?
+            let terminator = Terminator {source_info: todo!(), kind: TerminatorKind::Goto {target: dest}}; 
+            let new_block_data = BasicBlockData::new(Some(terminator)); 
+
+            let new_block: BasicBlock = blocks.push(new_block_data);
+
+            // Edit old terminator
+            let old_terminator = body[source].terminator_mut();
+
+            match old_terminator.kind {
+                TerminatorKind::Goto { target } => {
+                    old_terminator.kind = TerminatorKind::Goto{target: new_block};
+                },
+                TerminatorKind::SwitchInt { discr, targets } => todo!(),
+                TerminatorKind::UnwindResume => todo!(),
+                TerminatorKind::UnwindTerminate(_) => todo!(),
+                TerminatorKind::Return => todo!(),
+                TerminatorKind::Unreachable => todo!(),
+                TerminatorKind::Drop { place, target, unwind, replace } => todo!(),
+                TerminatorKind::Call { func, args, destination, target, unwind, call_source, fn_span } => todo!(),
+                TerminatorKind::Assert { cond, expected, msg, target, unwind } => todo!(),
+                TerminatorKind::Yield { value, resume, resume_arg, drop } => todo!(),
+                TerminatorKind::CoroutineDrop => todo!(),
+                TerminatorKind::FalseEdge { real_target, imaginary_target } => todo!(),
+                TerminatorKind::FalseUnwind { real_target, unwind } => todo!(),
+                TerminatorKind::InlineAsm { template, operands, options, line_spans, destination, unwind } => todo!(),
+            }
+        }
+        
+        // BasicBlockData::new()
+        
+
+    }
+
     #[allow(rustc::default_hash_types)]
     fn compute_earliest(
         &self,
@@ -191,6 +247,9 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
 
         debug!(def_id = ?body.source.def_id());
         println!("Body that analysis is running on {:?}", &body.source.def_id());
+
+        self.preprocess_blocks(body);
+
         println!("----------------ANTICIPATED DEBUG BEGIN----------------");
         let expr_hash_map = Rc::new(RefCell::new(ExprHashMap::new()));
 
@@ -365,16 +424,26 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             for expr in temps.iter() {
                 println!("Inserting temp for {:?}", expr);
 
-                let ty = body.local_decls[Local::new(0)].ty; // FIXME: Get type better.
-                let span = body.span;
 
-                let local_decl = LocalDecl::new(ty, span);
-                let temp = body.local_decls.push(local_decl);
                 // Map this expression to the new temp for use in pass 2.
-                temp_map.insert(expr.clone(), temp.clone()); 
+                // SURELY THERE IS .entry().or_insert_fn(|a| { body of entry::vacant(a)} )
+                let temp_local = match temp_map.entry(expr.clone()) {
+                    std::collections::hash_map::Entry::Occupied(tmp) => {
+                        tmp.get().clone()
+                    }
+                    std::collections::hash_map::Entry::Vacant(a) => {
+                        let ty = body.local_decls[Local::new(0)].ty; // FIXME: Get type better.
+                        let span = body.span;
+        
+                        let local_decl = LocalDecl::new(ty, span);
+                        let temp = body.local_decls.push(local_decl);
+
+                        a.insert(temp).clone()
+                    }
+                };
 
                 // Remember to insert an assignment to the local 'temp', we will derive the expression from the epxr idx later.
-                expressions_to_insert.insert(bb, (temp, expr));
+                expressions_to_insert.insert(bb, (temp_local, expr));
             }
         }
 

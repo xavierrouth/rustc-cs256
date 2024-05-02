@@ -11,1317 +11,320 @@ F
 failures:
 
 ---- [ui] tests/ui/pre/pre-mir-test-7.rs stdout ----
-normalized stdout:
-Body that analysis is running on DefId(0:6 ~ pre_mir_test_7[1462]::main)
-----------------ANTICIPATED DEBUG BEGIN----------------
-size: 5
-bb0[0]: stmt visited StorageLive(_1)
-bb1[1]: stmt visited _0 = const ()
-bb1[0]: stmt visited StorageDead(_1)
-----------------ANTICIPATED DEBUG END----------------
 
-
-
-bb0[0]: stmt visited StorageLive(_1)
-bb1[1]: stmt visited _0 = const ()
-bb1[0]: stmt visited StorageDead(_1)
-Anticipated:
-set for block bb0 : Dual([])
-set for block bb1 : Dual([])
-----------------AVAILABLE DEBUG BEGIN----------------
-stmt visited StorageLive(_1)
-Entering BB: bb0
-stmt visited StorageDead(_1)
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-stmt visited _0 = const ()
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue]
-terminator visited return
-----------------AVAILABLE DEBUG END----------------
-
-
-
-stmt visited StorageLive(_1)
-Entering BB: bb0
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue]
-stmt visited StorageDead(_1)
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-stmt visited _0 = const ()
-terminator visited return
-Available:
-in set for block bb0 : Dual([])
-out set for block bb0 : Dual([])
-in set for block bb1 : Dual([])
-out set for block bb1 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4)])
-----------------POSTPONABLE DEBUG BEGIN----------------
-stmt visited StorageLive(_1)
-Entering BB: bb0
-stmt visited StorageDead(_1)
-Entering BB: bb1
-stmt visited _0 = const ()
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue]
-terminator visited return
-----------------POSTPONABLE DEBUG END----------------
-
-
-
-Postponable:
-entry set for block bb0 : Dual([])
-entry set for block bb1 : Dual([])
-earliest : [Dual([]), Dual([])]
-latest : [[], []]
-----------------USED DEBUG BEGIN----------------
-latest exprs: [[], []]
-stmt visited StorageLive(_1)
-Calculating IN set for BB: bb0
-stmt visited _0 = const ()
-stmt visited StorageDead(_1)
-Calculating IN set for BB: bb1
-terminator visited return, location bb1
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue], location bb0
-----------------USED DEBUG END----------------
-
-
-
-Used:
-entry set for block bb0 : []
-entry set for block bb1 : []
-Transforming the code
-temps for bb bb0 : []
-temps for bb bb1 : []
-Body that analysis is running on DefId(0:5 ~ pre_mir_test_7[1462]::simple)
-----------------ANTICIPATED DEBUG BEGIN----------------
-size: 13
-bb0[2]: stmt visited _4 = const false
-bb0[1]: stmt visited _3 = const true
-bb0[0]: stmt visited _2 = const 1_i32
-bb6[0]: stmt visited _5 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb9[0]: stmt visited _6 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb10[0]: stmt visited _0 = const 19_i32
-bb0[2]: stmt visited _4 = const false
-bb0[1]: stmt visited _3 = const true
-bb0[0]: stmt visited _2 = const 1_i32
-KILL expr Expr(0)
-bb0[2]: stmt visited _4 = const false
-bb0[1]: stmt visited _3 = const true
-bb0[0]: stmt visited _2 = const 1_i32
-KILL expr Expr(0)
-bb6[0]: stmt visited _5 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb6[0]: stmt visited _5 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb9[0]: stmt visited _6 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb9[0]: stmt visited _6 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb10[0]: stmt visited _0 = const 19_i32
-bb10[0]: stmt visited _0 = const 19_i32
-----------------ANTICIPATED DEBUG END----------------
-
-
-
-bb0[2]: stmt visited _4 = const false
-bb0[1]: stmt visited _3 = const true
-bb0[0]: stmt visited _2 = const 1_i32
-KILL expr Expr(0)
-bb6[0]: stmt visited _5 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb9[0]: stmt visited _6 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb10[0]: stmt visited _0 = const 19_i32
-Anticipated:
-set for block bb0 : Dual([])
-set for block bb1 : Dual([Expr(0)])
-set for block bb2 : Dual([Expr(0)])
-set for block bb3 : Dual([Expr(0)])
-set for block bb4 : Dual([Expr(0)])
-set for block bb5 : Dual([Expr(0)])
-set for block bb6 : Dual([Expr(0)])
-set for block bb7 : Dual([Expr(0)])
-set for block bb8 : Dual([Expr(0)])
-set for block bb9 : Dual([Expr(0)])
-set for block bb10 : Dual([])
-----------------AVAILABLE DEBUG BEGIN----------------
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-GEN: anticipated expr: Expr(0)
-KILL expr Expr(0)
-stmt visited _3 = const true
-stmt visited _4 = const false
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _1)
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-GEN expr Add(_2, _1)
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-GEN: anticipated expr: Expr(5)
-GEN: anticipated expr: Expr(6)
-GEN: anticipated expr: Expr(7)
-GEN: anticipated expr: Expr(8)
-GEN: anticipated expr: Expr(9)
-GEN: anticipated expr: Expr(10)
-GEN: anticipated expr: Expr(11)
-GEN: anticipated expr: Expr(12)
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb4
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb5
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb8
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb10
-terminator visited return
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-GEN: anticipated expr: Expr(0)
-KILL expr Expr(0)
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-GEN: anticipated expr: Expr(0)
-KILL expr Expr(0)
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb4
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb4
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb5
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb5
-GEN: anticipated expr: Expr(0)
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _1)
-terminator visited goto -> bb7
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _1)
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb8
-Entering BB: bb7
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb8
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb8
-GEN: anticipated expr: Expr(0)
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-GEN expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-GEN expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-GEN: anticipated expr: Expr(5)
-GEN: anticipated expr: Expr(6)
-GEN: anticipated expr: Expr(7)
-GEN: anticipated expr: Expr(8)
-GEN: anticipated expr: Expr(9)
-GEN: anticipated expr: Expr(10)
-GEN: anticipated expr: Expr(11)
-GEN: anticipated expr: Expr(12)
-terminator visited return
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-GEN: anticipated expr: Expr(5)
-GEN: anticipated expr: Expr(6)
-GEN: anticipated expr: Expr(7)
-GEN: anticipated expr: Expr(8)
-GEN: anticipated expr: Expr(9)
-GEN: anticipated expr: Expr(10)
-GEN: anticipated expr: Expr(11)
-GEN: anticipated expr: Expr(12)
-terminator visited return
-----------------AVAILABLE DEBUG END----------------
-
-
-
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-GEN: anticipated expr: Expr(0)
-KILL expr Expr(0)
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb4
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb5
-GEN: anticipated expr: Expr(0)
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _1)
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb8
-GEN: anticipated expr: Expr(0)
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-GEN expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-GEN: anticipated expr: Expr(5)
-GEN: anticipated expr: Expr(6)
-GEN: anticipated expr: Expr(7)
-GEN: anticipated expr: Expr(8)
-GEN: anticipated expr: Expr(9)
-GEN: anticipated expr: Expr(10)
-GEN: anticipated expr: Expr(11)
-GEN: anticipated expr: Expr(12)
-terminator visited return
-Available:
-in set for block bb0 : Dual([])
-out set for block bb0 : Dual([])
-in set for block bb1 : Dual([])
-out set for block bb1 : Dual([Expr(0)])
-in set for block bb2 : Dual([Expr(0)])
-out set for block bb2 : Dual([Expr(0)])
-in set for block bb3 : Dual([Expr(0)])
-out set for block bb3 : Dual([Expr(0)])
-in set for block bb4 : Dual([Expr(0)])
-out set for block bb4 : Dual([Expr(0)])
-in set for block bb5 : Dual([Expr(0)])
-out set for block bb5 : Dual([Expr(0)])
-in set for block bb6 : Dual([Expr(0)])
-out set for block bb6 : Dual([Expr(0)])
-in set for block bb7 : Dual([Expr(0)])
-out set for block bb7 : Dual([Expr(0)])
-in set for block bb8 : Dual([Expr(0)])
-out set for block bb8 : Dual([Expr(0)])
-in set for block bb9 : Dual([Expr(0)])
-out set for block bb9 : Dual([Expr(0)])
-in set for block bb10 : Dual([Expr(0)])
-out set for block bb10 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4), Expr(5), Expr(6), Expr(7), Expr(8), Expr(9), Expr(10), Expr(11), Expr(12)])
-----------------POSTPONABLE DEBUG BEGIN----------------
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-stmt visited _3 = const true
-stmt visited _4 = const false
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-KILL expr Add(_2, _1)
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-KILL expr Add(_2, _1)
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: earliest expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-terminator visited goto -> bb4
-Entering BB: bb3
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-terminator visited goto -> bb9
-Entering BB: bb5
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-terminator visited goto -> bb9
-Entering BB: bb8
-terminator visited goto -> bb10
-terminator visited return
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: earliest expr: Expr(0)
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: earliest expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-terminator visited goto -> bb3
-Entering BB: bb2
-terminator visited goto -> bb4
-Entering BB: bb3
-terminator visited goto -> bb4
-Entering BB: bb3
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-terminator visited goto -> bb9
-Entering BB: bb5
-terminator visited goto -> bb9
-Entering BB: bb5
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-KILL expr Add(_2, _1)
-terminator visited goto -> bb7
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-KILL expr Add(_2, _1)
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-terminator visited goto -> bb9
-Entering BB: bb8
-terminator visited goto -> bb9
-Entering BB: bb8
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-KILL expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-KILL expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-terminator visited return
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-terminator visited return
-----------------POSTPONABLE DEBUG END----------------
-
-
-
-Postponable:
-entry set for block bb0 : Dual([])
-entry set for block bb1 : Dual([])
-entry set for block bb2 : Dual([Expr(0)])
-entry set for block bb3 : Dual([Expr(0)])
-entry set for block bb4 : Dual([Expr(0)])
-entry set for block bb5 : Dual([Expr(0)])
-entry set for block bb6 : Dual([Expr(0)])
-entry set for block bb7 : Dual([])
-entry set for block bb8 : Dual([])
-entry set for block bb9 : Dual([])
-entry set for block bb10 : Dual([])
-earliest : [Dual([]), Dual([Expr(0)]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([])]
-latest : [[], [], [], [], [], [Expr(0)], [Expr(0)], [], [], [], []]
-----------------USED DEBUG BEGIN----------------
-latest exprs: [[], [], [], [], [], [Expr(0)], [Expr(0)], [], [], [], []]
-stmt visited _4 = const false
-stmt visited _3 = const true
-stmt visited _2 = const 1_i32
-Calculating IN set for BB: bb0
-stmt visited _5 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb6
-[USED] killing latest expr: Expr(0)
-stmt visited _6 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb9
-stmt visited _0 = const 19_i32
-Calculating IN set for BB: bb10
-terminator visited return, location bb10
-terminator visited goto -> bb10, location bb9
-terminator visited goto -> bb9, location bb8
-Calculating IN set for BB: bb8
-latest exprs: []
-terminator visited goto -> bb8, location bb7
-Calculating IN set for BB: bb7
-latest exprs: []
-terminator visited goto -> bb7, location bb6
-terminator visited goto -> bb9, location bb5
-Calculating IN set for BB: bb5
-latest exprs: [Expr(0)]
-[USED] killing latest expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
-Calculating IN set for BB: bb4
-latest exprs: []
-terminator visited goto -> bb4, location bb3
-Calculating IN set for BB: bb3
-latest exprs: []
-terminator visited goto -> bb3, location bb2
-Calculating IN set for BB: bb2
-latest exprs: []
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
-Calculating IN set for BB: bb1
-latest exprs: []
-terminator visited goto -> bb1, location bb0
-terminator visited goto -> bb1, location bb0
-stmt visited _4 = const false
-stmt visited _3 = const true
-stmt visited _2 = const 1_i32
-Calculating IN set for BB: bb0
-terminator visited goto -> bb1, location bb0
-stmt visited _4 = const false
-stmt visited _3 = const true
-stmt visited _2 = const 1_i32
-Calculating IN set for BB: bb0
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
-Calculating IN set for BB: bb1
-latest exprs: []
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
-Calculating IN set for BB: bb1
-latest exprs: []
-terminator visited goto -> bb3, location bb2
-Calculating IN set for BB: bb2
-latest exprs: []
-terminator visited goto -> bb3, location bb2
-Calculating IN set for BB: bb2
-latest exprs: []
-terminator visited goto -> bb4, location bb3
-Calculating IN set for BB: bb3
-latest exprs: []
-terminator visited goto -> bb4, location bb3
-Calculating IN set for BB: bb3
-latest exprs: []
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
-Calculating IN set for BB: bb4
-latest exprs: []
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
-Calculating IN set for BB: bb4
-latest exprs: []
-terminator visited goto -> bb9, location bb5
-Calculating IN set for BB: bb5
-latest exprs: [Expr(0)]
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb9, location bb5
-Calculating IN set for BB: bb5
-latest exprs: [Expr(0)]
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb7, location bb6
-stmt visited _5 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb6
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb7, location bb6
-stmt visited _5 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb6
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb8, location bb7
-Calculating IN set for BB: bb7
-latest exprs: []
-terminator visited goto -> bb8, location bb7
-Calculating IN set for BB: bb7
-latest exprs: []
-terminator visited goto -> bb9, location bb8
-Calculating IN set for BB: bb8
-latest exprs: []
-terminator visited goto -> bb9, location bb8
-Calculating IN set for BB: bb8
-latest exprs: []
-terminator visited goto -> bb10, location bb9
-stmt visited _6 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb9
-terminator visited goto -> bb10, location bb9
-stmt visited _6 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb9
-terminator visited return, location bb10
-stmt visited _0 = const 19_i32
-Calculating IN set for BB: bb10
-terminator visited return, location bb10
-stmt visited _0 = const 19_i32
-Calculating IN set for BB: bb10
-----------------USED DEBUG END----------------
-
-
-
-Used:
-entry set for block bb0 : []
-entry set for block bb1 : []
-entry set for block bb2 : []
-entry set for block bb3 : []
-entry set for block bb4 : []
-entry set for block bb5 : [Expr(0)]
-entry set for block bb6 : [Expr(0)]
-entry set for block bb7 : [Expr(0)]
-entry set for block bb8 : [Expr(0)]
-entry set for block bb9 : []
-entry set for block bb10 : []
-Transforming the code
-temps for bb bb0 : []
-temps for bb bb1 : []
-temps for bb bb2 : []
-temps for bb bb3 : []
-temps for bb bb4 : []
-temps for bb bb5 : [Expr(0)]
-Inserting temp for Expr(0)
-temps for bb bb6 : [Expr(0)]
-Inserting temp for Expr(0)
-temps for bb bb7 : []
-temps for bb bb8 : []
-temps for bb bb9 : []
-temps for bb bb10 : []
-Statement has expression: Expr(0)
-Replacing Expr(0) with temp
-Statement has expression: Expr(0)
-Replacing Expr(0) with temp
-
-
-
-The actual stdout differed from the expected stdout.
-Actual stdout saved to /home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-7/pre-mir-test-7.stdout
-To update references, rerun the tests and pass the `--bless` flag
-To only update this specific test, also pass `--test-args pre/pre-mir-test-7.rs`
-
-error: 1 errors occurred comparing output.
-status: exit status: 0
+error: test compilation failed although it shouldn't!
+status: exit status: 101
 command: RUSTC_ICE="0" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/stage1/bin/rustc" "/home/xavierrouth/dev/rust/tests/ui/pre/pre-mir-test-7.rs" "-Zthreads=1" "-Zsimulate-remapped-rust-src-base=/rustc/FAKE_PREFIX" "-Ztranslate-remapped-path-to-local-path=no" "-Z" "ignore-directory-in-diagnostics-source-blocks=/home/xavierrouth/.cargo" "--sysroot" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/stage1" "--target=x86_64-unknown-linux-gnu" "--error-format" "json" "--json" "future-incompat" "-Ccodegen-units=1" "-Zui-testing" "-Zdeduplicate-diagnostics=no" "-Zwrite-long-types-to-disk=no" "-Cstrip=debuginfo" "-C" "prefer-dynamic" "--out-dir" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-7" "-A" "unused" "-A" "internal_features" "-Crpath" "-Cdebuginfo=0" "-Lnative=/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/native/rust-test-helpers" "-L" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-7/auxiliary" "-Zdump_mir=simple" "-Zdump-mir-dataflow=y" "-Zmir-opt-level=0" "-Zmir-enable-passes=+PartialRedundancyElimination,-SimplifyCfg-elaborate-drops"
 --- stdout -------------------------------
 Body that analysis is running on DefId(0:6 ~ pre_mir_test_7[1462]::main)
-----------------ANTICIPATED DEBUG BEGIN----------------
-size: 5
-bb0[0]: stmt visited StorageLive(_1)
-bb1[1]: stmt visited _0 = const ()
-bb1[0]: stmt visited StorageDead(_1)
-----------------ANTICIPATED DEBUG END----------------
-
-
-
-bb0[0]: stmt visited StorageLive(_1)
-bb1[1]: stmt visited _0 = const ()
-bb1[0]: stmt visited StorageDead(_1)
-Anticipated:
-set for block bb0 : Dual([])
-set for block bb1 : Dual([])
-----------------AVAILABLE DEBUG BEGIN----------------
-stmt visited StorageLive(_1)
-Entering BB: bb0
-stmt visited StorageDead(_1)
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-stmt visited _0 = const ()
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue]
-terminator visited return
-----------------AVAILABLE DEBUG END----------------
-
-
-
-stmt visited StorageLive(_1)
-Entering BB: bb0
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue]
-stmt visited StorageDead(_1)
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-stmt visited _0 = const ()
-terminator visited return
-Available:
-in set for block bb0 : Dual([])
-out set for block bb0 : Dual([])
-in set for block bb1 : Dual([])
-out set for block bb1 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4)])
-----------------POSTPONABLE DEBUG BEGIN----------------
-stmt visited StorageLive(_1)
-Entering BB: bb0
-stmt visited StorageDead(_1)
-Entering BB: bb1
-stmt visited _0 = const ()
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue]
-terminator visited return
-----------------POSTPONABLE DEBUG END----------------
-
-
-
-Postponable:
-entry set for block bb0 : Dual([])
-entry set for block bb1 : Dual([])
-earliest : [Dual([]), Dual([])]
-latest : [[], []]
-----------------USED DEBUG BEGIN----------------
-latest exprs: [[], []]
-stmt visited StorageLive(_1)
-Calculating IN set for BB: bb0
-stmt visited _0 = const ()
-stmt visited StorageDead(_1)
-Calculating IN set for BB: bb1
-terminator visited return, location bb1
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue], location bb0
-----------------USED DEBUG END----------------
-
-
-
-Used:
-entry set for block bb0 : []
-entry set for block bb1 : []
-Transforming the code
-temps for bb bb0 : []
-temps for bb bb1 : []
-Body that analysis is running on DefId(0:5 ~ pre_mir_test_7[1462]::simple)
-----------------ANTICIPATED DEBUG BEGIN----------------
-size: 13
-bb0[2]: stmt visited _4 = const false
-bb0[1]: stmt visited _3 = const true
-bb0[0]: stmt visited _2 = const 1_i32
-bb6[0]: stmt visited _5 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb9[0]: stmt visited _6 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb10[0]: stmt visited _0 = const 19_i32
-bb0[2]: stmt visited _4 = const false
-bb0[1]: stmt visited _3 = const true
-bb0[0]: stmt visited _2 = const 1_i32
-KILL expr Expr(0)
-bb0[2]: stmt visited _4 = const false
-bb0[1]: stmt visited _3 = const true
-bb0[0]: stmt visited _2 = const 1_i32
-KILL expr Expr(0)
-bb6[0]: stmt visited _5 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb6[0]: stmt visited _5 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb9[0]: stmt visited _6 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb9[0]: stmt visited _6 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb10[0]: stmt visited _0 = const 19_i32
-bb10[0]: stmt visited _0 = const 19_i32
-----------------ANTICIPATED DEBUG END----------------
-
-
-
-bb0[2]: stmt visited _4 = const false
-bb0[1]: stmt visited _3 = const true
-bb0[0]: stmt visited _2 = const 1_i32
-KILL expr Expr(0)
-bb6[0]: stmt visited _5 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb9[0]: stmt visited _6 = Add(_2, _1)
-GEN expr Add(_2, _1)
-bb10[0]: stmt visited _0 = const 19_i32
-Anticipated:
-set for block bb0 : Dual([])
-set for block bb1 : Dual([Expr(0)])
-set for block bb2 : Dual([Expr(0)])
-set for block bb3 : Dual([Expr(0)])
-set for block bb4 : Dual([Expr(0)])
-set for block bb5 : Dual([Expr(0)])
-set for block bb6 : Dual([Expr(0)])
-set for block bb7 : Dual([Expr(0)])
-set for block bb8 : Dual([Expr(0)])
-set for block bb9 : Dual([Expr(0)])
-set for block bb10 : Dual([])
-----------------AVAILABLE DEBUG BEGIN----------------
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-GEN: anticipated expr: Expr(0)
-KILL expr Expr(0)
-stmt visited _3 = const true
-stmt visited _4 = const false
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _1)
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-GEN expr Add(_2, _1)
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-GEN: anticipated expr: Expr(5)
-GEN: anticipated expr: Expr(6)
-GEN: anticipated expr: Expr(7)
-GEN: anticipated expr: Expr(8)
-GEN: anticipated expr: Expr(9)
-GEN: anticipated expr: Expr(10)
-GEN: anticipated expr: Expr(11)
-GEN: anticipated expr: Expr(12)
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb4
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb5
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb8
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb10
-terminator visited return
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-GEN: anticipated expr: Expr(0)
-KILL expr Expr(0)
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-GEN: anticipated expr: Expr(0)
-KILL expr Expr(0)
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb4
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb4
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb5
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb5
-GEN: anticipated expr: Expr(0)
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _1)
-terminator visited goto -> bb7
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _1)
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb8
-Entering BB: bb7
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb8
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb8
-GEN: anticipated expr: Expr(0)
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-GEN expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-GEN expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-GEN: anticipated expr: Expr(5)
-GEN: anticipated expr: Expr(6)
-GEN: anticipated expr: Expr(7)
-GEN: anticipated expr: Expr(8)
-GEN: anticipated expr: Expr(9)
-GEN: anticipated expr: Expr(10)
-GEN: anticipated expr: Expr(11)
-GEN: anticipated expr: Expr(12)
-terminator visited return
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-GEN: anticipated expr: Expr(5)
-GEN: anticipated expr: Expr(6)
-GEN: anticipated expr: Expr(7)
-GEN: anticipated expr: Expr(8)
-GEN: anticipated expr: Expr(9)
-GEN: anticipated expr: Expr(10)
-GEN: anticipated expr: Expr(11)
-GEN: anticipated expr: Expr(12)
-terminator visited return
-----------------AVAILABLE DEBUG END----------------
-
-
-
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-GEN: anticipated expr: Expr(0)
-KILL expr Expr(0)
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb4
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb5
-GEN: anticipated expr: Expr(0)
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _1)
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-GEN: anticipated expr: Expr(0)
-terminator visited goto -> bb9
-Entering BB: bb8
-GEN: anticipated expr: Expr(0)
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-GEN expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-GEN: anticipated expr: Expr(0)
-GEN: anticipated expr: Expr(1)
-GEN: anticipated expr: Expr(2)
-GEN: anticipated expr: Expr(3)
-GEN: anticipated expr: Expr(4)
-GEN: anticipated expr: Expr(5)
-GEN: anticipated expr: Expr(6)
-GEN: anticipated expr: Expr(7)
-GEN: anticipated expr: Expr(8)
-GEN: anticipated expr: Expr(9)
-GEN: anticipated expr: Expr(10)
-GEN: anticipated expr: Expr(11)
-GEN: anticipated expr: Expr(12)
-terminator visited return
-Available:
-in set for block bb0 : Dual([])
-out set for block bb0 : Dual([])
-in set for block bb1 : Dual([])
-out set for block bb1 : Dual([Expr(0)])
-in set for block bb2 : Dual([Expr(0)])
-out set for block bb2 : Dual([Expr(0)])
-in set for block bb3 : Dual([Expr(0)])
-out set for block bb3 : Dual([Expr(0)])
-in set for block bb4 : Dual([Expr(0)])
-out set for block bb4 : Dual([Expr(0)])
-in set for block bb5 : Dual([Expr(0)])
-out set for block bb5 : Dual([Expr(0)])
-in set for block bb6 : Dual([Expr(0)])
-out set for block bb6 : Dual([Expr(0)])
-in set for block bb7 : Dual([Expr(0)])
-out set for block bb7 : Dual([Expr(0)])
-in set for block bb8 : Dual([Expr(0)])
-out set for block bb8 : Dual([Expr(0)])
-in set for block bb9 : Dual([Expr(0)])
-out set for block bb9 : Dual([Expr(0)])
-in set for block bb10 : Dual([Expr(0)])
-out set for block bb10 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4), Expr(5), Expr(6), Expr(7), Expr(8), Expr(9), Expr(10), Expr(11), Expr(12)])
-----------------POSTPONABLE DEBUG BEGIN----------------
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-stmt visited _3 = const true
-stmt visited _4 = const false
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-KILL expr Add(_2, _1)
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-KILL expr Add(_2, _1)
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: earliest expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-terminator visited goto -> bb4
-Entering BB: bb3
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-terminator visited goto -> bb9
-Entering BB: bb5
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-terminator visited goto -> bb9
-Entering BB: bb8
-terminator visited goto -> bb10
-terminator visited return
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-stmt visited _2 = const 1_i32
-Entering BB: bb0
-stmt visited _3 = const true
-stmt visited _4 = const false
-terminator visited goto -> bb1
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: earliest expr: Expr(0)
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
-Entering BB: bb1
-GEN: earliest expr: Expr(0)
-terminator visited goto -> bb3
-Entering BB: bb2
-terminator visited goto -> bb3
-Entering BB: bb2
-terminator visited goto -> bb4
-Entering BB: bb3
-terminator visited goto -> bb4
-Entering BB: bb3
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
-Entering BB: bb4
-terminator visited goto -> bb9
-Entering BB: bb5
-terminator visited goto -> bb9
-Entering BB: bb5
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-KILL expr Add(_2, _1)
-terminator visited goto -> bb7
-stmt visited _5 = Add(_2, _1)
-Entering BB: bb6
-KILL expr Add(_2, _1)
-terminator visited goto -> bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-terminator visited goto -> bb8
-Entering BB: bb7
-terminator visited goto -> bb9
-Entering BB: bb8
-terminator visited goto -> bb9
-Entering BB: bb8
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-KILL expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _6 = Add(_2, _1)
-Entering BB: bb9
-KILL expr Add(_2, _1)
-terminator visited goto -> bb10
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-terminator visited return
-stmt visited _0 = const 19_i32
-Entering BB: bb10
-terminator visited return
-----------------POSTPONABLE DEBUG END----------------
-
-
-
-Postponable:
-entry set for block bb0 : Dual([])
-entry set for block bb1 : Dual([])
-entry set for block bb2 : Dual([Expr(0)])
-entry set for block bb3 : Dual([Expr(0)])
-entry set for block bb4 : Dual([Expr(0)])
-entry set for block bb5 : Dual([Expr(0)])
-entry set for block bb6 : Dual([Expr(0)])
-entry set for block bb7 : Dual([])
-entry set for block bb8 : Dual([])
-entry set for block bb9 : Dual([])
-entry set for block bb10 : Dual([])
-earliest : [Dual([]), Dual([Expr(0)]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([])]
-latest : [[], [], [], [], [], [Expr(0)], [Expr(0)], [], [], [], []]
-----------------USED DEBUG BEGIN----------------
-latest exprs: [[], [], [], [], [], [Expr(0)], [Expr(0)], [], [], [], []]
-stmt visited _4 = const false
-stmt visited _3 = const true
-stmt visited _2 = const 1_i32
-Calculating IN set for BB: bb0
-stmt visited _5 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb6
-[USED] killing latest expr: Expr(0)
-stmt visited _6 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb9
-stmt visited _0 = const 19_i32
-Calculating IN set for BB: bb10
-terminator visited return, location bb10
-terminator visited goto -> bb10, location bb9
-terminator visited goto -> bb9, location bb8
-Calculating IN set for BB: bb8
-latest exprs: []
-terminator visited goto -> bb8, location bb7
-Calculating IN set for BB: bb7
-latest exprs: []
-terminator visited goto -> bb7, location bb6
-terminator visited goto -> bb9, location bb5
-Calculating IN set for BB: bb5
-latest exprs: [Expr(0)]
-[USED] killing latest expr: Expr(0)
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
-Calculating IN set for BB: bb4
-latest exprs: []
-terminator visited goto -> bb4, location bb3
-Calculating IN set for BB: bb3
-latest exprs: []
-terminator visited goto -> bb3, location bb2
-Calculating IN set for BB: bb2
-latest exprs: []
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
-Calculating IN set for BB: bb1
-latest exprs: []
-terminator visited goto -> bb1, location bb0
-terminator visited goto -> bb1, location bb0
-stmt visited _4 = const false
-stmt visited _3 = const true
-stmt visited _2 = const 1_i32
-Calculating IN set for BB: bb0
-terminator visited goto -> bb1, location bb0
-stmt visited _4 = const false
-stmt visited _3 = const true
-stmt visited _2 = const 1_i32
-Calculating IN set for BB: bb0
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
-Calculating IN set for BB: bb1
-latest exprs: []
-terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
-Calculating IN set for BB: bb1
-latest exprs: []
-terminator visited goto -> bb3, location bb2
-Calculating IN set for BB: bb2
-latest exprs: []
-terminator visited goto -> bb3, location bb2
-Calculating IN set for BB: bb2
-latest exprs: []
-terminator visited goto -> bb4, location bb3
-Calculating IN set for BB: bb3
-latest exprs: []
-terminator visited goto -> bb4, location bb3
-Calculating IN set for BB: bb3
-latest exprs: []
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
-Calculating IN set for BB: bb4
-latest exprs: []
-terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
-Calculating IN set for BB: bb4
-latest exprs: []
-terminator visited goto -> bb9, location bb5
-Calculating IN set for BB: bb5
-latest exprs: [Expr(0)]
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb9, location bb5
-Calculating IN set for BB: bb5
-latest exprs: [Expr(0)]
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb7, location bb6
-stmt visited _5 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb6
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb7, location bb6
-stmt visited _5 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb6
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb8, location bb7
-Calculating IN set for BB: bb7
-latest exprs: []
-terminator visited goto -> bb8, location bb7
-Calculating IN set for BB: bb7
-latest exprs: []
-terminator visited goto -> bb9, location bb8
-Calculating IN set for BB: bb8
-latest exprs: []
-terminator visited goto -> bb9, location bb8
-Calculating IN set for BB: bb8
-latest exprs: []
-terminator visited goto -> bb10, location bb9
-stmt visited _6 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb9
-terminator visited goto -> bb10, location bb9
-stmt visited _6 = Add(_2, _1)
-e-used expr Add(_2, _1)
-Calculating IN set for BB: bb9
-terminator visited return, location bb10
-stmt visited _0 = const 19_i32
-Calculating IN set for BB: bb10
-terminator visited return, location bb10
-stmt visited _0 = const 19_i32
-Calculating IN set for BB: bb10
-----------------USED DEBUG END----------------
-
-
-
-Used:
-entry set for block bb0 : []
-entry set for block bb1 : []
-entry set for block bb2 : []
-entry set for block bb3 : []
-entry set for block bb4 : []
-entry set for block bb5 : [Expr(0)]
-entry set for block bb6 : [Expr(0)]
-entry set for block bb7 : [Expr(0)]
-entry set for block bb8 : [Expr(0)]
-entry set for block bb9 : []
-entry set for block bb10 : []
-Transforming the code
-temps for bb bb0 : []
-temps for bb bb1 : []
-temps for bb bb2 : []
-temps for bb bb3 : []
-temps for bb bb4 : []
-temps for bb bb5 : [Expr(0)]
-Inserting temp for Expr(0)
-temps for bb bb6 : [Expr(0)]
-Inserting temp for Expr(0)
-temps for bb bb7 : []
-temps for bb bb8 : []
-temps for bb bb9 : []
-temps for bb bb10 : []
-Statement has expression: Expr(0)
-Replacing Expr(0) with temp
-Statement has expression: Expr(0)
-Replacing Expr(0) with temp
 ------------------------------------------
-stderr: none
+--- stderr -------------------------------
+thread 'rustc' panicked at compiler/rustc_mir_transform/src/pre.rs:122:48:
+not yet implemented
+stack backtrace:
+   0:     0x7fb75c8a3a4d - std::backtrace_rs::backtrace::libunwind::trace::hb9dcb19f24a10e1b
+                               at /home/xavierrouth/dev/rust/library/std/src/../../backtrace/src/backtrace/libunwind.rs:104:5
+   1:     0x7fb75c8a3a4d - std::backtrace_rs::backtrace::trace_unsynchronized::he75289b4c5e38aa8
+                               at /home/xavierrouth/dev/rust/library/std/src/../../backtrace/src/backtrace/mod.rs:66:5
+   2:     0x7fb75c8a3a4d - std::sys_common::backtrace::_print_fmt::hec46bc6e066c9d6e
+                               at /home/xavierrouth/dev/rust/library/std/src/sys_common/backtrace.rs:68:5
+   3:     0x7fb75c8a3a4d - <std::sys_common::backtrace::_print::DisplayBacktrace as core::fmt::Display>::fmt::h5eb8bbb2d4bec640
+                               at /home/xavierrouth/dev/rust/library/std/src/sys_common/backtrace.rs:44:22
+   4:     0x7fb75c90e29f - core::fmt::rt::Argument::fmt::h2a65939e680120fe
+                               at /home/xavierrouth/dev/rust/library/core/src/fmt/rt.rs:142:9
+   5:     0x7fb75c90e29f - core::fmt::write::h764fed225d29eb5e
+                               at /home/xavierrouth/dev/rust/library/core/src/fmt/mod.rs:1120:17
+   6:     0x7fb75c8a4a2a - std::io::Write::write_fmt::h2894038100c60791
+                               at /home/xavierrouth/dev/rust/library/std/src/io/mod.rs:1846:15
+   7:     0x7fb75c8a385d - std::sys_common::backtrace::_print::h23f273ccb4fa316c
+                               at /home/xavierrouth/dev/rust/library/std/src/sys_common/backtrace.rs:47:5
+   8:     0x7fb75c8a385d - std::sys_common::backtrace::print::h782aa6483db2625d
+                               at /home/xavierrouth/dev/rust/library/std/src/sys_common/backtrace.rs:34:9
+   9:     0x7fb75c8d36b7 - std::panicking::default_hook::{{closure}}::h5e47ca507ac710dc
+  10:     0x7fb75c8d3492 - std::panicking::default_hook::h1e649074fa2ae4ed
+                               at /home/xavierrouth/dev/rust/library/std/src/panicking.rs:292:9
+  11:     0x7fb75d7aaa69 - rustc_driver_impl[f7ee3d452455216b]::install_ice_hook::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_driver_impl/src/lib.rs:1340:17
+  12:     0x7fb75d7aaa69 - <alloc[7a164c8451705fba]::boxed::Box<rustc_driver_impl[f7ee3d452455216b]::install_ice_hook::{closure#0}> as core[25ed7ba41ba17257]::ops::function::Fn<(&dyn for<'a, 'b> core[25ed7ba41ba17257]::ops::function::Fn<(&'a core[25ed7ba41ba17257]::panic::panic_info::PanicInfo<'b>,), Output = ()> + core[25ed7ba41ba17257]::marker::Sync + core[25ed7ba41ba17257]::marker::Send, &core[25ed7ba41ba17257]::panic::panic_info::PanicInfo)>>::call
+                               at /home/xavierrouth/dev/rust/library/alloc/src/boxed.rs:2029:9
+  13:     0x7fb75c8d3c62 - std::panicking::rust_panic_with_hook::hf2bb24ec0de6cb13
+                               at /home/xavierrouth/dev/rust/library/std/src/panicking.rs:785:13
+  14:     0x7fb75c8bf956 - std::panicking::begin_panic_handler::{{closure}}::h02ca18a1399cff96
+                               at /home/xavierrouth/dev/rust/library/std/src/panicking.rs:651:13
+  15:     0x7fb75c8bf8c6 - std::sys_common::backtrace::__rust_end_short_backtrace::h05866c86279dee38
+                               at /home/xavierrouth/dev/rust/library/std/src/sys_common/backtrace.rs:171:18
+  16:     0x7fb75c8d3796 - rust_begin_unwind
+                               at /home/xavierrouth/dev/rust/library/std/src/panicking.rs:647:5
+  17:     0x7fb75c86f4b5 - core::panicking::panic_fmt::h273ac420ab1fa0e9
+                               at /home/xavierrouth/dev/rust/library/core/src/panicking.rs:72:14
+  18:     0x7fb75c86f573 - core::panicking::panic::h4a4fb46e283377e1
+                               at /home/xavierrouth/dev/rust/library/core/src/panicking.rs:144:5
+  19:     0x7fb75e556a47 - <rustc_mir_transform[307a696dae17747d]::pre::PartialRedundancyElimination>::preprocess_blocks
+                               at /home/xavierrouth/dev/rust/compiler/rustc_mir_transform/src/pre.rs:122:48
+  20:     0x7fb75e556a47 - <rustc_mir_transform[307a696dae17747d]::pre::PartialRedundancyElimination as rustc_middle[ea0eb57909c1157a]::mir::MirPass>::run_pass
+                               at /home/xavierrouth/dev/rust/compiler/rustc_mir_transform/src/pre.rs:251:9
+  21:     0x7fb75e5329b7 - rustc_mir_transform[307a696dae17747d]::pass_manager::run_passes_inner
+                               at /home/xavierrouth/dev/rust/compiler/rustc_mir_transform/src/pass_manager.rs:152:17
+  22:     0x7fb75e5325ad - rustc_mir_transform[307a696dae17747d]::pass_manager::run_passes
+                               at /home/xavierrouth/dev/rust/compiler/rustc_mir_transform/src/pass_manager.rs:95:5
+  23:     0x7fb75e3a5098 - rustc_mir_transform[307a696dae17747d]::run_optimization_passes
+                               at /home/xavierrouth/dev/rust/compiler/rustc_mir_transform/src/lib.rs:566:5
+  24:     0x7fb75e3a5098 - rustc_mir_transform[307a696dae17747d]::inner_optimized_mir
+                               at /home/xavierrouth/dev/rust/compiler/rustc_mir_transform/src/lib.rs:677:5
+  25:     0x7fb75e3a5098 - rustc_mir_transform[307a696dae17747d]::optimized_mir
+                               at /home/xavierrouth/dev/rust/compiler/rustc_mir_transform/src/lib.rs:639:21
+  26:     0x7fb75f48fae7 - rustc_query_impl[19346568839b3193]::query_impl::optimized_mir::dynamic_query::{closure#2}::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:589:47
+  27:     0x7fb75f48fae7 - rustc_query_impl[19346568839b3193]::plumbing::__rust_begin_short_backtrace::<rustc_query_impl[19346568839b3193]::query_impl::optimized_mir::dynamic_query::{closure#2}::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:513:18
+  28:     0x7fb75f269e39 - rustc_query_impl[19346568839b3193]::query_impl::optimized_mir::dynamic_query::{closure#2}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:585:25
+  29:     0x7fb75f269e39 - <rustc_query_impl[19346568839b3193]::query_impl::optimized_mir::dynamic_query::{closure#2} as core[25ed7ba41ba17257]::ops::function::FnOnce<(rustc_middle[ea0eb57909c1157a]::ty::context::TyCtxt, rustc_span[bed1e4a5ee66571]::def_id::DefId)>>::call_once
+                               at /home/xavierrouth/dev/rust/library/core/src/ops/function.rs:250:5
+  30:     0x7fb75f595441 - <rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false> as rustc_query_system[180f063c3448574]::query::config::QueryConfig<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>>::compute
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/lib.rs:114:9
+  31:     0x7fb75f595441 - rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:471:72
+  32:     0x7fb75f595441 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context::<rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:82:9
+  33:     0x7fb75f595441 - <std[f7e7a1f282faba74]::thread::local::LocalKey<core[25ed7ba41ba17257]::cell::Cell<*const ()>>>::try_with::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context<rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>
+                               at /home/xavierrouth/dev/rust/library/std/src/thread/local.rs:286:16
+  34:     0x7fb75f595441 - <std[f7e7a1f282faba74]::thread::local::LocalKey<core[25ed7ba41ba17257]::cell::Cell<*const ()>>>::with::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context<rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>
+                               at /home/xavierrouth/dev/rust/library/std/src/thread/local.rs:262:9
+  35:     0x7fb75f607406 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context::<rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:79:5
+  36:     0x7fb75f607406 - <rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query::<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:151:13
+  37:     0x7fb75f607406 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context::<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:133:9
+  38:     0x7fb75f607406 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_context::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:111:36
+  39:     0x7fb75f607406 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_context_opt::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_context<rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:100:18
+  40:     0x7fb75f607406 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_context::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:111:5
+  41:     0x7fb75f607406 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context::<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:124:5
+  42:     0x7fb75f607406 - <rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query::<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:136:9
+  43:     0x7fb75f607406 - rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:471:18
+  44:     0x7fb75f607406 - rustc_query_system[180f063c3448574]::query::plumbing::execute_job::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt, false>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:407:9
+  45:     0x7fb75f607406 - rustc_query_system[180f063c3448574]::query::plumbing::try_execute_query::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt, false>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:350:13
+  46:     0x7fb75f26b1b7 - rustc_query_system[180f063c3448574]::query::plumbing::get_query_non_incr::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:802:32
+  47:     0x7fb75f26b1b7 - stacker[2da92bc96ef57e5b]::maybe_grow::<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::get_query_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>
+                               at /home/xavierrouth/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.15/src/lib.rs:55:9
+  48:     0x7fb75f26b1b7 - rustc_data_structures[bccc5fda88ceb886]::stack::ensure_sufficient_stack::<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>, rustc_query_system[180f063c3448574]::query::plumbing::get_query_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/stack.rs:17:5
+  49:     0x7fb75f26b1b7 - rustc_query_system[180f063c3448574]::query::plumbing::get_query_non_incr::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:802:5
+  50:     0x7fb75f26b1b7 - rustc_query_impl[19346568839b3193]::query_impl::optimized_mir::get_query_non_incr::__rust_end_short_backtrace
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:563:26
+  51:     0x7fb76062edf4 - rustc_middle[ea0eb57909c1157a]::query::plumbing::query_get_at::<rustc_query_system[180f063c3448574]::query::caches::DefIdCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 8usize]>>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/query/plumbing.rs:156:17
+  52:     0x7fb76063920d - <rustc_middle[ea0eb57909c1157a]::ty::context::TyCtxt>::instance_mir
+  53:     0x7fb75e291f02 - rustc_monomorphize[475a6050fe2e98dd]::collector::collect_used_items
+                               at /home/xavierrouth/dev/rust/compiler/rustc_monomorphize/src/collector.rs:1474:16
+  54:     0x7fb75e28f159 - rustc_monomorphize[475a6050fe2e98dd]::collector::collect_items_rec::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_monomorphize/src/collector.rs:419:17
+  55:     0x7fb75e28f159 - stacker[2da92bc96ef57e5b]::maybe_grow::<(), rustc_monomorphize[475a6050fe2e98dd]::collector::collect_items_rec::{closure#0}>
+                               at /home/xavierrouth/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.15/src/lib.rs:55:9
+  56:     0x7fb75e28f159 - rustc_data_structures[bccc5fda88ceb886]::stack::ensure_sufficient_stack::<(), rustc_monomorphize[475a6050fe2e98dd]::collector::collect_items_rec::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/stack.rs:17:5
+  57:     0x7fb75e28f159 - rustc_monomorphize[475a6050fe2e98dd]::collector::collect_items_rec
+                               at /home/xavierrouth/dev/rust/compiler/rustc_monomorphize/src/collector.rs:418:13
+  58:     0x7fb75e2e2c4c - rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_monomorphize/src/collector.rs:279:17
+  59:     0x7fb75e2e2c4c - rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in::<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#0}::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/sync/parallel.rs:182:34
+  60:     0x7fb75e2e2c4c - <core[25ed7ba41ba17257]::panic::unwind_safe::AssertUnwindSafe<rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#0}::{closure#0}> as core[25ed7ba41ba17257]::ops::function::FnOnce<()>>::call_once
+                               at /home/xavierrouth/dev/rust/library/core/src/panic/unwind_safe.rs:272:9
+  61:     0x7fb75e2e2c4c - std[f7e7a1f282faba74]::panicking::try::do_call::<core[25ed7ba41ba17257]::panic::unwind_safe::AssertUnwindSafe<rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#0}::{closure#0}>, ()>
+                               at /home/xavierrouth/dev/rust/library/std/src/panicking.rs:554:40
+  62:     0x7fb75e2e2c4c - std[f7e7a1f282faba74]::panicking::try::<(), core[25ed7ba41ba17257]::panic::unwind_safe::AssertUnwindSafe<rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#0}::{closure#0}>>
+                               at /home/xavierrouth/dev/rust/library/std/src/panicking.rs:518:19
+  63:     0x7fb75e2efc00 - <rustc_data_structures[bccc5fda88ceb886]::sync::parallel::ParallelGuard>::run::<(), rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#1}::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/sync/parallel.rs:28:9
+  64:     0x7fb75e2ef26e - rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in::<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#1}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/sync/parallel.rs:186:21
+  65:     0x7fb75e2ef26e - core[25ed7ba41ba17257]::iter::traits::iterator::Iterator::for_each::call::<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#1}>::{closure#0}
+                               at /home/xavierrouth/dev/rust/library/core/src/iter/traits/iterator.rs:855:29
+  66:     0x7fb75e2ef26e - <alloc[7a164c8451705fba]::vec::into_iter::IntoIter<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem> as core[25ed7ba41ba17257]::iter::traits::iterator::Iterator>::fold::<(), core[25ed7ba41ba17257]::iter::traits::iterator::Iterator::for_each::call<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#1}>::{closure#0}>
+                               at /home/xavierrouth/dev/rust/library/core/src/iter/traits/iterator.rs:2640:21
+  67:     0x7fb75e2ef26e - <alloc[7a164c8451705fba]::vec::into_iter::IntoIter<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem> as core[25ed7ba41ba17257]::iter::traits::iterator::Iterator>::for_each::<rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}::{closure#1}>
+                               at /home/xavierrouth/dev/rust/library/core/src/iter/traits/iterator.rs:858:9
+  68:     0x7fb75e2ef26e - rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in::<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/sync/parallel.rs:185:17
+  69:     0x7fb75e2ef26e - rustc_data_structures[bccc5fda88ceb886]::sync::parallel::parallel_guard::<(), rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/sync/parallel.rs:44:15
+  70:     0x7fb75e2ef26e - rustc_data_structures[bccc5fda88ceb886]::sync::parallel::enabled::par_for_each_in::<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem, alloc[7a164c8451705fba]::vec::Vec<rustc_middle[ea0eb57909c1157a]::mir::mono::MonoItem>, rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/sync/parallel.rs:178:9
+  71:     0x7fb75e2aec8b - rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_monomorphize/src/collector.rs:277:13
+  72:     0x7fb75e2aec8b - <rustc_data_structures[bccc5fda88ceb886]::profiling::VerboseTimingGuard>::run::<(), rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/profiling.rs:753:9
+  73:     0x7fb75e2aec8b - <rustc_session[fc55f3b75ece5816]::session::Session>::time::<(), rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items::{closure#1}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_session/src/utils.rs:12:9
+  74:     0x7fb75e28b489 - rustc_monomorphize[475a6050fe2e98dd]::collector::collect_crate_mono_items
+                               at /home/xavierrouth/dev/rust/compiler/rustc_monomorphize/src/collector.rs:276:9
+  75:     0x7fb75e2b7ec2 - rustc_monomorphize[475a6050fe2e98dd]::partitioning::collect_and_partition_mono_items
+                               at /home/xavierrouth/dev/rust/compiler/rustc_monomorphize/src/partitioning.rs:1111:30
+  76:     0x7fb75f4ad7c3 - rustc_query_impl[19346568839b3193]::query_impl::collect_and_partition_mono_items::dynamic_query::{closure#2}::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:589:47
+  77:     0x7fb75f4ad7c3 - rustc_query_impl[19346568839b3193]::plumbing::__rust_begin_short_backtrace::<rustc_query_impl[19346568839b3193]::query_impl::collect_and_partition_mono_items::dynamic_query::{closure#2}::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:513:18
+  78:     0x7fb75f6e30d9 - rustc_query_impl[19346568839b3193]::query_impl::collect_and_partition_mono_items::dynamic_query::{closure#2}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:585:25
+  79:     0x7fb75f6e30d9 - <rustc_query_impl[19346568839b3193]::query_impl::collect_and_partition_mono_items::dynamic_query::{closure#2} as core[25ed7ba41ba17257]::ops::function::FnOnce<(rustc_middle[ea0eb57909c1157a]::ty::context::TyCtxt, ())>>::call_once
+                               at /home/xavierrouth/dev/rust/library/core/src/ops/function.rs:250:5
+  80:     0x7fb75f5956cb - <rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false> as rustc_query_system[180f063c3448574]::query::config::QueryConfig<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>>::compute
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/lib.rs:114:9
+  81:     0x7fb75f5956cb - rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:471:72
+  82:     0x7fb75f5956cb - rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context::<rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:82:9
+  83:     0x7fb75f5956cb - <std[f7e7a1f282faba74]::thread::local::LocalKey<core[25ed7ba41ba17257]::cell::Cell<*const ()>>>::try_with::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context<rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>
+                               at /home/xavierrouth/dev/rust/library/std/src/thread/local.rs:286:16
+  84:     0x7fb75f5956cb - <std[f7e7a1f282faba74]::thread::local::LocalKey<core[25ed7ba41ba17257]::cell::Cell<*const ()>>>::with::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context<rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>
+                               at /home/xavierrouth/dev/rust/library/std/src/thread/local.rs:262:9
+  85:     0x7fb75f60dc2a - rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context::<rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:79:5
+  86:     0x7fb75f60dc2a - <rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query::<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:151:13
+  87:     0x7fb75f60dc2a - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context::<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:133:9
+  88:     0x7fb75f60dc2a - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_context::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:111:36
+  89:     0x7fb75f60dc2a - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_context_opt::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_context<rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:100:18
+  90:     0x7fb75f60dc2a - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_context::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:111:5
+  91:     0x7fb75f60dc2a - rustc_middle[ea0eb57909c1157a]::ty::context::tls::with_related_context::<<rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>::{closure#0}, rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:124:5
+  92:     0x7fb75f60dc2a - <rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt as rustc_query_system[180f063c3448574]::query::QueryContext>::start_query::<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:136:9
+  93:     0x7fb75f60dc2a - rustc_query_system[180f063c3448574]::query::plumbing::execute_job_non_incr::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:471:18
+  94:     0x7fb75f60dc2a - rustc_query_system[180f063c3448574]::query::plumbing::execute_job::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt, false>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:407:9
+  95:     0x7fb75f60dc2a - rustc_query_system[180f063c3448574]::query::plumbing::try_execute_query::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt, false>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:350:13
+  96:     0x7fb75f4b9f7b - rustc_query_system[180f063c3448574]::query::plumbing::get_query_non_incr::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:802:32
+  97:     0x7fb75f4b9f7b - stacker[2da92bc96ef57e5b]::maybe_grow::<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::get_query_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>
+                               at /home/xavierrouth/.cargo/registry/src/index.crates.io-6f17d22bba15001f/stacker-0.1.15/src/lib.rs:55:9
+  98:     0x7fb75f4b9f7b - rustc_data_structures[bccc5fda88ceb886]::stack::ensure_sufficient_stack::<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>, rustc_query_system[180f063c3448574]::query::plumbing::get_query_non_incr<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/stack.rs:17:5
+  99:     0x7fb75f4b9f7b - rustc_query_system[180f063c3448574]::query::plumbing::get_query_non_incr::<rustc_query_impl[19346568839b3193]::DynamicConfig<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>, false, false, false>, rustc_query_impl[19346568839b3193]::plumbing::QueryCtxt>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_system/src/query/plumbing.rs:802:5
+ 100:     0x7fb75f4b9f7b - rustc_query_impl[19346568839b3193]::query_impl::collect_and_partition_mono_items::get_query_non_incr::__rust_end_short_backtrace
+                               at /home/xavierrouth/dev/rust/compiler/rustc_query_impl/src/plumbing.rs:563:26
+ 101:     0x7fb75db779de - rustc_middle[ea0eb57909c1157a]::query::plumbing::query_get_at::<rustc_query_system[180f063c3448574]::query::caches::SingleCache<rustc_middle[ea0eb57909c1157a]::query::erase::Erased<[u8; 24usize]>>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/query/plumbing.rs:156:17
+ 102:     0x7fb75db779de - <rustc_middle[ea0eb57909c1157a]::query::plumbing::TyCtxtAt>::collect_and_partition_mono_items
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/query/plumbing.rs:440:31
+ 103:     0x7fb75db779de - <rustc_middle[ea0eb57909c1157a]::ty::context::TyCtxt>::collect_and_partition_mono_items
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/query/plumbing.rs:431:17
+ 104:     0x7fb75db779de - rustc_codegen_ssa[86dbec495eebe33b]::base::codegen_crate::<rustc_codegen_llvm[712047ec4e821310]::LlvmCodegenBackend>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_codegen_ssa/src/base.rs:598:25
+ 105:     0x7fb75da39499 - <rustc_codegen_llvm[712047ec4e821310]::LlvmCodegenBackend as rustc_codegen_ssa[86dbec495eebe33b]::traits::backend::CodegenBackend>::codegen_crate
+                               at /home/xavierrouth/dev/rust/compiler/rustc_codegen_llvm/src/lib.rs:362:18
+ 106:     0x7fb75da2256f - rustc_interface[b4b0c2165079fa91]::passes::start_codegen::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/passes.rs:927:9
+ 107:     0x7fb75da2256f - <rustc_data_structures[bccc5fda88ceb886]::profiling::VerboseTimingGuard>::run::<alloc[7a164c8451705fba]::boxed::Box<dyn core[25ed7ba41ba17257]::any::Any>, rustc_interface[b4b0c2165079fa91]::passes::start_codegen::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_data_structures/src/profiling.rs:753:9
+ 108:     0x7fb75da2256f - <rustc_session[fc55f3b75ece5816]::session::Session>::time::<alloc[7a164c8451705fba]::boxed::Box<dyn core[25ed7ba41ba17257]::any::Any>, rustc_interface[b4b0c2165079fa91]::passes::start_codegen::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_session/src/utils.rs:12:9
+ 109:     0x7fb75d94d93f - rustc_interface[b4b0c2165079fa91]::passes::start_codegen
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/passes.rs:926:19
+ 110:     0x7fb75d9f5944 - <rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/queries.rs:235:35
+ 111:     0x7fb75d9f5944 - <rustc_middle[ea0eb57909c1157a]::ty::context::GlobalCtxt>::enter::<<rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context.rs:666:37
+ 112:     0x7fb75d9f5944 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context::<<rustc_middle[ea0eb57909c1157a]::ty::context::GlobalCtxt>::enter<<rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:82:9
+ 113:     0x7fb75d9f5944 - <std[f7e7a1f282faba74]::thread::local::LocalKey<core[25ed7ba41ba17257]::cell::Cell<*const ()>>>::try_with::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context<<rustc_middle[ea0eb57909c1157a]::ty::context::GlobalCtxt>::enter<<rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/dev/rust/library/std/src/thread/local.rs:286:16
+ 114:     0x7fb75d9f5944 - <std[f7e7a1f282faba74]::thread::local::LocalKey<core[25ed7ba41ba17257]::cell::Cell<*const ()>>>::with::<rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context<<rustc_middle[ea0eb57909c1157a]::ty::context::GlobalCtxt>::enter<<rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/dev/rust/library/std/src/thread/local.rs:262:9
+ 115:     0x7fb75d95e095 - rustc_middle[ea0eb57909c1157a]::ty::context::tls::enter_context::<<rustc_middle[ea0eb57909c1157a]::ty::context::GlobalCtxt>::enter<<rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context/tls.rs:79:5
+ 116:     0x7fb75d95e095 - <rustc_middle[ea0eb57909c1157a]::ty::context::GlobalCtxt>::enter::<<rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker::{closure#0}, core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_middle/src/ty/context.rs:666:9
+ 117:     0x7fb75d95eb07 - <rustc_interface[b4b0c2165079fa91]::queries::QueryResult<&rustc_middle[ea0eb57909c1157a]::ty::context::GlobalCtxt>>::enter::<core[25ed7ba41ba17257]::result::Result<rustc_interface[b4b0c2165079fa91]::queries::Linker, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, <rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/queries.rs:71:9
+ 118:     0x7fb75d94edf8 - <rustc_interface[b4b0c2165079fa91]::queries::Queries>::codegen_and_build_linker
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/queries.rs:224:9
+ 119:     0x7fb75d7b4459 - rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_driver_impl/src/lib.rs:447:26
+ 120:     0x7fb75d7b4459 - <rustc_interface[b4b0c2165079fa91]::interface::Compiler>::enter::<rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<core[25ed7ba41ba17257]::option::Option<rustc_interface[b4b0c2165079fa91]::queries::Linker>, rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/queries.rs:313:19
+ 121:     0x7fb75d7a1f6c - rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_driver_impl/src/lib.rs:389:22
+ 122:     0x7fb75d7a1f6c - rustc_interface[b4b0c2165079fa91]::interface::run_compiler::<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/interface.rs:433:21
+ 123:     0x7fb75d7a1f6c - rustc_span[bed1e4a5ee66571]::set_source_map::<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_span/src/lib.rs:1225:5
+ 124:     0x7fb75d7c94df - rustc_interface[b4b0c2165079fa91]::interface::run_compiler::<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/interface.rs:427:13
+ 125:     0x7fb75d7c94df - rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals::<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/util.rs:117:13
+ 126:     0x7fb75d7c94df - <scoped_tls[bbd34c9ad6152d9d]::ScopedKey<rustc_span[bed1e4a5ee66571]::SessionGlobals>>::set::<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/.cargo/registry/src/index.crates.io-6f17d22bba15001f/scoped-tls-1.0.1/src/lib.rs:137:9
+ 127:     0x7fb75d7a24ac - rustc_span[bed1e4a5ee66571]::create_session_globals_then::<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}>
+                               at /home/xavierrouth/dev/rust/compiler/rustc_span/src/lib.rs:133:5
+ 128:     0x7fb75d7edede - rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals::<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}
+                               at /home/xavierrouth/dev/rust/compiler/rustc_interface/src/util.rs:79:38
+ 129:     0x7fb75d7edede - std[f7e7a1f282faba74]::sys_common::backtrace::__rust_begin_short_backtrace::<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/dev/rust/library/std/src/sys_common/backtrace.rs:155:18
+ 130:     0x7fb75d7d09f4 - <std[f7e7a1f282faba74]::thread::Builder>::spawn_unchecked_::<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#1}::{closure#0}
+                               at /home/xavierrouth/dev/rust/library/std/src/thread/mod.rs:529:17
+ 131:     0x7fb75d7d09f4 - <core[25ed7ba41ba17257]::panic::unwind_safe::AssertUnwindSafe<<std[f7e7a1f282faba74]::thread::Builder>::spawn_unchecked_<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#1}::{closure#0}> as core[25ed7ba41ba17257]::ops::function::FnOnce<()>>::call_once
+                               at /home/xavierrouth/dev/rust/library/core/src/panic/unwind_safe.rs:272:9
+ 132:     0x7fb75d7d09f4 - std[f7e7a1f282faba74]::panicking::try::do_call::<core[25ed7ba41ba17257]::panic::unwind_safe::AssertUnwindSafe<<std[f7e7a1f282faba74]::thread::Builder>::spawn_unchecked_<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#1}::{closure#0}>, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/dev/rust/library/std/src/panicking.rs:554:40
+ 133:     0x7fb75d7d09f4 - std[f7e7a1f282faba74]::panicking::try::<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, core[25ed7ba41ba17257]::panic::unwind_safe::AssertUnwindSafe<<std[f7e7a1f282faba74]::thread::Builder>::spawn_unchecked_<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#1}::{closure#0}>>
+                               at /home/xavierrouth/dev/rust/library/std/src/panicking.rs:518:19
+ 134:     0x7fb75d7d7196 - std[f7e7a1f282faba74]::panic::catch_unwind::<core[25ed7ba41ba17257]::panic::unwind_safe::AssertUnwindSafe<<std[f7e7a1f282faba74]::thread::Builder>::spawn_unchecked_<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#1}::{closure#0}>, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>
+                               at /home/xavierrouth/dev/rust/library/std/src/panic.rs:142:14
+ 135:     0x7fb75d7d7196 - <std[f7e7a1f282faba74]::thread::Builder>::spawn_unchecked_::<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#1}
+                               at /home/xavierrouth/dev/rust/library/std/src/thread/mod.rs:528:30
+ 136:     0x7fb75d7d7196 - <<std[f7e7a1f282faba74]::thread::Builder>::spawn_unchecked_<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_with_globals<rustc_interface[b4b0c2165079fa91]::util::run_in_thread_pool_with_globals<rustc_interface[b4b0c2165079fa91]::interface::run_compiler<core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>, rustc_driver_impl[f7ee3d452455216b]::run_compiler::{closure#0}>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#0}::{closure#0}, core[25ed7ba41ba17257]::result::Result<(), rustc_span[bed1e4a5ee66571]::ErrorGuaranteed>>::{closure#1} as core[25ed7ba41ba17257]::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+                               at /home/xavierrouth/dev/rust/library/core/src/ops/function.rs:250:5
+ 137:     0x7fb75c8b5f8c - <alloc::boxed::Box<F,A> as core::ops::function::FnOnce<Args>>::call_once::h17a1874f2c4d6695
+                               at /home/xavierrouth/dev/rust/library/alloc/src/boxed.rs:2015:9
+ 138:     0x7fb75c8b5f8c - <alloc::boxed::Box<F,A> as core::ops::function::FnOnce<Args>>::call_once::he34fe3f78b8fb308
+                               at /home/xavierrouth/dev/rust/library/alloc/src/boxed.rs:2015:9
+ 139:     0x7fb75c8d97ef - std::sys::pal::unix::thread::Thread::new::thread_start::hc37aa18120505d23
+                               at /home/xavierrouth/dev/rust/library/std/src/sys/pal/unix/thread.rs:108:17
+ 140:     0x7fb754b24609 - start_thread
+                               at /build/glibc-SzIz7B/glibc-2.31/nptl/pthread_create.c:477:8
+ 141:     0x7fb75c72f133 - clone
+                               at /build/glibc-SzIz7B/glibc-2.31/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:95
+ 142:                0x0 - <unknown>
+
+error: the compiler unexpectedly panicked. this is a bug.
+
+note: using internal features is not supported and expected to cause internal compiler errors when used incorrectly
+
+note: rustc 1.77.2-dev running on x86_64-unknown-linux-gnu
+
+note: compiler flags: -Z threads=1 -Z simulate-remapped-rust-src-base=/rustc/FAKE_PREFIX -Z translate-remapped-path-to-local-path=no -Z ignore-directory-in-diagnostics-source-blocks=/home/xavierrouth/.cargo -C codegen-units=1 -Z ui-testing -Z deduplicate-diagnostics=no -Z write-long-types-to-disk=no -C strip=debuginfo -C prefer-dynamic -C rpath -C debuginfo=0 -Z dump_mir=simple -Z dump-mir-dataflow=y -Z mir-opt-level=0 -Z mir-enable-passes=+PartialRedundancyElimination,-SimplifyCfg-elaborate-drops
+
+query stack during panic:
+#0 [optimized_mir] optimizing MIR for `main`
+#1 [collect_and_partition_mono_items] collect_and_partition_mono_items
+end of query stack
+------------------------------------------
 
 
 
 failures:
     [ui] tests/ui/pre/pre-mir-test-7.rs
 
-test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16092 filtered out; finished in 125.88ms
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16093 filtered out; finished in 1.04s
 
 Some tests failed in compiletest suite=ui mode=ui host=x86_64-unknown-linux-gnu target=x86_64-unknown-linux-gnu
