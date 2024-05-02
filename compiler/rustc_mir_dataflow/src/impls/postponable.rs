@@ -171,13 +171,16 @@ where
     T: GenKill<ExprIdx>,
 {
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
+        self.super_statement(stmt, location);
+        println!("stmt visited {:?}", stmt);
+
         if location.statement_index == 0 {
             println!("Entering BB: {:?}", location.block);
 
             let earliest_exprs = &self.earliest_exprs[location.block];
 
             for expr in earliest_exprs.0.iter() {
-                println!("adding earliest expr: {:?}", expr);
+                println!("GEN: earliest expr: {:?}", expr);
                 self.trans.gen(expr);
             }
         }
@@ -219,7 +222,19 @@ where
 
     fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {
         self.super_terminator(terminator, location); // What??
-        // println!( "visit terminator {:?}", terminator);
+
+        println!( "terminator visited {:?}", terminator.kind);
+        if location.statement_index == 0 {
+            println!("Entering BB: {:?}", location.block);
+
+            let earliest_exprs = &self.earliest_exprs[location.block];
+
+            for expr in earliest_exprs.0.iter() {
+                println!("GEN: earliest expr: {:?}", expr);
+                self.trans.gen(expr);
+            }
+        }
+
         
         // For each expression that is anticipated in this block, mark it as Postponable.
 

@@ -26,6 +26,9 @@ use rustc_mir_dataflow::drop_flag_effects_for_function_entry;
 use rustc_mir_dataflow::drop_flag_effects_for_location;
 use rustc_mir_dataflow::elaborate_drops::DropFlagState;
 use rustc_mir_dataflow::impls::AvailableExpressions;
+use rustc_mir_dataflow::impls::AvailableExpressionsResults;
+use rustc_mir_dataflow::impls::AnticipatedExpressionsResults;
+
 use rustc_mir_dataflow::impls::PostponableExpressions;
 use rustc_mir_dataflow::impls::UsedExpressions;
 use rustc_mir_dataflow::impls::{postponable, AnticipatedExpressions};
@@ -47,8 +50,6 @@ use rustc_mir_dataflow::Results;
 use itertools::Itertools;
 use rustc_data_structures::graph::WithSuccessors;
 
-type AnticipatedExpressionsResults<'tcx> = Results<'tcx, AnticipatedExpressions>;
-type AvailableExpressionsResults<'tcx> = Results<'tcx, AvailableExpressions<'tcx>>;
 type PostponableExpressionsResults<'tcx> = Results<'tcx, PostponableExpressions<'tcx>>;
 
 type Domain = BitSet<ExprIdx>;
@@ -110,14 +111,15 @@ impl<'tcx> PartialRedundancyElimination {
     fn compute_earliest(
         &self,
         body: &mut Body<'tcx>,
-        anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
-        available_exprs: AvailableExpressionsResults<'tcx>,
+        anticipated_exprs: AnticipatedExpressionsResults,
+        available_exprs: AvailableExpressionsResults,
         #[allow(rustc::default_hash_types)] terminal_blocks: HashSet<BasicBlock>,
     ) -> IndexVec<BasicBlock, Dual<Domain>> {
         let set_diff = |i: BasicBlock| -> Dual<Domain> {
-            let anticipated = anticipated_exprs.entry_set_for_block(i);
+            let anticipated = anticipated_exprs.get(i).expect("in compute earliest");
             let size: usize = anticipated.0.domain_size();
-            let available = available_exprs.entry_set_for_block(i);
+            // FIXME: anticipated and available were both 'entry set for block';
+            let available = available_exprs.get(i).expect("awdawd");
             // println!("anticipated: {:?}", anticpated.clone());
             // println!("available: {:?}", available.clone());
 
@@ -200,60 +202,85 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             .into_results_cursor(body);
         println!("----------------ANTICIPATED DEBUG END----------------\n\n\n");
 
-        let _state = anticipated.get();
+        let state = anticipated.get();
 
-        let size = Self::count_statements(body) + body.local_decls.len(); // Fixme 
-        let mut anticipated_exprs = IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks);
+        let size = state.0.domain_size(); // Fixme 
+        let mut anticipated_exprs: IndexVec<BasicBlock, Dual<BitSet<_>>> = IndexVec::from_elem(Dual(BitSet::new_empty(size)), &body.basic_blocks);
+        let mut anticipated_exprs_end: IndexVec<BasicBlock, Dual<BitSet<_>>> = IndexVec::from_elem(Dual(BitSet::new_empty(size)), &body.basic_blocks);
 
-        println!("Anticipated:");
-        for (bb, block) in body.basic_blocks.iter_enumerated() {
-            anticipated.seek_to_block_end(bb);
-
-            println!(
-                "seek to block end {:?} : {:?}",
-                bb,
-                anticipated.get()
-            );
+        
+        for (bb, _block) in body.basic_blocks.iter_enumerated() {
 
             anticipated.seek_to_block_start(bb);
-            println!(
-                "seek to block start {:?} : {:?}",
-                bb,
-                anticipated.get()
-            );
 
             let set = anticipated.get();
-            anticipated_exprs.insert(block, set);
+            anticipated_exprs[bb] = set.clone();
+
+            anticipated.seek_to_block_end(bb);
+
+            let set = anticipated.get();
+            anticipated_exprs_end[bb] = set.clone();
+
+        }
+
+        println!("Anticipated:");
+                // Print loop
+        for (bb, set) in anticipated_exprs.iter_enumerated() {
+            println!(
+                "set for block {:?} : {:?}",
+                bb,
+                set
+            );
         }
 
         println!("----------------AVAILABLE DEBUG BEGIN----------------");
-        let available =
-            AvailableExpressions::new(body, expr_hash_map.clone(), anticipated.results().clone())
+        let mut available =
+            AvailableExpressions::new(body, expr_hash_map.clone(), anticipated_exprs_end.clone())
                 .into_engine(tcx, body)
                 .pass_name("available_exprs")
                 .iterate_to_fixpoint()
                 .into_results_cursor(body);
         println!("----------------AVAILABLE DEBUG END----------------\n\n\n");
 
-        println!("Available:");
+
+        let mut available_exprs: IndexVec<BasicBlock, Dual<BitSet<_>>> = IndexVec::from_elem(Dual(BitSet::new_empty(size)), &body.basic_blocks);
+        let mut available_exprs_start: IndexVec<BasicBlock, Dual<BitSet<_>>> = IndexVec::from_elem(Dual(BitSet::new_empty(size)), &body.basic_blocks);
+
+
+        // Gather loop
         for (bb, _block) in body.basic_blocks.iter_enumerated() {
-            // available.seek_to_block_end(bb);
-            let _state = available.get();
-            // anticipated.results().analysis.fmt_domain(state);
+
+            available.seek_to_block_start(bb);
+            let set = available.get();
+            available_exprs_start[bb] = set.clone();
+
+            available.seek_to_block_end(bb);
+            let set = available.get();
+            available_exprs[bb] = set.clone();
+        }
+
+        println!("Available:");
+        // Print loop
+        for (bb, set) in available_exprs.iter_enumerated() {
             println!(
-                "entry set for block {:?} : {:?}",
+                "in set for block {:?} : {:?}",
                 bb,
-                available.results().entry_set_for_block(bb)
+                available_exprs_start[bb]
             );
-            // available.seek_to_block_start(bb);
+            println!(
+                "out set for block {:?} : {:?}",
+                bb,
+                set
+            );
         }
 
         let earliest = self.compute_earliest(
             body,
-            anticipated.results().clone(),
-            available.results().clone(),
+            anticipated_exprs.clone(), // Anticipated at start.
+            available_exprs_start.clone(), // Available at end. // This should be available start
             terminal_blocks.clone(),
         );
+
         println!("----------------POSTPONABLE DEBUG BEGIN----------------");
         let postponable =
             PostponableExpressions::new(body, expr_hash_map.clone(), earliest.clone())
@@ -319,8 +346,8 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         for bb in reverse_postorder.clone() {
             // Seperate 'used' cursor from a shared ref of block
 
-            used.seek_to_block_end(bb);
-            //used.seek_to_block_start(bb);
+            //used.seek_to_block_end(bb);
+            used.seek_to_block_start(bb); // This is the out set
             let used_out = used.get().clone();
             used_map.entry(bb).or_insert(used_out);
         }
@@ -331,6 +358,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             let mut temps = used_out.clone();
             let latest_set = latest.get(bb).expect("Not latest");
             temps.intersect(latest_set);
+
             println!("temps for bb {:?} : {:?}", bb, temps);
             
             

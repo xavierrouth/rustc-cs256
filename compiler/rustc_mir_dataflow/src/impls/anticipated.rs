@@ -23,6 +23,7 @@ use rustc_macros::HashStable;
 
 use crate::impls::{ExprHashMap, ExprIdx, ExprSetElem};
 
+pub type AnticipatedExpressionsResults = IndexVec<BasicBlock, Dual<BitSet<ExprIdx>>>;
 
 use std::fmt;
 
@@ -42,6 +43,7 @@ pub struct AnticipatedExpressions {
 }
 
 impl AnticipatedExpressions {
+
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
         & mut self,
