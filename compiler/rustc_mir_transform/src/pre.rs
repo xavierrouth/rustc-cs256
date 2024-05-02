@@ -347,9 +347,9 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             // Seperate 'used' cursor from a shared ref of block
 
             //used.seek_to_block_end(bb);
-            used.seek_to_block_start(bb); // This is the out set
-            let used_out = used.get().clone();
-            used_map.entry(bb).or_insert(used_out);
+            // used.seek_to_block_start(bb); // This is the out set
+            let used_out = used.results().entry_set_for_block(bb); // get().clone();
+            used_map.entry(bb).or_insert(used_out.clone());
         }
         
         // Rule 1:

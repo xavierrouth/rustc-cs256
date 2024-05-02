@@ -189,8 +189,7 @@ where
                 self.trans.gen(expr);
             }
         }
-
-
+        
         // For an assignment place = rvalue
         if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
             match rvalue {
@@ -232,6 +231,7 @@ where
                 }
             }
         }
+
     }
 
     fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {

@@ -10,9 +10,9 @@ F
 
 failures:
 
----- [ui] tests/ui/pre/pre-mir-test-6.rs stdout ----
+---- [ui] tests/ui/pre/pre-mir-test-7.rs stdout ----
 normalized stdout:
-Body that analysis is running on DefId(0:6 ~ pre_mir_test_6[7070]::main)
+Body that analysis is running on DefId(0:6 ~ pre_mir_test_7[1462]::main)
 ----------------ANTICIPATED DEBUG BEGIN----------------
 size: 5
 bb0[0]: stmt visited StorageLive(_1)
@@ -96,98 +96,78 @@ Used:
 entry set for block bb0 : []
 entry set for block bb1 : []
 Transforming the code
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue], location bb0
-stmt visited StorageLive(_1)
-Calculating IN set for BB: bb0
-terminator visited return, location bb1
-stmt visited _0 = const ()
-stmt visited StorageDead(_1)
-Calculating IN set for BB: bb1
 temps for bb bb0 : []
 temps for bb bb1 : []
-Body that analysis is running on DefId(0:5 ~ pre_mir_test_6[7070]::simple)
+Body that analysis is running on DefId(0:5 ~ pre_mir_test_7[1462]::simple)
 ----------------ANTICIPATED DEBUG BEGIN----------------
-size: 15
-bb0[4]: stmt visited _6 = const true
-bb0[3]: stmt visited _5 = const 10_i32
-bb0[2]: stmt visited _4 = const 10_i32
-bb0[1]: stmt visited _3 = const 5_i32
-bb0[0]: stmt visited _2 = const 3_i32
-bb2[0]: stmt visited _4 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb3[0]: stmt visited _5 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb4[0]: stmt visited _0 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb0[4]: stmt visited _6 = const true
-bb0[3]: stmt visited _5 = const 10_i32
-bb0[2]: stmt visited _4 = const 10_i32
-bb0[1]: stmt visited _3 = const 5_i32
+size: 13
+bb0[2]: stmt visited _4 = const false
+bb0[1]: stmt visited _3 = const true
+bb0[0]: stmt visited _2 = const 1_i32
+bb6[0]: stmt visited _5 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb9[0]: stmt visited _6 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb10[0]: stmt visited _0 = const 19_i32
+bb0[2]: stmt visited _4 = const false
+bb0[1]: stmt visited _3 = const true
+bb0[0]: stmt visited _2 = const 1_i32
 KILL expr Expr(0)
-bb0[0]: stmt visited _2 = const 3_i32
+bb0[2]: stmt visited _4 = const false
+bb0[1]: stmt visited _3 = const true
+bb0[0]: stmt visited _2 = const 1_i32
 KILL expr Expr(0)
-bb0[4]: stmt visited _6 = const true
-bb0[3]: stmt visited _5 = const 10_i32
-bb0[2]: stmt visited _4 = const 10_i32
-bb0[1]: stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-bb0[0]: stmt visited _2 = const 3_i32
-KILL expr Expr(0)
-bb2[0]: stmt visited _4 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb2[0]: stmt visited _4 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb3[0]: stmt visited _5 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb3[0]: stmt visited _5 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb4[0]: stmt visited _0 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb4[0]: stmt visited _0 = Add(_2, _3)
-GEN expr Add(_2, _3)
+bb6[0]: stmt visited _5 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb6[0]: stmt visited _5 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb9[0]: stmt visited _6 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb9[0]: stmt visited _6 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb10[0]: stmt visited _0 = const 19_i32
+bb10[0]: stmt visited _0 = const 19_i32
 ----------------ANTICIPATED DEBUG END----------------
 
 
 
-bb0[4]: stmt visited _6 = const true
-bb0[3]: stmt visited _5 = const 10_i32
-bb0[2]: stmt visited _4 = const 10_i32
-bb0[1]: stmt visited _3 = const 5_i32
+bb0[2]: stmt visited _4 = const false
+bb0[1]: stmt visited _3 = const true
+bb0[0]: stmt visited _2 = const 1_i32
 KILL expr Expr(0)
-bb0[0]: stmt visited _2 = const 3_i32
-KILL expr Expr(0)
-bb2[0]: stmt visited _4 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb3[0]: stmt visited _5 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb4[0]: stmt visited _0 = Add(_2, _3)
-GEN expr Add(_2, _3)
+bb6[0]: stmt visited _5 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb9[0]: stmt visited _6 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb10[0]: stmt visited _0 = const 19_i32
 Anticipated:
 set for block bb0 : Dual([])
 set for block bb1 : Dual([Expr(0)])
 set for block bb2 : Dual([Expr(0)])
 set for block bb3 : Dual([Expr(0)])
 set for block bb4 : Dual([Expr(0)])
+set for block bb5 : Dual([Expr(0)])
+set for block bb6 : Dual([Expr(0)])
+set for block bb7 : Dual([Expr(0)])
+set for block bb8 : Dual([Expr(0)])
+set for block bb9 : Dual([Expr(0)])
+set for block bb10 : Dual([])
 ----------------AVAILABLE DEBUG BEGIN----------------
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
 GEN: anticipated expr: Expr(0)
 KILL expr Expr(0)
-stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
-stmt visited _4 = Add(_2, _3)
-Entering BB: bb2
+stmt visited _3 = const true
+stmt visited _4 = const false
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-stmt visited _5 = Add(_2, _3)
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-stmt visited _0 = Add(_2, _3)
-Entering BB: bb4
+GEN expr Add(_2, _1)
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+GEN expr Add(_2, _1)
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 GEN: anticipated expr: Expr(0)
 GEN: anticipated expr: Expr(1)
 GEN: anticipated expr: Expr(2)
@@ -201,64 +181,107 @@ GEN: anticipated expr: Expr(9)
 GEN: anticipated expr: Expr(10)
 GEN: anticipated expr: Expr(11)
 GEN: anticipated expr: Expr(12)
-GEN: anticipated expr: Expr(13)
-GEN: anticipated expr: Expr(14)
-GEN expr Add(_2, _3)
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb3
+Entering BB: bb2
+GEN: anticipated expr: Expr(0)
 terminator visited goto -> bb4
-terminator visited goto -> bb4
+Entering BB: bb3
+GEN: anticipated expr: Expr(0)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
+Entering BB: bb4
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb5
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb8
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb10
 terminator visited return
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
 GEN: anticipated expr: Expr(0)
 KILL expr Expr(0)
-stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
 GEN: anticipated expr: Expr(0)
 KILL expr Expr(0)
-stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: anticipated expr: Expr(0)
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _0 = Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
 Entering BB: bb4
+GEN: anticipated expr: Expr(0)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
+Entering BB: bb4
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb5
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb5
+GEN: anticipated expr: Expr(0)
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+GEN: anticipated expr: Expr(0)
+GEN expr Add(_2, _1)
+terminator visited goto -> bb7
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+GEN: anticipated expr: Expr(0)
+GEN expr Add(_2, _1)
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb8
+Entering BB: bb7
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb8
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb8
+GEN: anticipated expr: Expr(0)
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+GEN expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+GEN expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 GEN: anticipated expr: Expr(0)
 GEN: anticipated expr: Expr(1)
 GEN: anticipated expr: Expr(2)
@@ -272,12 +295,9 @@ GEN: anticipated expr: Expr(9)
 GEN: anticipated expr: Expr(10)
 GEN: anticipated expr: Expr(11)
 GEN: anticipated expr: Expr(12)
-GEN: anticipated expr: Expr(13)
-GEN: anticipated expr: Expr(14)
-GEN expr Add(_2, _3)
 terminator visited return
-stmt visited _0 = Add(_2, _3)
-Entering BB: bb4
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 GEN: anticipated expr: Expr(0)
 GEN: anticipated expr: Expr(1)
 GEN: anticipated expr: Expr(2)
@@ -291,39 +311,50 @@ GEN: anticipated expr: Expr(9)
 GEN: anticipated expr: Expr(10)
 GEN: anticipated expr: Expr(11)
 GEN: anticipated expr: Expr(12)
-GEN: anticipated expr: Expr(13)
-GEN: anticipated expr: Expr(14)
-GEN expr Add(_2, _3)
 terminator visited return
 ----------------AVAILABLE DEBUG END----------------
 
 
 
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
 GEN: anticipated expr: Expr(0)
 KILL expr Expr(0)
-stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: anticipated expr: Expr(0)
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _0 = Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
 Entering BB: bb4
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb5
+GEN: anticipated expr: Expr(0)
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+GEN: anticipated expr: Expr(0)
+GEN expr Add(_2, _1)
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb8
+GEN: anticipated expr: Expr(0)
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+GEN expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 GEN: anticipated expr: Expr(0)
 GEN: anticipated expr: Expr(1)
 GEN: anticipated expr: Expr(2)
@@ -337,9 +368,6 @@ GEN: anticipated expr: Expr(9)
 GEN: anticipated expr: Expr(10)
 GEN: anticipated expr: Expr(11)
 GEN: anticipated expr: Expr(12)
-GEN: anticipated expr: Expr(13)
-GEN: anticipated expr: Expr(14)
-GEN expr Add(_2, _3)
 terminator visited return
 Available:
 in set for block bb0 : Dual([])
@@ -351,73 +379,112 @@ out set for block bb2 : Dual([Expr(0)])
 in set for block bb3 : Dual([Expr(0)])
 out set for block bb3 : Dual([Expr(0)])
 in set for block bb4 : Dual([Expr(0)])
-out set for block bb4 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4), Expr(5), Expr(6), Expr(7), Expr(8), Expr(9), Expr(10), Expr(11), Expr(12), Expr(13), Expr(14)])
+out set for block bb4 : Dual([Expr(0)])
+in set for block bb5 : Dual([Expr(0)])
+out set for block bb5 : Dual([Expr(0)])
+in set for block bb6 : Dual([Expr(0)])
+out set for block bb6 : Dual([Expr(0)])
+in set for block bb7 : Dual([Expr(0)])
+out set for block bb7 : Dual([Expr(0)])
+in set for block bb8 : Dual([Expr(0)])
+out set for block bb8 : Dual([Expr(0)])
+in set for block bb9 : Dual([Expr(0)])
+out set for block bb9 : Dual([Expr(0)])
+in set for block bb10 : Dual([Expr(0)])
+out set for block bb10 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4), Expr(5), Expr(6), Expr(7), Expr(8), Expr(9), Expr(10), Expr(11), Expr(12)])
 ----------------POSTPONABLE DEBUG BEGIN----------------
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
-stmt visited _3 = const 5_i32
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
-stmt visited _4 = Add(_2, _3)
-Entering BB: bb2
-KILL expr Add(_2, _3)
-stmt visited _5 = Add(_2, _3)
-Entering BB: bb3
-KILL expr Add(_2, _3)
-stmt visited _0 = Add(_2, _3)
-Entering BB: bb4
-KILL expr Add(_2, _3)
+stmt visited _3 = const true
+stmt visited _4 = const false
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+KILL expr Add(_2, _1)
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+KILL expr Add(_2, _1)
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: earliest expr: Expr(0)
+terminator visited goto -> bb3
+Entering BB: bb2
 terminator visited goto -> bb4
-terminator visited goto -> bb4
+Entering BB: bb3
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
+Entering BB: bb4
+terminator visited goto -> bb9
+Entering BB: bb5
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+terminator visited goto -> bb9
+Entering BB: bb8
+terminator visited goto -> bb10
 terminator visited return
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
-stmt visited _3 = const 5_i32
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
-stmt visited _3 = const 5_i32
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: earliest expr: Expr(0)
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: earliest expr: Expr(0)
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
-KILL expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
-KILL expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
-KILL expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
-KILL expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _0 = Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
 Entering BB: bb4
-KILL expr Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
+Entering BB: bb4
+terminator visited goto -> bb9
+Entering BB: bb5
+terminator visited goto -> bb9
+Entering BB: bb5
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+KILL expr Add(_2, _1)
+terminator visited goto -> bb7
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+KILL expr Add(_2, _1)
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+terminator visited goto -> bb9
+Entering BB: bb8
+terminator visited goto -> bb9
+Entering BB: bb8
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+KILL expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+KILL expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 terminator visited return
-stmt visited _0 = Add(_2, _3)
-Entering BB: bb4
-KILL expr Add(_2, _3)
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 terminator visited return
 ----------------POSTPONABLE DEBUG END----------------
 
@@ -428,83 +495,134 @@ entry set for block bb0 : Dual([])
 entry set for block bb1 : Dual([])
 entry set for block bb2 : Dual([Expr(0)])
 entry set for block bb3 : Dual([Expr(0)])
-entry set for block bb4 : Dual([])
-earliest : [Dual([]), Dual([Expr(0)]), Dual([]), Dual([]), Dual([])]
-latest : [[], [], [Expr(0)], [Expr(0)], []]
+entry set for block bb4 : Dual([Expr(0)])
+entry set for block bb5 : Dual([Expr(0)])
+entry set for block bb6 : Dual([Expr(0)])
+entry set for block bb7 : Dual([])
+entry set for block bb8 : Dual([])
+entry set for block bb9 : Dual([])
+entry set for block bb10 : Dual([])
+earliest : [Dual([]), Dual([Expr(0)]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([])]
+latest : [[], [], [], [], [], [Expr(0)], [Expr(0)], [], [], [], []]
 ----------------USED DEBUG BEGIN----------------
-latest exprs: [[], [], [Expr(0)], [Expr(0)], []]
-stmt visited _6 = const true
-stmt visited _5 = const 10_i32
-stmt visited _4 = const 10_i32
-stmt visited _3 = const 5_i32
-stmt visited _2 = const 3_i32
+latest exprs: [[], [], [], [], [], [Expr(0)], [Expr(0)], [], [], [], []]
+stmt visited _4 = const false
+stmt visited _3 = const true
+stmt visited _2 = const 1_i32
 Calculating IN set for BB: bb0
-stmt visited _4 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb2
+stmt visited _5 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb6
 [USED] killing latest expr: Expr(0)
-stmt visited _5 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb3
+stmt visited _6 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb9
+stmt visited _0 = const 19_i32
+Calculating IN set for BB: bb10
+terminator visited return, location bb10
+terminator visited goto -> bb10, location bb9
+terminator visited goto -> bb9, location bb8
+Calculating IN set for BB: bb8
+latest exprs: []
+terminator visited goto -> bb8, location bb7
+Calculating IN set for BB: bb7
+latest exprs: []
+terminator visited goto -> bb7, location bb6
+terminator visited goto -> bb9, location bb5
+Calculating IN set for BB: bb5
+latest exprs: [Expr(0)]
 [USED] killing latest expr: Expr(0)
-stmt visited _0 = Add(_2, _3)
-e-used expr Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
 Calculating IN set for BB: bb4
-terminator visited return, location bb4
+latest exprs: []
 terminator visited goto -> bb4, location bb3
-terminator visited goto -> bb4, location bb2
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3], location bb1
+Calculating IN set for BB: bb3
+latest exprs: []
+terminator visited goto -> bb3, location bb2
+Calculating IN set for BB: bb2
+latest exprs: []
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
 Calculating IN set for BB: bb1
 latest exprs: []
 terminator visited goto -> bb1, location bb0
 terminator visited goto -> bb1, location bb0
-stmt visited _6 = const true
-stmt visited _5 = const 10_i32
-stmt visited _4 = const 10_i32
-stmt visited _3 = const 5_i32
-stmt visited _2 = const 3_i32
+stmt visited _4 = const false
+stmt visited _3 = const true
+stmt visited _2 = const 1_i32
 Calculating IN set for BB: bb0
 terminator visited goto -> bb1, location bb0
-stmt visited _6 = const true
-stmt visited _5 = const 10_i32
-stmt visited _4 = const 10_i32
-stmt visited _3 = const 5_i32
-stmt visited _2 = const 3_i32
+stmt visited _4 = const false
+stmt visited _3 = const true
+stmt visited _2 = const 1_i32
 Calculating IN set for BB: bb0
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3], location bb1
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
 Calculating IN set for BB: bb1
 latest exprs: []
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3], location bb1
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
 Calculating IN set for BB: bb1
 latest exprs: []
-terminator visited goto -> bb4, location bb2
-stmt visited _4 = Add(_2, _3)
-e-used expr Add(_2, _3)
+terminator visited goto -> bb3, location bb2
 Calculating IN set for BB: bb2
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb4, location bb2
-stmt visited _4 = Add(_2, _3)
-e-used expr Add(_2, _3)
+latest exprs: []
+terminator visited goto -> bb3, location bb2
 Calculating IN set for BB: bb2
-[USED] killing latest expr: Expr(0)
+latest exprs: []
 terminator visited goto -> bb4, location bb3
-stmt visited _5 = Add(_2, _3)
-e-used expr Add(_2, _3)
 Calculating IN set for BB: bb3
-[USED] killing latest expr: Expr(0)
+latest exprs: []
 terminator visited goto -> bb4, location bb3
-stmt visited _5 = Add(_2, _3)
-e-used expr Add(_2, _3)
 Calculating IN set for BB: bb3
+latest exprs: []
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
+Calculating IN set for BB: bb4
+latest exprs: []
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
+Calculating IN set for BB: bb4
+latest exprs: []
+terminator visited goto -> bb9, location bb5
+Calculating IN set for BB: bb5
+latest exprs: [Expr(0)]
 [USED] killing latest expr: Expr(0)
-terminator visited return, location bb4
-stmt visited _0 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb4
-terminator visited return, location bb4
-stmt visited _0 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb4
+terminator visited goto -> bb9, location bb5
+Calculating IN set for BB: bb5
+latest exprs: [Expr(0)]
+[USED] killing latest expr: Expr(0)
+terminator visited goto -> bb7, location bb6
+stmt visited _5 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb6
+[USED] killing latest expr: Expr(0)
+terminator visited goto -> bb7, location bb6
+stmt visited _5 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb6
+[USED] killing latest expr: Expr(0)
+terminator visited goto -> bb8, location bb7
+Calculating IN set for BB: bb7
+latest exprs: []
+terminator visited goto -> bb8, location bb7
+Calculating IN set for BB: bb7
+latest exprs: []
+terminator visited goto -> bb9, location bb8
+Calculating IN set for BB: bb8
+latest exprs: []
+terminator visited goto -> bb9, location bb8
+Calculating IN set for BB: bb8
+latest exprs: []
+terminator visited goto -> bb10, location bb9
+stmt visited _6 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb9
+terminator visited goto -> bb10, location bb9
+stmt visited _6 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb9
+terminator visited return, location bb10
+stmt visited _0 = const 19_i32
+Calculating IN set for BB: bb10
+terminator visited return, location bb10
+stmt visited _0 = const 19_i32
+Calculating IN set for BB: bb10
 ----------------USED DEBUG END----------------
 
 
@@ -512,56 +630,46 @@ Calculating IN set for BB: bb4
 Used:
 entry set for block bb0 : []
 entry set for block bb1 : []
-entry set for block bb2 : [Expr(0)]
-entry set for block bb3 : [Expr(0)]
+entry set for block bb2 : []
+entry set for block bb3 : []
 entry set for block bb4 : []
+entry set for block bb5 : [Expr(0)]
+entry set for block bb6 : [Expr(0)]
+entry set for block bb7 : [Expr(0)]
+entry set for block bb8 : [Expr(0)]
+entry set for block bb9 : []
+entry set for block bb10 : []
 Transforming the code
-terminator visited goto -> bb1, location bb0
-stmt visited _6 = const true
-stmt visited _5 = const 10_i32
-stmt visited _4 = const 10_i32
-stmt visited _3 = const 5_i32
-stmt visited _2 = const 3_i32
-Calculating IN set for BB: bb0
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3], location bb1
-Calculating IN set for BB: bb1
-latest exprs: []
-terminator visited goto -> bb4, location bb2
-stmt visited _4 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb2
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb4, location bb3
-stmt visited _5 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb3
-[USED] killing latest expr: Expr(0)
-terminator visited return, location bb4
-stmt visited _0 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb4
 temps for bb bb0 : []
 temps for bb bb1 : []
 temps for bb bb2 : []
 temps for bb bb3 : []
 temps for bb bb4 : []
+temps for bb bb5 : [Expr(0)]
+Inserting temp for Expr(0)
+temps for bb bb6 : [Expr(0)]
+Inserting temp for Expr(0)
+temps for bb bb7 : []
+temps for bb bb8 : []
+temps for bb bb9 : []
+temps for bb bb10 : []
 Statement has expression: Expr(0)
+Replacing Expr(0) with temp
 Statement has expression: Expr(0)
-Statement has expression: Expr(0)
-no temp for Expr(0) ejalkwehjg
+Replacing Expr(0) with temp
 
 
 
 The actual stdout differed from the expected stdout.
-Actual stdout saved to /home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-6/pre-mir-test-6.stdout
+Actual stdout saved to /home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-7/pre-mir-test-7.stdout
 To update references, rerun the tests and pass the `--bless` flag
-To only update this specific test, also pass `--test-args pre/pre-mir-test-6.rs`
+To only update this specific test, also pass `--test-args pre/pre-mir-test-7.rs`
 
 error: 1 errors occurred comparing output.
 status: exit status: 0
-command: RUSTC_ICE="0" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/stage1/bin/rustc" "/home/xavierrouth/dev/rust/tests/ui/pre/pre-mir-test-6.rs" "-Zthreads=1" "-Zsimulate-remapped-rust-src-base=/rustc/FAKE_PREFIX" "-Ztranslate-remapped-path-to-local-path=no" "-Z" "ignore-directory-in-diagnostics-source-blocks=/home/xavierrouth/.cargo" "--sysroot" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/stage1" "--target=x86_64-unknown-linux-gnu" "--error-format" "json" "--json" "future-incompat" "-Ccodegen-units=1" "-Zui-testing" "-Zdeduplicate-diagnostics=no" "-Zwrite-long-types-to-disk=no" "-Cstrip=debuginfo" "-C" "prefer-dynamic" "--out-dir" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-6" "-A" "unused" "-A" "internal_features" "-Crpath" "-Cdebuginfo=0" "-Lnative=/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/native/rust-test-helpers" "-L" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-6/auxiliary" "-Zdump_mir=simple" "-Zdump-mir-dataflow=y" "-Zmir-opt-level=0" "-Zmir-enable-passes=+PartialRedundancyElimination,-SimplifyCfg-elaborate-drops"
+command: RUSTC_ICE="0" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/stage1/bin/rustc" "/home/xavierrouth/dev/rust/tests/ui/pre/pre-mir-test-7.rs" "-Zthreads=1" "-Zsimulate-remapped-rust-src-base=/rustc/FAKE_PREFIX" "-Ztranslate-remapped-path-to-local-path=no" "-Z" "ignore-directory-in-diagnostics-source-blocks=/home/xavierrouth/.cargo" "--sysroot" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/stage1" "--target=x86_64-unknown-linux-gnu" "--error-format" "json" "--json" "future-incompat" "-Ccodegen-units=1" "-Zui-testing" "-Zdeduplicate-diagnostics=no" "-Zwrite-long-types-to-disk=no" "-Cstrip=debuginfo" "-C" "prefer-dynamic" "--out-dir" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-7" "-A" "unused" "-A" "internal_features" "-Crpath" "-Cdebuginfo=0" "-Lnative=/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/native/rust-test-helpers" "-L" "/home/xavierrouth/dev/rust/build/x86_64-unknown-linux-gnu/test/ui/pre/pre-mir-test-7/auxiliary" "-Zdump_mir=simple" "-Zdump-mir-dataflow=y" "-Zmir-opt-level=0" "-Zmir-enable-passes=+PartialRedundancyElimination,-SimplifyCfg-elaborate-drops"
 --- stdout -------------------------------
-Body that analysis is running on DefId(0:6 ~ pre_mir_test_6[7070]::main)
+Body that analysis is running on DefId(0:6 ~ pre_mir_test_7[1462]::main)
 ----------------ANTICIPATED DEBUG BEGIN----------------
 size: 5
 bb0[0]: stmt visited StorageLive(_1)
@@ -645,98 +753,78 @@ Used:
 entry set for block bb0 : []
 entry set for block bb1 : []
 Transforming the code
-terminator visited _1 = simple(const 0_i32) -> [return: bb1, unwind continue], location bb0
-stmt visited StorageLive(_1)
-Calculating IN set for BB: bb0
-terminator visited return, location bb1
-stmt visited _0 = const ()
-stmt visited StorageDead(_1)
-Calculating IN set for BB: bb1
 temps for bb bb0 : []
 temps for bb bb1 : []
-Body that analysis is running on DefId(0:5 ~ pre_mir_test_6[7070]::simple)
+Body that analysis is running on DefId(0:5 ~ pre_mir_test_7[1462]::simple)
 ----------------ANTICIPATED DEBUG BEGIN----------------
-size: 15
-bb0[4]: stmt visited _6 = const true
-bb0[3]: stmt visited _5 = const 10_i32
-bb0[2]: stmt visited _4 = const 10_i32
-bb0[1]: stmt visited _3 = const 5_i32
-bb0[0]: stmt visited _2 = const 3_i32
-bb2[0]: stmt visited _4 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb3[0]: stmt visited _5 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb4[0]: stmt visited _0 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb0[4]: stmt visited _6 = const true
-bb0[3]: stmt visited _5 = const 10_i32
-bb0[2]: stmt visited _4 = const 10_i32
-bb0[1]: stmt visited _3 = const 5_i32
+size: 13
+bb0[2]: stmt visited _4 = const false
+bb0[1]: stmt visited _3 = const true
+bb0[0]: stmt visited _2 = const 1_i32
+bb6[0]: stmt visited _5 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb9[0]: stmt visited _6 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb10[0]: stmt visited _0 = const 19_i32
+bb0[2]: stmt visited _4 = const false
+bb0[1]: stmt visited _3 = const true
+bb0[0]: stmt visited _2 = const 1_i32
 KILL expr Expr(0)
-bb0[0]: stmt visited _2 = const 3_i32
+bb0[2]: stmt visited _4 = const false
+bb0[1]: stmt visited _3 = const true
+bb0[0]: stmt visited _2 = const 1_i32
 KILL expr Expr(0)
-bb0[4]: stmt visited _6 = const true
-bb0[3]: stmt visited _5 = const 10_i32
-bb0[2]: stmt visited _4 = const 10_i32
-bb0[1]: stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-bb0[0]: stmt visited _2 = const 3_i32
-KILL expr Expr(0)
-bb2[0]: stmt visited _4 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb2[0]: stmt visited _4 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb3[0]: stmt visited _5 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb3[0]: stmt visited _5 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb4[0]: stmt visited _0 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb4[0]: stmt visited _0 = Add(_2, _3)
-GEN expr Add(_2, _3)
+bb6[0]: stmt visited _5 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb6[0]: stmt visited _5 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb9[0]: stmt visited _6 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb9[0]: stmt visited _6 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb10[0]: stmt visited _0 = const 19_i32
+bb10[0]: stmt visited _0 = const 19_i32
 ----------------ANTICIPATED DEBUG END----------------
 
 
 
-bb0[4]: stmt visited _6 = const true
-bb0[3]: stmt visited _5 = const 10_i32
-bb0[2]: stmt visited _4 = const 10_i32
-bb0[1]: stmt visited _3 = const 5_i32
+bb0[2]: stmt visited _4 = const false
+bb0[1]: stmt visited _3 = const true
+bb0[0]: stmt visited _2 = const 1_i32
 KILL expr Expr(0)
-bb0[0]: stmt visited _2 = const 3_i32
-KILL expr Expr(0)
-bb2[0]: stmt visited _4 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb3[0]: stmt visited _5 = Add(_2, _3)
-GEN expr Add(_2, _3)
-bb4[0]: stmt visited _0 = Add(_2, _3)
-GEN expr Add(_2, _3)
+bb6[0]: stmt visited _5 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb9[0]: stmt visited _6 = Add(_2, _1)
+GEN expr Add(_2, _1)
+bb10[0]: stmt visited _0 = const 19_i32
 Anticipated:
 set for block bb0 : Dual([])
 set for block bb1 : Dual([Expr(0)])
 set for block bb2 : Dual([Expr(0)])
 set for block bb3 : Dual([Expr(0)])
 set for block bb4 : Dual([Expr(0)])
+set for block bb5 : Dual([Expr(0)])
+set for block bb6 : Dual([Expr(0)])
+set for block bb7 : Dual([Expr(0)])
+set for block bb8 : Dual([Expr(0)])
+set for block bb9 : Dual([Expr(0)])
+set for block bb10 : Dual([])
 ----------------AVAILABLE DEBUG BEGIN----------------
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
 GEN: anticipated expr: Expr(0)
 KILL expr Expr(0)
-stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
-stmt visited _4 = Add(_2, _3)
-Entering BB: bb2
+stmt visited _3 = const true
+stmt visited _4 = const false
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-stmt visited _5 = Add(_2, _3)
-Entering BB: bb3
-GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-stmt visited _0 = Add(_2, _3)
-Entering BB: bb4
+GEN expr Add(_2, _1)
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+GEN expr Add(_2, _1)
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 GEN: anticipated expr: Expr(0)
 GEN: anticipated expr: Expr(1)
 GEN: anticipated expr: Expr(2)
@@ -750,64 +838,107 @@ GEN: anticipated expr: Expr(9)
 GEN: anticipated expr: Expr(10)
 GEN: anticipated expr: Expr(11)
 GEN: anticipated expr: Expr(12)
-GEN: anticipated expr: Expr(13)
-GEN: anticipated expr: Expr(14)
-GEN expr Add(_2, _3)
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb3
+Entering BB: bb2
+GEN: anticipated expr: Expr(0)
 terminator visited goto -> bb4
-terminator visited goto -> bb4
+Entering BB: bb3
+GEN: anticipated expr: Expr(0)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
+Entering BB: bb4
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb5
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb8
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb10
 terminator visited return
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
 GEN: anticipated expr: Expr(0)
 KILL expr Expr(0)
-stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
 GEN: anticipated expr: Expr(0)
 KILL expr Expr(0)
-stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: anticipated expr: Expr(0)
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: anticipated expr: Expr(0)
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _0 = Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
 Entering BB: bb4
+GEN: anticipated expr: Expr(0)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
+Entering BB: bb4
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb5
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb5
+GEN: anticipated expr: Expr(0)
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+GEN: anticipated expr: Expr(0)
+GEN expr Add(_2, _1)
+terminator visited goto -> bb7
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+GEN: anticipated expr: Expr(0)
+GEN expr Add(_2, _1)
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb8
+Entering BB: bb7
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb8
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb8
+GEN: anticipated expr: Expr(0)
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+GEN expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+GEN expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 GEN: anticipated expr: Expr(0)
 GEN: anticipated expr: Expr(1)
 GEN: anticipated expr: Expr(2)
@@ -821,12 +952,9 @@ GEN: anticipated expr: Expr(9)
 GEN: anticipated expr: Expr(10)
 GEN: anticipated expr: Expr(11)
 GEN: anticipated expr: Expr(12)
-GEN: anticipated expr: Expr(13)
-GEN: anticipated expr: Expr(14)
-GEN expr Add(_2, _3)
 terminator visited return
-stmt visited _0 = Add(_2, _3)
-Entering BB: bb4
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 GEN: anticipated expr: Expr(0)
 GEN: anticipated expr: Expr(1)
 GEN: anticipated expr: Expr(2)
@@ -840,39 +968,50 @@ GEN: anticipated expr: Expr(9)
 GEN: anticipated expr: Expr(10)
 GEN: anticipated expr: Expr(11)
 GEN: anticipated expr: Expr(12)
-GEN: anticipated expr: Expr(13)
-GEN: anticipated expr: Expr(14)
-GEN expr Add(_2, _3)
 terminator visited return
 ----------------AVAILABLE DEBUG END----------------
 
 
 
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
 GEN: anticipated expr: Expr(0)
 KILL expr Expr(0)
-stmt visited _3 = const 5_i32
-KILL expr Expr(0)
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: anticipated expr: Expr(0)
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
 GEN: anticipated expr: Expr(0)
-GEN expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _0 = Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
 Entering BB: bb4
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb5
+GEN: anticipated expr: Expr(0)
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+GEN: anticipated expr: Expr(0)
+GEN expr Add(_2, _1)
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+GEN: anticipated expr: Expr(0)
+terminator visited goto -> bb9
+Entering BB: bb8
+GEN: anticipated expr: Expr(0)
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+GEN expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 GEN: anticipated expr: Expr(0)
 GEN: anticipated expr: Expr(1)
 GEN: anticipated expr: Expr(2)
@@ -886,9 +1025,6 @@ GEN: anticipated expr: Expr(9)
 GEN: anticipated expr: Expr(10)
 GEN: anticipated expr: Expr(11)
 GEN: anticipated expr: Expr(12)
-GEN: anticipated expr: Expr(13)
-GEN: anticipated expr: Expr(14)
-GEN expr Add(_2, _3)
 terminator visited return
 Available:
 in set for block bb0 : Dual([])
@@ -900,73 +1036,112 @@ out set for block bb2 : Dual([Expr(0)])
 in set for block bb3 : Dual([Expr(0)])
 out set for block bb3 : Dual([Expr(0)])
 in set for block bb4 : Dual([Expr(0)])
-out set for block bb4 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4), Expr(5), Expr(6), Expr(7), Expr(8), Expr(9), Expr(10), Expr(11), Expr(12), Expr(13), Expr(14)])
+out set for block bb4 : Dual([Expr(0)])
+in set for block bb5 : Dual([Expr(0)])
+out set for block bb5 : Dual([Expr(0)])
+in set for block bb6 : Dual([Expr(0)])
+out set for block bb6 : Dual([Expr(0)])
+in set for block bb7 : Dual([Expr(0)])
+out set for block bb7 : Dual([Expr(0)])
+in set for block bb8 : Dual([Expr(0)])
+out set for block bb8 : Dual([Expr(0)])
+in set for block bb9 : Dual([Expr(0)])
+out set for block bb9 : Dual([Expr(0)])
+in set for block bb10 : Dual([Expr(0)])
+out set for block bb10 : Dual([Expr(0), Expr(1), Expr(2), Expr(3), Expr(4), Expr(5), Expr(6), Expr(7), Expr(8), Expr(9), Expr(10), Expr(11), Expr(12)])
 ----------------POSTPONABLE DEBUG BEGIN----------------
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
-stmt visited _3 = const 5_i32
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
-stmt visited _4 = Add(_2, _3)
-Entering BB: bb2
-KILL expr Add(_2, _3)
-stmt visited _5 = Add(_2, _3)
-Entering BB: bb3
-KILL expr Add(_2, _3)
-stmt visited _0 = Add(_2, _3)
-Entering BB: bb4
-KILL expr Add(_2, _3)
+stmt visited _3 = const true
+stmt visited _4 = const false
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+KILL expr Add(_2, _1)
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+KILL expr Add(_2, _1)
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: earliest expr: Expr(0)
+terminator visited goto -> bb3
+Entering BB: bb2
 terminator visited goto -> bb4
-terminator visited goto -> bb4
+Entering BB: bb3
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
+Entering BB: bb4
+terminator visited goto -> bb9
+Entering BB: bb5
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+terminator visited goto -> bb9
+Entering BB: bb8
+terminator visited goto -> bb10
 terminator visited return
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
-stmt visited _3 = const 5_i32
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-stmt visited _2 = const 3_i32
+stmt visited _2 = const 1_i32
 Entering BB: bb0
-stmt visited _3 = const 5_i32
-stmt visited _4 = const 10_i32
-stmt visited _5 = const 10_i32
-stmt visited _6 = const true
+stmt visited _3 = const true
+stmt visited _4 = const false
 terminator visited goto -> bb1
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: earliest expr: Expr(0)
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3]
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6]
 Entering BB: bb1
 GEN: earliest expr: Expr(0)
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
-KILL expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _4 = Add(_2, _3)
+terminator visited goto -> bb3
 Entering BB: bb2
-KILL expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
-KILL expr Add(_2, _3)
 terminator visited goto -> bb4
-stmt visited _5 = Add(_2, _3)
 Entering BB: bb3
-KILL expr Add(_2, _3)
-terminator visited goto -> bb4
-stmt visited _0 = Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
 Entering BB: bb4
-KILL expr Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3]
+Entering BB: bb4
+terminator visited goto -> bb9
+Entering BB: bb5
+terminator visited goto -> bb9
+Entering BB: bb5
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+KILL expr Add(_2, _1)
+terminator visited goto -> bb7
+stmt visited _5 = Add(_2, _1)
+Entering BB: bb6
+KILL expr Add(_2, _1)
+terminator visited goto -> bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+terminator visited goto -> bb8
+Entering BB: bb7
+terminator visited goto -> bb9
+Entering BB: bb8
+terminator visited goto -> bb9
+Entering BB: bb8
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+KILL expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _6 = Add(_2, _1)
+Entering BB: bb9
+KILL expr Add(_2, _1)
+terminator visited goto -> bb10
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 terminator visited return
-stmt visited _0 = Add(_2, _3)
-Entering BB: bb4
-KILL expr Add(_2, _3)
+stmt visited _0 = const 19_i32
+Entering BB: bb10
 terminator visited return
 ----------------POSTPONABLE DEBUG END----------------
 
@@ -977,83 +1152,134 @@ entry set for block bb0 : Dual([])
 entry set for block bb1 : Dual([])
 entry set for block bb2 : Dual([Expr(0)])
 entry set for block bb3 : Dual([Expr(0)])
-entry set for block bb4 : Dual([])
-earliest : [Dual([]), Dual([Expr(0)]), Dual([]), Dual([]), Dual([])]
-latest : [[], [], [Expr(0)], [Expr(0)], []]
+entry set for block bb4 : Dual([Expr(0)])
+entry set for block bb5 : Dual([Expr(0)])
+entry set for block bb6 : Dual([Expr(0)])
+entry set for block bb7 : Dual([])
+entry set for block bb8 : Dual([])
+entry set for block bb9 : Dual([])
+entry set for block bb10 : Dual([])
+earliest : [Dual([]), Dual([Expr(0)]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([]), Dual([])]
+latest : [[], [], [], [], [], [Expr(0)], [Expr(0)], [], [], [], []]
 ----------------USED DEBUG BEGIN----------------
-latest exprs: [[], [], [Expr(0)], [Expr(0)], []]
-stmt visited _6 = const true
-stmt visited _5 = const 10_i32
-stmt visited _4 = const 10_i32
-stmt visited _3 = const 5_i32
-stmt visited _2 = const 3_i32
+latest exprs: [[], [], [], [], [], [Expr(0)], [Expr(0)], [], [], [], []]
+stmt visited _4 = const false
+stmt visited _3 = const true
+stmt visited _2 = const 1_i32
 Calculating IN set for BB: bb0
-stmt visited _4 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb2
+stmt visited _5 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb6
 [USED] killing latest expr: Expr(0)
-stmt visited _5 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb3
+stmt visited _6 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb9
+stmt visited _0 = const 19_i32
+Calculating IN set for BB: bb10
+terminator visited return, location bb10
+terminator visited goto -> bb10, location bb9
+terminator visited goto -> bb9, location bb8
+Calculating IN set for BB: bb8
+latest exprs: []
+terminator visited goto -> bb8, location bb7
+Calculating IN set for BB: bb7
+latest exprs: []
+terminator visited goto -> bb7, location bb6
+terminator visited goto -> bb9, location bb5
+Calculating IN set for BB: bb5
+latest exprs: [Expr(0)]
 [USED] killing latest expr: Expr(0)
-stmt visited _0 = Add(_2, _3)
-e-used expr Add(_2, _3)
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
 Calculating IN set for BB: bb4
-terminator visited return, location bb4
+latest exprs: []
 terminator visited goto -> bb4, location bb3
-terminator visited goto -> bb4, location bb2
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3], location bb1
+Calculating IN set for BB: bb3
+latest exprs: []
+terminator visited goto -> bb3, location bb2
+Calculating IN set for BB: bb2
+latest exprs: []
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
 Calculating IN set for BB: bb1
 latest exprs: []
 terminator visited goto -> bb1, location bb0
 terminator visited goto -> bb1, location bb0
-stmt visited _6 = const true
-stmt visited _5 = const 10_i32
-stmt visited _4 = const 10_i32
-stmt visited _3 = const 5_i32
-stmt visited _2 = const 3_i32
+stmt visited _4 = const false
+stmt visited _3 = const true
+stmt visited _2 = const 1_i32
 Calculating IN set for BB: bb0
 terminator visited goto -> bb1, location bb0
-stmt visited _6 = const true
-stmt visited _5 = const 10_i32
-stmt visited _4 = const 10_i32
-stmt visited _3 = const 5_i32
-stmt visited _2 = const 3_i32
+stmt visited _4 = const false
+stmt visited _3 = const true
+stmt visited _2 = const 1_i32
 Calculating IN set for BB: bb0
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3], location bb1
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
 Calculating IN set for BB: bb1
 latest exprs: []
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3], location bb1
+terminator visited switchInt(_3) -> [1: bb2, otherwise: bb6], location bb1
 Calculating IN set for BB: bb1
 latest exprs: []
-terminator visited goto -> bb4, location bb2
-stmt visited _4 = Add(_2, _3)
-e-used expr Add(_2, _3)
+terminator visited goto -> bb3, location bb2
 Calculating IN set for BB: bb2
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb4, location bb2
-stmt visited _4 = Add(_2, _3)
-e-used expr Add(_2, _3)
+latest exprs: []
+terminator visited goto -> bb3, location bb2
 Calculating IN set for BB: bb2
-[USED] killing latest expr: Expr(0)
+latest exprs: []
 terminator visited goto -> bb4, location bb3
-stmt visited _5 = Add(_2, _3)
-e-used expr Add(_2, _3)
 Calculating IN set for BB: bb3
-[USED] killing latest expr: Expr(0)
+latest exprs: []
 terminator visited goto -> bb4, location bb3
-stmt visited _5 = Add(_2, _3)
-e-used expr Add(_2, _3)
 Calculating IN set for BB: bb3
+latest exprs: []
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
+Calculating IN set for BB: bb4
+latest exprs: []
+terminator visited switchInt(_4) -> [1: bb5, otherwise: bb3], location bb4
+Calculating IN set for BB: bb4
+latest exprs: []
+terminator visited goto -> bb9, location bb5
+Calculating IN set for BB: bb5
+latest exprs: [Expr(0)]
 [USED] killing latest expr: Expr(0)
-terminator visited return, location bb4
-stmt visited _0 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb4
-terminator visited return, location bb4
-stmt visited _0 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb4
+terminator visited goto -> bb9, location bb5
+Calculating IN set for BB: bb5
+latest exprs: [Expr(0)]
+[USED] killing latest expr: Expr(0)
+terminator visited goto -> bb7, location bb6
+stmt visited _5 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb6
+[USED] killing latest expr: Expr(0)
+terminator visited goto -> bb7, location bb6
+stmt visited _5 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb6
+[USED] killing latest expr: Expr(0)
+terminator visited goto -> bb8, location bb7
+Calculating IN set for BB: bb7
+latest exprs: []
+terminator visited goto -> bb8, location bb7
+Calculating IN set for BB: bb7
+latest exprs: []
+terminator visited goto -> bb9, location bb8
+Calculating IN set for BB: bb8
+latest exprs: []
+terminator visited goto -> bb9, location bb8
+Calculating IN set for BB: bb8
+latest exprs: []
+terminator visited goto -> bb10, location bb9
+stmt visited _6 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb9
+terminator visited goto -> bb10, location bb9
+stmt visited _6 = Add(_2, _1)
+e-used expr Add(_2, _1)
+Calculating IN set for BB: bb9
+terminator visited return, location bb10
+stmt visited _0 = const 19_i32
+Calculating IN set for BB: bb10
+terminator visited return, location bb10
+stmt visited _0 = const 19_i32
+Calculating IN set for BB: bb10
 ----------------USED DEBUG END----------------
 
 
@@ -1061,51 +1287,41 @@ Calculating IN set for BB: bb4
 Used:
 entry set for block bb0 : []
 entry set for block bb1 : []
-entry set for block bb2 : [Expr(0)]
-entry set for block bb3 : [Expr(0)]
+entry set for block bb2 : []
+entry set for block bb3 : []
 entry set for block bb4 : []
+entry set for block bb5 : [Expr(0)]
+entry set for block bb6 : [Expr(0)]
+entry set for block bb7 : [Expr(0)]
+entry set for block bb8 : [Expr(0)]
+entry set for block bb9 : []
+entry set for block bb10 : []
 Transforming the code
-terminator visited goto -> bb1, location bb0
-stmt visited _6 = const true
-stmt visited _5 = const 10_i32
-stmt visited _4 = const 10_i32
-stmt visited _3 = const 5_i32
-stmt visited _2 = const 3_i32
-Calculating IN set for BB: bb0
-terminator visited switchInt(_6) -> [1: bb2, otherwise: bb3], location bb1
-Calculating IN set for BB: bb1
-latest exprs: []
-terminator visited goto -> bb4, location bb2
-stmt visited _4 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb2
-[USED] killing latest expr: Expr(0)
-terminator visited goto -> bb4, location bb3
-stmt visited _5 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb3
-[USED] killing latest expr: Expr(0)
-terminator visited return, location bb4
-stmt visited _0 = Add(_2, _3)
-e-used expr Add(_2, _3)
-Calculating IN set for BB: bb4
 temps for bb bb0 : []
 temps for bb bb1 : []
 temps for bb bb2 : []
 temps for bb bb3 : []
 temps for bb bb4 : []
+temps for bb bb5 : [Expr(0)]
+Inserting temp for Expr(0)
+temps for bb bb6 : [Expr(0)]
+Inserting temp for Expr(0)
+temps for bb bb7 : []
+temps for bb bb8 : []
+temps for bb bb9 : []
+temps for bb bb10 : []
 Statement has expression: Expr(0)
+Replacing Expr(0) with temp
 Statement has expression: Expr(0)
-Statement has expression: Expr(0)
-no temp for Expr(0) ejalkwehjg
+Replacing Expr(0) with temp
 ------------------------------------------
 stderr: none
 
 
 
 failures:
-    [ui] tests/ui/pre/pre-mir-test-6.rs
+    [ui] tests/ui/pre/pre-mir-test-7.rs
 
-test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16091 filtered out; finished in 130.04ms
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 16092 filtered out; finished in 125.88ms
 
 Some tests failed in compiletest suite=ui mode=ui host=x86_64-unknown-linux-gnu target=x86_64-unknown-linux-gnu

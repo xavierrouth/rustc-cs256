@@ -11,42 +11,58 @@ fn simple(c: i32) -> i32 {
     mir!(
 
         {
-            let x: i32 = 3;
-            let y: i32 = 5;
-            let a = 10;
-            let b = 10;
-            let c = true;
+            let b = 1;
+            let q = true;
+            let r = false;
             Goto(branch)
         }
-        
+
         branch = { 
-            a = x + y;
-            match c {
+            match q {
                 true => t1,
                 _ => f1,
             }
         }
 
         t1 = {
-            Goto(t)
+            Goto(t2)
         }
 
-        t = {
-            a = x + y;
-            Goto(output)
+        t2 = {
+            Goto(t3)
+        }
+
+        t3 = {
+            match r {
+                true => t4,
+                _ => t2,
+            }
+        }
+
+        t4 = {
+            Goto(out)
         }
 
         f1 = {
-            Goto(f)
+            let x = b + c;
+            Goto(f2)
         }
 
-        f = {
-            b = x + y;
+        f2 = {
+            Goto(f3)
+        }
+
+        f3 = {
+            Goto(out)
+        }
+
+        out = {
+            let y = b + c;
             Goto(output)
         }
 
         output = {
-            RET = x + y;
+            RET = 19;
             Return()
         }
     )
