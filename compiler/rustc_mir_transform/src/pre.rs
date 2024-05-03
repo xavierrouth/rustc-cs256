@@ -416,6 +416,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
 
         // let bb_count = body.basic_blocks.len();
         let mut expr_type_table: HashMap<ExprIdx, Ty<'tcx>> = HashMap::new();
+        let mut expr_checked_table: HashSet<ExprIdx> = HashSet::new(); 
 
         for (bb, data) in body.basic_blocks.iter_enumerated() {
             for stmt in &data.statements {
@@ -441,7 +442,21 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
 
                         _ => {}
                     }
-
+                    
+                    // Bad code, but who cares
+                    if let Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) = rvalue {
+                        if let (Some(Place { local: local1, .. }), Some(Place { local: local2, .. })) =
+                            (operand1.place(), operand2.place())
+                        {
+                            let expr_idx = expr_hash_map.as_ref().borrow_mut().expr_idx_mut(ExprSetElem {
+                                bin_op: *bin_op,
+                                local1,
+                                local2,
+                            });
+                            
+                            expr_checked_table.insert(expr_idx);
+                        }
+                    }
                 }
             }
         }
@@ -541,7 +556,13 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             let op2 = Operand::Copy(Place {local: *local2, projection: List::empty() });
             // let op1 = // Copy(Place<'tcx>),
 
-            let rvalue = Rvalue::CheckedBinaryOp(*bin_op,  Box::new((op1, op2)));
+            let rvalue = 
+            if expr_checked_table.contains(expr) {
+                Rvalue::CheckedBinaryOp(*bin_op,  Box::new((op1, op2)))
+            }
+            else {
+                Rvalue::BinaryOp(*bin_op,  Box::new((op1, op2)))
+            };
             
             data.statements.insert(0, // FIXME: Insert in correct spot.
                 Statement { 
