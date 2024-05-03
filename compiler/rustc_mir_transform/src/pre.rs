@@ -63,7 +63,8 @@ pub struct TempVisitor<'tcx, 'a> {
     expr_hash_map: Rc<RefCell<ExprHashMap>>,
     // temps: &'a BitSet<ExprIdx>,
     used_out: &'a BitSet<ExprIdx>,
-    latest: &'a BitSet<ExprIdx>
+    latest: &'a BitSet<ExprIdx>,
+    temp_loc_map: &'a mut HashMap::<BasicBlock, HashMap<Local, usize>>
 }
 
 #[allow(dead_code)]
@@ -88,9 +89,10 @@ impl<'tcx, 'a> TempVisitor<'tcx, 'a> {
         temp_map: &'a HashMap<ExprIdx, Local>,
         expr_hash_map: Rc<RefCell<ExprHashMap>>,
         used_out: &'a BitSet<ExprIdx>,
-        latest: &'a BitSet<ExprIdx>
+        latest: &'a BitSet<ExprIdx>,
+        temp_loc_map: &'a mut HashMap::<BasicBlock, HashMap<Local, usize>>
     ) -> Self {
-        TempVisitor{ tcx, temp_map, expr_hash_map, used_out, latest }
+        TempVisitor{ tcx, temp_map, expr_hash_map, used_out, latest, temp_loc_map }
     }
 }
 
@@ -178,8 +180,6 @@ impl<'tcx> PartialRedundancyElimination {
         }
         
         // BasicBlockData::new()
-        
-
     }
 
     #[allow(rustc::default_hash_types)]
@@ -514,8 +514,9 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
                 expressions_to_insert.insert(bb, (temp_local, expr));
             }
         }
-
+        
         // Rule 2:
+        let mut temp_positions = HashMap::<BasicBlock, HashMap<Local, usize>>::new();
         for bb in reverse_postorder.clone() {
             let data = &mut body.basic_blocks.as_mut_preserves_cfg()[bb];
             let used_out = used_map.get(&bb).expect("Oh Nohgawjkegh!");
@@ -533,7 +534,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             // let mut temp_rvalues = HashMap::<Local, (Rvalue<'_ >, Span)>::new();
 
             let mut visitor = TempVisitor::new(
-                tcx, &temp_map, expr_hash_map.clone(), &used_out, &latest_set
+                tcx, &temp_map, expr_hash_map.clone(), &used_out, &latest_set, &mut temp_positions
             );
 
             // Replace expression with temp if not in Latest or in Out Used
@@ -546,11 +547,15 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             .map(|(k, v)| (v.clone(), k.clone())).collect();
 
         let span = body.span;
+
         // Generate assignments
+        let mut temp_expr_map = HashMap::<Local, ExprIdx>::new();
+
         for (bb, (temp, expr)) in expressions_to_insert.iter() {
             let data = &mut body.basic_blocks.as_mut_preserves_cfg()[*bb];
             let expression = reverse_expr_map.get(expr).expect("rvalue not found"); // Might need to generate this expression again, not sure if i can just summon it on the fly.
             let ExprSetElem {bin_op, local1, local2} = expression;
+            temp_expr_map.insert(*temp, *expr);
 
             let op1 = Operand::Copy(Place {local: *local1, projection: List::empty() });
             let op2 = Operand::Copy(Place {local: *local2, projection: List::empty() });
@@ -568,6 +573,39 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
                 Statement { 
                     source_info: SourceInfo::outermost(span), 
                     kind: StatementKind::Assign(Box::new((Into::into(*temp), rvalue.clone())))});
+            
+            
+        }
+
+        for (bb, data) in body.basic_blocks.as_mut_preserves_cfg().iter_enumerated_mut() {
+            // Insert redefinitions
+            if let Some(redef_map) = temp_positions.get(&bb) {
+                let mut offset = 0;
+                let mut redef_pos = redef_map.iter().collect_vec();
+                redef_pos.sort_by(|(_, stmt_idx1), (_, stmt_idx2)| stmt_idx1.partial_cmp(stmt_idx2).unwrap());
+                for (local, stmt_idx) in redef_pos {
+                    let expr = &temp_expr_map[local];
+                    let expression = reverse_expr_map.get(expr).expect("rvalue not found"); // Might need to generate this expression again, not sure if i can just summon it on the fly.
+                    let ExprSetElem {bin_op, local1, local2} = expression;
+                    let op1 = Operand::Copy(Place {local: *local1, projection: List::empty() });
+                    let op2 = Operand::Copy(Place {local: *local2, projection: List::empty() });
+                    // let op1 = // Copy(Place<'tcx>),
+
+                    let rvalue = 
+                    if expr_checked_table.contains(expr) {
+                        Rvalue::CheckedBinaryOp(*bin_op,  Box::new((op1, op2)))
+                    }
+                    else {
+                        Rvalue::BinaryOp(*bin_op,  Box::new((op1, op2)))
+                    };
+
+                    data.statements.insert(stmt_idx + offset, // FIXME: Insert in correct spot.
+                        Statement { 
+                            source_info: SourceInfo::outermost(span), 
+                            kind: StatementKind::Assign(Box::new((Into::into(*local), rvalue.clone())))});
+                    offset += 1;
+                }
+            }
         }
 
         let mut after_file = File::create("after.dot").unwrap();
@@ -581,9 +619,9 @@ impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
         self.tcx
     }
     
-    fn visit_statement(&mut self, statement: &mut Statement<'tcx>, _: Location) {
+    fn visit_statement(&mut self, statement: &mut Statement<'tcx>, loc: Location) {
         // We need some way of dealing with constants
-        if let StatementKind::Assign(box (_, ref mut rvalue)) = statement.kind {
+        if let StatementKind::Assign(box (ref place, ref mut rvalue)) = statement.kind {
             match rvalue { Rvalue::BinaryOp(bin_op, box(operand1, operand2))
                 | Rvalue::CheckedBinaryOp(bin_op, box (operand1, operand2)) =>
             
@@ -607,7 +645,17 @@ impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
                             } else {
                                 println!("no temp for {:?} ejalkwehjg", expr_idx);
                             }
-                            
+                        }
+                        // Forward insert redefinition
+                        let op_table = &self.expr_hash_map.as_ref().borrow().operand_table;
+                        #[allow(rustc::potential_query_instability)]
+                        if let Some(displaced_exprs) = op_table.get(&place.local) {
+                            for expr in displaced_exprs.iter() {
+                                if let Some(local) = self.temp_map.get(expr) {
+                                    println!("Temp displaced: {:?}", local);
+                                    self.temp_loc_map.entry(loc.block).or_default().insert(*local, loc.statement_index+1);
+                                }
+                            }
                         }
                     }
                 }
