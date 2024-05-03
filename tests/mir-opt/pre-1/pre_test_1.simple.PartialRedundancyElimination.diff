@@ -1,0 +1,194 @@
+- // MIR for `simple` before PartialRedundancyElimination
++ // MIR for `simple` after PartialRedundancyElimination
+  
+  fn simple(_1: i32) -> () {
+      debug a => _1;
+      let mut _0: ();
+      let mut _2: i32;
+      let _6: ();
+      let mut _7: bool;
+      let mut _8: i32;
+      let mut _9: i32;
+      let mut _10: i32;
+      let mut _11: i32;
+      let mut _12: i32;
+      let mut _13: i32;
+      let mut _14: i32;
+      let mut _15: i32;
+      let mut _16: i32;
+      let mut _17: i32;
+      let _18: ();
+      let _19: ();
+      let mut _20: std::fmt::Arguments<'_>;
+      let mut _21: &[&str];
+      let mut _22: &[&str; 2];
+      let _23: &[&str; 2];
+      let _24: [&str; 2];
+      let mut _25: &[core::fmt::rt::Argument<'_>];
+      let mut _26: &[core::fmt::rt::Argument<'_>; 1];
+      let _27: &[core::fmt::rt::Argument<'_>; 1];
+      let _28: [core::fmt::rt::Argument<'_>; 1];
+      let mut _29: core::fmt::rt::Argument<'_>;
+      let mut _30: &i32;
+      let _31: &i32;
+      let _32: ();
+      let _33: ();
+      let mut _34: std::fmt::Arguments<'_>;
+      let mut _35: &[&str];
+      let mut _36: &[&str; 2];
+      let _37: &[&str; 2];
+      let _38: [&str; 2];
+      let mut _39: &[core::fmt::rt::Argument<'_>];
+      let mut _40: &[core::fmt::rt::Argument<'_>; 1];
+      let _41: &[core::fmt::rt::Argument<'_>; 1];
+      let _42: [core::fmt::rt::Argument<'_>; 1];
+      let mut _43: core::fmt::rt::Argument<'_>;
+      let mut _44: &i32;
+      let _45: &i32;
++     let mut _48: i32;
+      scope 1 {
+          debug x => _2;
+          let mut _3: i32;
+          scope 2 {
+              debug y => _3;
+              let mut _4: i32;
+              scope 3 {
+                  debug t => _4;
+                  let mut _5: i32;
+                  scope 4 {
+                      debug f => _5;
+                      let mut _46: &[&str; 2];
+                      let mut _47: &[&str; 2];
+                  }
+              }
+          }
+      }
+  
+      bb0: {
+          _2 = const 0_i32;
+          _3 = const 0_i32;
+          StorageLive(_4);
+          _4 = const 0_i32;
+          StorageLive(_5);
+          _5 = _4;
+          StorageLive(_7);
+          _7 = Ge(_2, _3);
+          switchInt(move _7) -> [0: bb2, otherwise: bb1];
+      }
+  
+      bb1: {
+-         _5 = Add(_2, _3);
++         _48 = Add(_2, _3);
++         _5 = _48;
+          _5 = Mul(_5, const 2_i32);
+-         goto -> bb3;
++         goto -> bb10;
+      }
+  
+      bb2: {
++         _48 = Add(_2, _3);
+          StorageLive(_12);
+          StorageLive(_13);
+-         _13 = Add(_2, _3);
++         _13 = _48;
+          _12 = Neg(move _13);
+          StorageDead(_13);
+          _5 = Add(move _12, const 2_i32);
+          StorageDead(_12);
+-         goto -> bb3;
++         goto -> bb11;
+      }
+  
+      bb3: {
+          StorageDead(_7);
+-         _4 = Add(_2, _3);
++         _4 = _48;
+          StorageLive(_19);
+          StorageLive(_20);
+          StorageLive(_21);
+          StorageLive(_22);
+          _47 = const _;
+          _22 = &(*_47);
+          _21 = move _22 as &[&str] (PointerCoercion(Unsize));
+          StorageDead(_22);
+          StorageLive(_25);
+          StorageLive(_26);
+          StorageLive(_28);
+          StorageLive(_29);
+          StorageLive(_30);
+          _30 = &_5;
+          _29 = core::fmt::rt::Argument::<'_>::new_display::<i32>(move _30) -> [return: bb4, unwind unreachable];
+      }
+  
+      bb4: {
+          StorageDead(_30);
+          _28 = [move _29];
+          StorageDead(_29);
+          _26 = &_28;
+          _25 = move _26 as &[core::fmt::rt::Argument<'_>] (PointerCoercion(Unsize));
+          StorageDead(_26);
+          _20 = Arguments::<'_>::new_v1(move _21, move _25) -> [return: bb5, unwind unreachable];
+      }
+  
+      bb5: {
+          StorageDead(_25);
+          StorageDead(_21);
+          _19 = _print(move _20) -> [return: bb6, unwind unreachable];
+      }
+  
+      bb6: {
+          StorageDead(_20);
+          StorageDead(_28);
+          StorageDead(_19);
+          StorageLive(_33);
+          StorageLive(_34);
+          StorageLive(_35);
+          StorageLive(_36);
+          _46 = const _;
+          _36 = &(*_46);
+          _35 = move _36 as &[&str] (PointerCoercion(Unsize));
+          StorageDead(_36);
+          StorageLive(_39);
+          StorageLive(_40);
+          StorageLive(_42);
+          StorageLive(_43);
+          StorageLive(_44);
+          _44 = &_4;
+          _43 = core::fmt::rt::Argument::<'_>::new_display::<i32>(move _44) -> [return: bb7, unwind unreachable];
+      }
+  
+      bb7: {
+          StorageDead(_44);
+          _42 = [move _43];
+          StorageDead(_43);
+          _40 = &_42;
+          _39 = move _40 as &[core::fmt::rt::Argument<'_>] (PointerCoercion(Unsize));
+          StorageDead(_40);
+          _34 = Arguments::<'_>::new_v1(move _35, move _39) -> [return: bb8, unwind unreachable];
+      }
+  
+      bb8: {
+          StorageDead(_39);
+          StorageDead(_35);
+          _33 = _print(move _34) -> [return: bb9, unwind unreachable];
+      }
+  
+      bb9: {
+          StorageDead(_34);
+          StorageDead(_42);
+          StorageDead(_33);
+          _0 = const ();
+          StorageDead(_5);
+          StorageDead(_4);
+          return;
++     }
++ 
++     bb10: {
++         goto -> bb3;
++     }
++ 
++     bb11: {
++         goto -> bb3;
+      }
+  }
+  

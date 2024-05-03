@@ -1,0 +1,16 @@
+- // MIR for `simple` before PartialRedundancyElimination
++ // MIR for `simple` after PartialRedundancyElimination
+  
+  fn simple(_1: i32) -> i32 {
+      let mut _0: i32;
+      let mut _2: i32;
+      let mut _3: i32;
+  
+      bb0: {
+          _3 = _1;
+          _2 = move _3;
+          _0 = _2;
+          return;
+      }
+  }
+  

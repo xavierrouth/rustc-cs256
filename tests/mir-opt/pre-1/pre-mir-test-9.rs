@@ -7,7 +7,7 @@
 extern crate core;
 use core::intrinsics::mir::*;
 
-// EMIT_MIR pre_mir_test_9.simple.PartialRedundancyElimination.after.mir
+// EMIT_MIR pre_mir_test_9.simple.PartialRedundancyElimination.diff
 #[custom_mir(dialect = "analysis", phase = "post-cleanup")]
 fn simple(c: i32) -> i32 {
     mir!(
