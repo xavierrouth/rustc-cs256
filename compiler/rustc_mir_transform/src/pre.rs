@@ -195,8 +195,8 @@ impl<'tcx> PartialRedundancyElimination {
             let size: usize = anticipated.0.domain_size();
             // FIXME: anticipated and available were both 'entry set for block';
             let available = available_exprs.get(i).expect("awdawd");
-            // println!("anticipated: {:?}", anticpated.clone());
-            // println!("available: {:?}", available.clone());
+            // debug!("anticipated: {:?}", anticpated.clone());
+            // debug!("available: {:?}", available.clone());
 
             let mut earliest = if terminal_blocks.contains(&i) {
                 Dual(BitSet::new_empty(size))
@@ -205,14 +205,14 @@ impl<'tcx> PartialRedundancyElimination {
             };
 
             earliest.0.subtract(&available.0);
-            // println!("earliest: {:?}", earliest.clone());
+            // debug!("earliest: {:?}", earliest.clone());
             earliest
         };
 
         let earliest_exprs: IndexVec<_, Dual<BitSet<_>>> =
             IndexVec::from_fn_n(set_diff, body.basic_blocks.len());
 
-        // println!("earliest_results: {:?} ", earliest_exprs);
+        // debug!("earliest_results: {:?} ", earliest_exprs);
         earliest_exprs
     }
 
@@ -236,7 +236,7 @@ impl<'tcx> PartialRedundancyElimination {
         for (bb, _) in traversal::postorder(body) {
             // Might not even need to clone, as we won't use earliest again afterwards
             let mut ok_to_place = earliest_exprs[bb].0.clone();
-            // println!("{:?} vs. {:?} vs. {:?}\n", ok_to_place.domain_size(), earliest_exprs[bb].0.domain_size(), postponable_exprs.entry_set_for_block(bb).0.domain_size());
+            // debug!("{:?} vs. {:?} vs. {:?}\n", ok_to_place.domain_size(), earliest_exprs[bb].0.domain_size(), postponable_exprs.entry_set_for_block(bb).0.domain_size());
             ok_to_place.union(&postponable_exprs.entry_set_for_block(bb).0);
             for expr in ok_to_place.iter() {
                 if expr_table.as_ref().borrow_mut().bb_expr_map.entry(bb).or_default().contains(&expr) || !ok_to_place_succ[bb].contains(expr) {
@@ -267,11 +267,11 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
         let _ = write_mir_fn_graphviz(tcx, body, false, &mut before_file).expect("failed to write before file");
 
         debug!(def_id = ?body.source.def_id());
-        println!("Body that analysis is running on {:?}", &body.source.def_id());
+        debug!("Body that analysis is running on {:?}", &body.source.def_id());
 
         self.preprocess_blocks(body);
 
-        println!("----------------ANTICIPATED DEBUG BEGIN----------------");
+        debug!("----------------ANTICIPATED DEBUG BEGIN----------------");
         let expr_hash_map = Rc::new(RefCell::new(ExprHashMap::new()));
 
         let terminal_blocks = self.terminal_blocks(body);
@@ -280,7 +280,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             .pass_name("anticipated_exprs")
             .iterate_to_fixpoint()
             .into_results_cursor(body);
-        println!("----------------ANTICIPATED DEBUG END----------------\n\n\n");
+        debug!("----------------ANTICIPATED DEBUG END----------------\n\n\n");
 
         let state = anticipated.get();
 
@@ -303,24 +303,24 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
 
         }
 
-        println!("Anticipated:");
+        debug!("Anticipated:");
                 // Print loop
         for (bb, set) in anticipated_exprs.iter_enumerated() {
-            println!(
+            debug!(
                 "set for block {:?} : {:?}",
                 bb,
                 set
             );
         }
 
-        println!("----------------AVAILABLE DEBUG BEGIN----------------");
+        debug!("----------------AVAILABLE DEBUG BEGIN----------------");
         let mut available =
             AvailableExpressions::new(body, expr_hash_map.clone(), anticipated_exprs_end.clone())
                 .into_engine(tcx, body)
                 .pass_name("available_exprs")
                 .iterate_to_fixpoint()
                 .into_results_cursor(body);
-        println!("----------------AVAILABLE DEBUG END----------------\n\n\n");
+        debug!("----------------AVAILABLE DEBUG END----------------\n\n\n");
 
 
         let mut available_exprs: IndexVec<BasicBlock, Dual<BitSet<_>>> = IndexVec::from_elem(Dual(BitSet::new_empty(size)), &body.basic_blocks);
@@ -339,15 +339,15 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             available_exprs[bb] = set.clone();
         }
 
-        println!("Available:");
+        debug!("Available:");
         // Print loop
         for (bb, set) in available_exprs.iter_enumerated() {
-            println!(
+            debug!(
                 "in set for block {:?} : {:?}",
                 bb,
                 available_exprs_start[bb]
             );
-            println!(
+            debug!(
                 "out set for block {:?} : {:?}",
                 bb,
                 set
@@ -361,20 +361,20 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             terminal_blocks.clone(),
         );
 
-        println!("----------------POSTPONABLE DEBUG BEGIN----------------");
+        debug!("----------------POSTPONABLE DEBUG BEGIN----------------");
         let postponable =
             PostponableExpressions::new(body, expr_hash_map.clone(), earliest.clone())
                 .into_engine(tcx, body)
                 .pass_name("postponable_exprs")
                 .iterate_to_fixpoint()
                 .into_results_cursor(body);
-        println!("----------------POSTPONABLE DEBUG END----------------\n\n\n");
+        debug!("----------------POSTPONABLE DEBUG END----------------\n\n\n");
         
-        println!("Postponable:");
+        debug!("Postponable:");
         for (bb, _block) in body.basic_blocks.iter_enumerated() {
             // available.seek_to_block_end(bb);
             // anticipated.results().analysis.fmt_domain(state);
-            println!(
+            debug!(
                 "entry set for block {:?} : {:?}",
                 bb,
                 postponable.results().entry_set_for_block(bb)
@@ -388,26 +388,26 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             earliest.clone(),
             postponable.results().clone(),
         );
-        println!("earliest : {earliest:?}");
-        println!("latest : {:?}", latest);
+        debug!("earliest : {earliest:?}");
+        debug!("latest : {:?}", latest);
 
-        println!("----------------USED DEBUG BEGIN----------------");
+        debug!("----------------USED DEBUG BEGIN----------------");
         let mut used = UsedExpressions::new(body, expr_hash_map.clone(), latest.clone())
             .into_engine(tcx, body)
             .pass_name("used_exprs")
             .iterate_to_fixpoint()
             .into_results_cursor(body);
-        println!("----------------USED DEBUG END----------------\n\n\n");
+        debug!("----------------USED DEBUG END----------------\n\n\n");
 
-        println!("Used:");
+        debug!("Used:");
         for (bb, _block) in body.basic_blocks.iter_enumerated() {
             // available.seek_to_block_end(bb);
             // anticipated.results().analysis.fmt_domain(state);
-            println!("entry set for block {:?} : {:?}", bb, used.results().entry_set_for_block(bb));
+            debug!("entry set for block {:?} : {:?}", bb, used.results().entry_set_for_block(bb));
             // available.seek_to_block_start(bb);
         }
 
-        println!("Transforming the code");
+        debug!("Transforming the code");
         
         // Map 
         let mut temp_map = HashMap::<ExprIdx, Local>::new();
@@ -469,11 +469,11 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             let latest_set = latest.get(bb).expect("Not latest");
             temps.intersect(latest_set);
 
-            println!("temps for bb {:?} : {:?}", bb, temps);
+            debug!("temps for bb {:?} : {:?}", bb, temps);
             
             
             for expr in temps.iter() {
-                println!("Inserting temp for {:?}", expr);
+                debug!("Inserting temp for {:?}", expr);
 
 
                 // Map this expression to the new temp for use in pass 2.
@@ -507,7 +507,7 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             let latest_set = latest.get(bb).expect("Not latest");
 
 
-            // println!("temps for bb {:?} : {:?}", bb, temps);
+            // debug!("temps for bb {:?} : {:?}", bb, temps);
             
             // Get all uses of expressions. 
             // Get uses for this BB. 
@@ -541,8 +541,17 @@ impl<'tcx> MirPass<'tcx> for PartialRedundancyElimination {
             let op2 = Operand::Copy(Place {local: *local2, projection: List::empty() });
             // let op1 = // Copy(Place<'tcx>),
 
-            let rvalue = Rvalue::CheckedBinaryOp(*bin_op,  Box::new((op1, op2)));
-            
+            let ty: Ty<'tcx> = expr_type_table.get(expr).expect("expression has no type?").clone();
+
+            let rvalue = match ty.kind() {
+                ty::Tuple(_) => {
+                    Rvalue::CheckedBinaryOp(*bin_op,  Box::new((op1, op2)))
+                }
+                _ => {
+                    Rvalue::BinaryOp(*bin_op,  Box::new((op1, op2)))
+                }
+            };
+
             data.statements.insert(0, // FIXME: Insert in correct spot.
                 Statement { 
                     source_info: SourceInfo::outermost(span), 
@@ -574,17 +583,17 @@ impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
                         local1,
                         local2,
                     }) {
-                        println!("Statement has expression: {:?}", expr_idx);
+                        debug!("Statement has expression: {:?}", expr_idx);
                         // If expr_idx in Latest and Out Used, add temporary to beginning of basic block
 
                         // Replace expression with temp if not in Latest or in Out Used
                         if self.used_out.contains(expr_idx) || !self.latest.contains(expr_idx) {
                             let temp = self.temp_map.get(&expr_idx); 
                             if let Some(temp) = temp {
-                                println!("Replacing {:?} with temp", expr_idx);
+                                debug!("Replacing {:?} with temp", expr_idx);
                                 *rvalue = Rvalue::Use(Operand::Copy((*temp).into()));
                             } else {
-                                println!("no temp for {:?} ejalkwehjg", expr_idx);
+                                debug!("no temp for {:?} ejalkwehjg", expr_idx);
                             }
                             
                         }
@@ -610,22 +619,22 @@ impl<'tcx, 'a> MutVisitor<'tcx> for TempVisitor<'tcx, 'a> {
                         local1,
                         local2,
                     }) {
-                        println!("Statement has expression: {:?}", expr_idx);
-                        println!("temps: {:?}", self.temps);
+                        debug!("Statement has expression: {:?}", expr_idx);
+                        debug!("temps: {:?}", self.temps);
                         // If expr_idx in Latest and Out Used, add temporary to beginning of basic block
                         if self.temps.contains(expr_idx) {
                             //
-                            println!("Adding Temporary for: {:?}", expr_idx);
+                            debug!("Adding Temporary for: {:?}", expr_idx);
                             self.temp_rvals_map.entry(self.temp_map[&expr_idx]).or_insert((rvalue.clone(), statement.source_info.span.clone()));
                         }
                         // Replace expression with temp if not in Latest or in Out Used
                         if self.used_out.contains(expr_idx) || !self.latest.contains(expr_idx) {
                             let temp = self.temp_map.get(&expr_idx); 
                             if let Some(temp) = temp {
-                                println!("Replacing {:?} with temp", expr_idx);
+                                debug!("Replacing {:?} with temp", expr_idx);
                                 *rvalue = Rvalue::Use(Operand::Copy((*temp).into()));
                             } else {
-                                println!("no temp for {:?} ejalkwehjg", expr_idx);
+                                debug!("no temp for {:?} ejalkwehjg", expr_idx);
                             }
                             
                         }

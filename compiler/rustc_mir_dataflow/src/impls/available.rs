@@ -174,10 +174,10 @@ where
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
         
         self.super_statement(stmt, location);
-        println!("stmt visited {:?}", stmt);
+        debug!("stmt visited {:?}", stmt);
 
         if location.statement_index == 0 {
-            println!("Entering BB: {:?}", location.block);
+            debug!("Entering BB: {:?}", location.block);
 
             // This needs to be  I_anticipated:
             // anticipated_exprs
@@ -185,7 +185,7 @@ where
             let anticipated_exprs = self.anticipated_exprs.get(location.block).expect("bb index out of bounds");
             
             for expr in anticipated_exprs.0.iter() {
-                println!("GEN: anticipated expr: {:?}", expr);
+                debug!("GEN: anticipated expr: {:?}", expr);
                 self.trans.gen(expr);
             }
         }
@@ -202,7 +202,7 @@ where
                         // Add expressions as we encounter them to the GEN set
                         // Expressions that have re-defined args within the basic block will naturally be killed
                         // as those defs are reached
-                        println!("GEN expr {:?}", rvalue.clone());
+                        debug!("GEN expr {:?}", rvalue.clone());
                         let expr_idx = self.expr_table.as_ref().borrow_mut().expr_idx(ExprSetElem {
                             bin_op: *bin_op,
                             local1,
@@ -226,7 +226,7 @@ where
             if let Some(exprs) = self.expr_table.as_ref().borrow_mut().get_operand_mapping(place.local) {
                 #[allow(rustc::potential_query_instability)]
                 for expr_id in exprs.iter() {
-                    println!("KILL expr {:?}", expr_id);
+                    debug!("KILL expr {:?}", expr_id);
                     self.trans.kill(*expr_id);
                 }
             }
@@ -236,10 +236,10 @@ where
 
     fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {
         self.super_terminator(terminator, location); // What??
-        println!("terminator visited {:?}", terminator.kind);
+        debug!("terminator visited {:?}", terminator.kind);
 
         if location.statement_index == 0 {
-            println!("Entering BB: {:?}", location.block);
+            debug!("Entering BB: {:?}", location.block);
 
             // This needs to be  I_anticipated:
             // anticipated_exprs
@@ -247,12 +247,12 @@ where
             let anticipated_exprs = self.anticipated_exprs.get(location.block).expect("bb index out of bounds");
             
             for expr in anticipated_exprs.0.iter() {
-                println!("GEN: anticipated expr: {:?}", expr);
+                debug!("GEN: anticipated expr: {:?}", expr);
                 self.trans.gen(expr);
             }
         }
 
-        // println!( "visit terminator {:?}", terminator);
+        // debug!( "visit terminator {:?}", terminator);
         
         // For each expression that is anticipated in this block, mark it as available.
 
@@ -274,34 +274,34 @@ where
     //         Rvalue::AddressOf(_, borrowed_place)
     //         | Rvalue::Ref(_, BorrowKind::Mut { .. } | BorrowKind::Shared, borrowed_place) => {
     //             if !borrowed_place.is_indirect() {
-    //                 println!("rvalue {:?}", rvalue);
-    //                 println!("stmt place {:?}", borrowed_place);
+    //                 debug!("rvalue {:?}", rvalue);
+    //                 debug!("stmt place {:?}", borrowed_place);
 
     //                 self.trans.gen(borrowed_place.local);
     //             }
     //         }
 
     //         Rvalue::BinaryOp(_, operands) => {
-    //             println!("operand 1: {:?}\n", operands.0);
-    //             println!("operand 2: {:?}\n", operands.1);
-    //             println!("place of operand 1: {:?}\n", operands.0.place());
-    //             println!("place of operand 2: {:?}\n", operands.1.place());
+    //             debug!("operand 1: {:?}\n", operands.0);
+    //             debug!("operand 2: {:?}\n", operands.1);
+    //             debug!("place of operand 1: {:?}\n", operands.0.place());
+    //             debug!("place of operand 2: {:?}\n", operands.1.place());
     //             if !operands.0.place().is_none() && !operands.1.place().is_none() {
     //                 let op_1 = operands.0.place().unwrap();
     //                 let op_2 = operands.1.place().unwrap();
-    //                 println!("local associated with op 1 {:?}", op_1.local);
-    //                 println!("local associated with op 2 {:?}", op_2.local);
-    //                 println!("bb at location {:?}\n", location.block);
+    //                 debug!("local associated with op 1 {:?}", op_1.local);
+    //                 debug!("local associated with op 2 {:?}", op_2.local);
+    //                 debug!("bb at location {:?}\n", location.block);
     //                 // use external function to lookup data for bb
 
     //                 /* for statement in basic_blocks[location.block].statements {
     //                     match statement.kind {
     //                         StatementKind::Assign(assign_pair) => {
     //                             if assign_pair.0 == op_1 {
-    //                                 println!("FOUND A MATCH for OP 1\n");
+    //                                 debug!("FOUND A MATCH for OP 1\n");
     //                             }
     //                             if assign_pair.0 == op_2 {
-    //                                 println!("FOUND A MATCH for OP 2\n");
+    //                                 debug!("FOUND A MATCH for OP 2\n");
     //                             }
     //                         }
     //                         _ => {}
