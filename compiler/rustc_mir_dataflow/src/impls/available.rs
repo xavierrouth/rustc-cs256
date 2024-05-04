@@ -24,6 +24,8 @@ use crate::Forward;
 // use rustc_mir_dataflow::drop_flag_effects::on_all_inactive_variants;
 use crate::{fmt::DebugWithContext, Analysis, AnalysisDomain, Backward, GenKill, GenKillAnalysis};
 
+use crate::impls::AnticipatedExpressionsResults;
+
 use crate::impls::AnticipatedExpressions;
 use crate::lattice::Dual;
 
@@ -31,26 +33,26 @@ use crate::Results;
 use crate::ResultsCursor;
 use crate::impls::{ExprHashMap, ExprIdx, ExprSetElem};
 
-type AnticipatedExpressionsResults<'tcx> = Results<'tcx, AnticipatedExpressions>;
+pub type AvailableExpressionsResults = IndexVec<BasicBlock, Dual<BitSet<ExprIdx>>>;
 
 #[derive(Clone)]
-pub struct AvailableExpressions<'tcx> {
-    anticipated_exprs: AnticipatedExpressionsResults< 'tcx>,
+pub struct AvailableExpressions {
+    anticipated_exprs: IndexVec<BasicBlock, Dual<BitSet<ExprIdx>>>,
     // kill_ops: IndexVec<BasicBlock, BitSet<Local>>,
     expr_table: Rc<RefCell<ExprHashMap>>,
     bitset_size: usize,
 }
 
 
-impl<'tcx> AvailableExpressions<'tcx> {
+impl<'tcx> AvailableExpressions {
 
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
         &'a mut self,
         trans: &'a mut T,
-    ) -> AvailTransferFunction<'a, 'tcx, T> {
+    ) -> AvailTransferFunction<'a, T> {
         AvailTransferFunction {
-            anticipated_exprs: &self.anticipated_exprs,
+            anticipated_exprs: self.anticipated_exprs.clone(),
             trans,
             // kill_ops: &mut self.kill_ops,
             expr_table: self.expr_table.clone(),
@@ -74,8 +76,8 @@ impl<'tcx> AvailableExpressions<'tcx> {
     pub fn new(
         body: &Body<'tcx>,
         expr_table: Rc<RefCell<ExprHashMap>>,
-        anticipated_exprs: AnticipatedExpressionsResults<'tcx>,
-    ) -> AvailableExpressions<'tcx> {
+        anticipated_exprs: AnticipatedExpressionsResults,
+    ) -> AvailableExpressions {
         let size = Self::count_statements(body) + body.local_decls.len();
 
         AvailableExpressions {
@@ -87,7 +89,7 @@ impl<'tcx> AvailableExpressions<'tcx> {
     }
 }
 
-impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'tcx> {
+impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions {
     type Domain = Dual<BitSet<ExprIdx>>;
     type Direction = Forward;
 
@@ -109,7 +111,7 @@ impl<'tcx> AnalysisDomain<'tcx> for AvailableExpressions<'tcx> {
     }
 }
 
-impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions< 'tcx> {
+impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions {
     type Idx = ExprIdx;
     
 
@@ -157,34 +159,37 @@ impl<'tcx> GenKillAnalysis<'tcx> for AvailableExpressions< 'tcx> {
 // A `Visitor` that defines the transfer function for `AvailableExpressions`.
 // 
 #[allow(dead_code)]
-pub(super) struct AvailTransferFunction<'a, 'tcx, T> {
-    anticipated_exprs: &'a AnticipatedExpressionsResults<'tcx>,
+pub(super) struct AvailTransferFunction<'a, T> {
+    anticipated_exprs: IndexVec<BasicBlock, Dual<BitSet<ExprIdx>>>, // &'a AnticipatedExpressionsResults<'tcx>,
     trans: &'a mut T,
     //kill_ops: &'a mut IndexVec<BasicBlock, BitSet<Local>>, // List of defs within a BB, if we have an expression in a BB that has a killed op from the same BB in
     expr_table: Rc<RefCell<ExprHashMap>>,
 }
 
 // Join needs to be intersect..., so domain should probably have Dual
-impl<'a, 'tcx, T> Visitor<'tcx> for AvailTransferFunction<'a, 'tcx, T>
+impl<'a, 'tcx, T> Visitor<'tcx> for AvailTransferFunction<'a, T>
 where
     T: GenKill<ExprIdx>,
 {
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
+        
+        self.super_statement(stmt, location);
+        debug!("stmt visited {:?}", stmt);
 
         if location.statement_index == 0 {
-            println!("Entering BB: {:?}", location.block);
+            debug!("Entering BB: {:?}", location.block);
 
-            let anticipated_exprs = self.anticipated_exprs.entry_set_for_block(location.block);
+            // This needs to be  I_anticipated:
+            // anticipated_exprs
+            //.anticipated.seek_to_block_start(bb);
+            let anticipated_exprs = self.anticipated_exprs.get(location.block).expect("bb index out of bounds");
             
             for expr in anticipated_exprs.0.iter() {
-                //println!("adding anticipated expr: {:?}", expr);
+                debug!("GEN: anticipated expr: {:?}", expr);
                 self.trans.gen(expr);
             }
         }
-
-        self.super_statement(stmt, location);
-        println!("stmt visited {:?}", stmt);
-
+        
         // For an assignment place = rvalue
         if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
             match rvalue {
@@ -197,7 +202,7 @@ where
                         // Add expressions as we encounter them to the GEN set
                         // Expressions that have re-defined args within the basic block will naturally be killed
                         // as those defs are reached
-                        println!("GEN expr {:?}", rvalue.clone());
+                        debug!("GEN expr {:?}", rvalue.clone());
                         let expr_idx = self.expr_table.as_ref().borrow_mut().expr_idx(ExprSetElem {
                             bin_op: *bin_op,
                             local1,
@@ -221,16 +226,33 @@ where
             if let Some(exprs) = self.expr_table.as_ref().borrow_mut().get_operand_mapping(place.local) {
                 #[allow(rustc::potential_query_instability)]
                 for expr_id in exprs.iter() {
-                    println!("KILL expr {:?}", expr_id);
+                    debug!("KILL expr {:?}", expr_id);
                     self.trans.kill(*expr_id);
                 }
             }
         }
+
     }
 
     fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {
         self.super_terminator(terminator, location); // What??
-        // println!( "visit terminator {:?}", terminator);
+        debug!("terminator visited {:?}", terminator.kind);
+
+        if location.statement_index == 0 {
+            debug!("Entering BB: {:?}", location.block);
+
+            // This needs to be  I_anticipated:
+            // anticipated_exprs
+            //.anticipated.seek_to_block_start(bb);
+            let anticipated_exprs = self.anticipated_exprs.get(location.block).expect("bb index out of bounds");
+            
+            for expr in anticipated_exprs.0.iter() {
+                debug!("GEN: anticipated expr: {:?}", expr);
+                self.trans.gen(expr);
+            }
+        }
+
+        // debug!( "visit terminator {:?}", terminator);
         
         // For each expression that is anticipated in this block, mark it as available.
 
@@ -252,34 +274,34 @@ where
     //         Rvalue::AddressOf(_, borrowed_place)
     //         | Rvalue::Ref(_, BorrowKind::Mut { .. } | BorrowKind::Shared, borrowed_place) => {
     //             if !borrowed_place.is_indirect() {
-    //                 println!("rvalue {:?}", rvalue);
-    //                 println!("stmt place {:?}", borrowed_place);
+    //                 debug!("rvalue {:?}", rvalue);
+    //                 debug!("stmt place {:?}", borrowed_place);
 
     //                 self.trans.gen(borrowed_place.local);
     //             }
     //         }
 
     //         Rvalue::BinaryOp(_, operands) => {
-    //             println!("operand 1: {:?}\n", operands.0);
-    //             println!("operand 2: {:?}\n", operands.1);
-    //             println!("place of operand 1: {:?}\n", operands.0.place());
-    //             println!("place of operand 2: {:?}\n", operands.1.place());
+    //             debug!("operand 1: {:?}\n", operands.0);
+    //             debug!("operand 2: {:?}\n", operands.1);
+    //             debug!("place of operand 1: {:?}\n", operands.0.place());
+    //             debug!("place of operand 2: {:?}\n", operands.1.place());
     //             if !operands.0.place().is_none() && !operands.1.place().is_none() {
     //                 let op_1 = operands.0.place().unwrap();
     //                 let op_2 = operands.1.place().unwrap();
-    //                 println!("local associated with op 1 {:?}", op_1.local);
-    //                 println!("local associated with op 2 {:?}", op_2.local);
-    //                 println!("bb at location {:?}\n", location.block);
+    //                 debug!("local associated with op 1 {:?}", op_1.local);
+    //                 debug!("local associated with op 2 {:?}", op_2.local);
+    //                 debug!("bb at location {:?}\n", location.block);
     //                 // use external function to lookup data for bb
 
     //                 /* for statement in basic_blocks[location.block].statements {
     //                     match statement.kind {
     //                         StatementKind::Assign(assign_pair) => {
     //                             if assign_pair.0 == op_1 {
-    //                                 println!("FOUND A MATCH for OP 1\n");
+    //                                 debug!("FOUND A MATCH for OP 1\n");
     //                             }
     //                             if assign_pair.0 == op_2 {
-    //                                 println!("FOUND A MATCH for OP 2\n");
+    //                                 debug!("FOUND A MATCH for OP 2\n");
     //                             }
     //                         }
     //                         _ => {}

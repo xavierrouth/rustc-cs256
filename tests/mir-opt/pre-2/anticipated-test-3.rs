@@ -1,5 +1,5 @@
-// build-pass
-// compile-flags: -Zdump_mir=simple -Zdump-mir-dataflow=y -Zmir-opt-level=0 -Zmir-enable-passes=+PartialRedundancyElimination,-SimplifyCfg-elaborate-drops
+// skip-filecheck
+// unit-test: PartialRedundancyElimination
 
 #![feature(custom_mir, core_intrinsics)]
 #![allow(unused_assignments)]
@@ -13,6 +13,7 @@ fn simple(c: i32) -> i32 {
         {
             let x = 3;
             let y = 5;
+            let b = x + y;
             Goto(half)
         }
 
@@ -27,7 +28,7 @@ fn simple(c: i32) -> i32 {
         }
 
         output = {
-            RET = 10;
+             RET = 10;
             Return()
         }
     )

@@ -28,7 +28,7 @@ fn simple(c: i32) -> i32 {
         }
 
         output = {
-            RET = 10;
+             RET = 10;
             Return()
         }
     )

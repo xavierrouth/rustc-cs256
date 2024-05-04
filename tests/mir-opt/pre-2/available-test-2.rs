@@ -13,16 +13,13 @@ fn simple(c: i32) -> i32 {
         {
             let x = 3;
             let y = 5;
-            Goto(half)
-        }
-
-        half = {
             Goto(second)
         }
 
         second = {
+
             let a = x + y;
-            x = 30;
+            x = 5;
             Goto(output)
         }
 

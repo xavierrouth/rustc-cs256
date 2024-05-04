@@ -23,6 +23,7 @@ use rustc_macros::HashStable;
 
 use crate::impls::{ExprHashMap, ExprIdx, ExprSetElem};
 
+pub type AnticipatedExpressionsResults = IndexVec<BasicBlock, Dual<BitSet<ExprIdx>>>;
 
 use std::fmt;
 
@@ -42,6 +43,7 @@ pub struct AnticipatedExpressions {
 }
 
 impl AnticipatedExpressions {
+
     // Can we return this?
     pub(super) fn transfer_function<'a, T>(
         & mut self,
@@ -67,7 +69,7 @@ impl AnticipatedExpressions {
     pub fn new<'tcx>(body: &Body<'tcx>, expr_table: Rc<RefCell<ExprHashMap>>) -> AnticipatedExpressions {
         let size = Self::count_statements(body) + body.local_decls.len();
 
-        println!("size: {size}");
+        debug!("size: {size}");
         AnticipatedExpressions {
             expr_table: expr_table,
             bitset_size: size,
@@ -147,15 +149,15 @@ where
     T: GenKill<ExprIdx>,
 {
     fn visit_body(&mut self, body: &Body<'tcx>) {
-        println!("visit body: {:?}", body);
+        debug!("visit body: {:?}", body);
     }
 
     fn visit_basic_block_data(&mut self, block: BasicBlock, data: &BasicBlockData<'tcx>) {
-        println!("visit block: {:?} {:?}", block, data);
+        debug!("visit block: {:?} {:?}", block, data);
     }
 
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
-        println!("{:?}: stmt visited {:?}", location, stmt);
+        debug!("{:?}: stmt visited {:?}", location, stmt);
 
         // We only care about assignments for now
         if let StatementKind::Assign(box (place, rvalue)) = &stmt.kind {
@@ -170,7 +172,7 @@ where
                         // Add expressions as we encounter them to the GEN set
                         // Expressions that have re-defined args within the basic block will naturally be killed
                         // as those defs are reached
-                        println!("GEN expr {:?}", rvalue.clone());
+                        debug!("GEN expr {:?}", rvalue.clone());
                         let expr_idx = self.expr_table.as_ref().borrow_mut().expr_idx_mut(ExprSetElem {
                             bin_op: *bin_op,
                             local1,
@@ -179,8 +181,8 @@ where
                         self.trans.gen(expr_idx);
 
                         // Add to the expr_set
-                        //self.expr_table.add_operand_mapping(local1, expr_idx);
-                        //self.expr_table.add_operand_mapping(local2, expr_idx);
+                        self.expr_table.as_ref().borrow_mut().add_operand_mapping(local1, expr_idx);
+                        self.expr_table.as_ref().borrow_mut().add_operand_mapping(local2, expr_idx);
                     }
                 }
 
@@ -193,7 +195,7 @@ where
             if let Some(exprs) = self.expr_table.as_ref().borrow_mut().get_operand_mapping(place.local) {
                 #[allow(rustc::potential_query_instability)]
                 for expr_id in exprs.iter() {
-                    println!("KILL expr {:?}", expr_id);
+                    debug!("KILL expr {:?}", expr_id);
                     self.trans.kill(*expr_id);
                 }
             }

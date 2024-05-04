@@ -1,0 +1,14 @@
+- // MIR for `simple` before PartialRedundancyElimination
++ // MIR for `simple` after PartialRedundancyElimination
+  
+  fn simple(_1: bool) -> bool {
+      let mut _0: bool;
+      let mut _2: bool;
+  
+      bb0: {
+          _2 = _1;
+          _0 = const true;
+          return;
+      }
+  }
+  

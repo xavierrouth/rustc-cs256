@@ -17,16 +17,18 @@ fn simple(c: i32) -> i32 {
         }
 
         half = {
+            let b = x + y;
             Goto(second)
         }
 
         second = {
             let a = x + y;
-            x = 30;
+            b = 20;
             Goto(output)
         }
 
         output = {
+            // a = x + y;
             RET = 10;
             Return()
         }

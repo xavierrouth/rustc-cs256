@@ -171,13 +171,16 @@ where
     T: GenKill<ExprIdx>,
 {
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
+        self.super_statement(stmt, location);
+        debug!("stmt visited {:?}", stmt);
+
         if location.statement_index == 0 {
-            println!("Entering BB: {:?}", location.block);
+            debug!("Entering BB: {:?}", location.block);
 
             let earliest_exprs = &self.earliest_exprs[location.block];
 
             for expr in earliest_exprs.0.iter() {
-                println!("adding earliest expr: {:?}", expr);
+                debug!("GEN: earliest expr: {:?}", expr);
                 self.trans.gen(expr);
             }
         }
@@ -193,7 +196,7 @@ where
                         // Add expressions as we encounter them to the GEN set
                         // Expressions that have re-defined args within the basic block will naturally be killed
                         // as those defs are reached
-                        println!("KILL expr {:?}", rvalue.clone());
+                        debug!("KILL expr {:?}", rvalue.clone());
                         let expr_idx = self.expr_table.as_ref().borrow().expr_idx(ExprSetElem {
                             bin_op: *bin_op,
                             local1,
@@ -219,7 +222,19 @@ where
 
     fn visit_terminator (& mut self, terminator: & mir::Terminator<'tcx>, location: Location) {
         self.super_terminator(terminator, location); // What??
-        // println!( "visit terminator {:?}", terminator);
+
+        debug!( "terminator visited {:?}", terminator.kind);
+        if location.statement_index == 0 {
+            debug!("Entering BB: {:?}", location.block);
+
+            let earliest_exprs = &self.earliest_exprs[location.block];
+
+            for expr in earliest_exprs.0.iter() {
+                debug!("GEN: earliest expr: {:?}", expr);
+                self.trans.gen(expr);
+            }
+        }
+
         
         // For each expression that is anticipated in this block, mark it as Postponable.
 

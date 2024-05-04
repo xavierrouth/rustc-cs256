@@ -9,20 +9,23 @@ use core::intrinsics::mir::*;
 #[custom_mir(dialect = "analysis", phase = "post-cleanup")]
 fn simple(c: i32) -> i32 {
     mir!(
-
         {
             let x = 3;
             let y = 5;
-            Goto(half)
-        }
-
-        half = {
+            let c = 8;
+            let d = 9;
             Goto(second)
         }
 
         second = {
+
             let a = x + y;
-            x = 30;
+            let b = c + d;
+            Goto(third)
+        }
+
+        third = {
+            x = 10;
             Goto(output)
         }
 

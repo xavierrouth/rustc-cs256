@@ -75,7 +75,7 @@ impl<'tcx> UsedExpressions<'tcx> {
         latest_exprs: IndexVec<BasicBlock, <UsedExpressions<'tcx> as AnalysisDomain<'tcx>>::Domain>,
     ) -> UsedExpressions<'tcx> {
         let size = Self::count_statements(body) + body.local_decls.len();
-
+        debug!("latest exprs: {:?}", latest_exprs);
         UsedExpressions {
             latest_exprs,
             // kill_ops: IndexVec::from_elem(BitSet::new_empty(size), &body.basic_blocks), // FIXME: This size '100'
@@ -126,15 +126,15 @@ impl<'tcx> GenKillAnalysis<'tcx> for UsedExpressions<'tcx> {
 
     fn terminator_effect<'mir>(
         &mut self,
-        _trans: &mut Self::Domain,
+        trans: &mut Self::Domain,
         terminator: &'mir Terminator<'tcx>,
-        _location: Location,
+        location: Location,
     ) -> TerminatorEdges<'mir, 'tcx> {
         // TODO: We probably have to do something with SwitchInt or one of them, but I believe the engine
         // considers that with merges, though I need to look back again
         // For now, ignoring
 
-        // self.transfer_function(trans).visit_terminator(terminator, location);
+        self.transfer_function(trans).visit_terminator(terminator, location);
         terminator.edges()
     }
 
@@ -164,6 +164,9 @@ where
     T: GenKill<ExprIdx>,
 {
     fn visit_statement(&mut self, stmt: &Statement<'tcx>, location: Location) {
+        self.super_statement(stmt, location);
+        debug!("stmt visited {:?}", stmt);
+
         if let StatementKind::Assign(box (_place, rvalue)) = &stmt.kind {
             match rvalue {
                 Rvalue::BinaryOp(bin_op, box (operand1, operand2))
@@ -175,7 +178,7 @@ where
                         // Add expressions as we encounter them to the GEN set
                         // Expressions that have re-defined args within the basic block will naturally be killed
                         // as those defs are reached
-                        println!("e-used expr {:?}", rvalue.clone());
+                        debug!("e-used expr {:?}", rvalue.clone());
                         let expr_idx = self
                             .expr_table
                             .as_ref()
@@ -191,12 +194,12 @@ where
         }
 
         if location.statement_index == 0 {
-            println!("Calculating IN set for BB: {:?}", location.block);
+            debug!("Calculating IN set for BB: {:?}", location.block);
 
             let latest_exprs = &self.latest_exprs[location.block];
 
             for expr in latest_exprs.iter() {
-                println!("[USED] killing latest expr: {:?}", expr);
+                debug!("[USED] killing latest expr: {:?}", expr);
                 self.trans.kill(expr);
             }
         }
@@ -204,7 +207,21 @@ where
 
     fn visit_terminator(&mut self, terminator: &mir::Terminator<'tcx>, location: Location) {
         self.super_terminator(terminator, location); // What??
-        // println!( "visit terminator {:?}", terminator);
+        // debug!( "visit terminator {:?}", terminator);        
+        debug!( "terminator visited {:?}, location {:?}", terminator.kind, location.block);
+
+        if location.statement_index == 0 {
+            debug!("Calculating IN set for BB: {:?}", location.block);
+
+            let latest_exprs = &self.latest_exprs[location.block];
+            debug!("latest exprs: {:?}", latest_exprs);
+
+            for expr in latest_exprs.iter() {
+                debug!("[USED] killing latest expr: {:?}", expr);
+                self.trans.kill(expr);
+            }
+        }
+
 
         // For each expression that is anticipated in this block, mark it as Used.
 

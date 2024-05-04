@@ -12,8 +12,8 @@ pub mod pre_analysis;
 mod storage_liveness;
 pub mod used;
 
-pub use self::anticipated::AnticipatedExpressions;
-pub use self::available::AvailableExpressions;
+pub use self::anticipated::{AnticipatedExpressions, AnticipatedExpressionsResults};
+pub use self::available::{AvailableExpressions, AvailableExpressionsResults};
 pub use self::borrowed_locals::borrowed_locals;
 pub use self::borrowed_locals::MaybeBorrowedLocals;
 pub use self::initialized::{
