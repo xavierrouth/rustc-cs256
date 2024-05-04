@@ -143,10 +143,12 @@ impl<'tcx> PartialRedundancyElimination {
            
             let source_info = SourceInfo::outermost(body.span);
             let terminator = Terminator {source_info, kind: TerminatorKind::Goto {target: dest}}; 
-            let new_block_data = BasicBlockData::new(Some(terminator)); 
+            let new_block_data = BasicBlockData::new(Some(terminator));
 
             let blocks = body.basic_blocks.as_mut();
             let new_block: BasicBlock = blocks.push(new_block_data);
+
+            let mut should_pop = 0;
 
             // Edit old terminator
             let old_terminator = body[source].terminator_mut();
@@ -162,19 +164,32 @@ impl<'tcx> PartialRedundancyElimination {
                         }
                     }
                 }
-                TerminatorKind::UnwindResume => todo!(),
-                TerminatorKind::UnwindTerminate(_) => todo!(),
-                TerminatorKind::Return => (), //todo!(),
-                TerminatorKind::Unreachable => todo!(),
-                TerminatorKind::Drop { place, target, unwind, replace } => todo!(),
-                TerminatorKind::Call { func, args, destination, target, unwind, call_source, fn_span } => todo!(),
-                TerminatorKind::Assert { cond, expected, msg, target, unwind } => todo!(),
-                TerminatorKind::Yield { value, resume, resume_arg, drop } => todo!(),
-                TerminatorKind::CoroutineDrop => todo!(),
-                TerminatorKind::FalseEdge { real_target, imaginary_target } => todo!(),
-                TerminatorKind::FalseUnwind { real_target, unwind } => todo!(),
-                TerminatorKind::InlineAsm { template, operands, options, line_spans, destination, unwind } => todo!(),
+                TerminatorKind::UnwindResume {} => {
+                    should_pop = 1;
+                    ()
+                }
+                TerminatorKind::UnwindTerminate(_) => {
+                    should_pop = 1;
+                    ()
+                },
+                TerminatorKind::Return => {should_pop = 1;}, //todo!(),
+                TerminatorKind::Unreachable => {should_pop = 1;},
+                TerminatorKind::Drop { place, target, unwind, replace } => {should_pop = 1;},
+                TerminatorKind::Call { func, args, destination, target, unwind, call_source, fn_span } => {should_pop = 1;},
+                TerminatorKind::Assert { cond, expected, msg, target, unwind } => {should_pop = 1;},
+                TerminatorKind::Yield { value, resume, resume_arg, drop } => {should_pop = 1;},
+                TerminatorKind::CoroutineDrop => {should_pop = 1;},
+                TerminatorKind::FalseEdge { real_target, imaginary_target } => {should_pop = 1;},
+                TerminatorKind::FalseUnwind { real_target, unwind } => {should_pop = 1;},
+                TerminatorKind::InlineAsm { template, operands, options, line_spans, destination, unwind } => {should_pop = 1;},
             }
+
+            let blocks = body.basic_blocks.as_mut();
+
+            if should_pop == 1 {
+                blocks.pop(); // get rid of the unuesd block, we didn't properly connect it.
+            }
+
         }
         
         // BasicBlockData::new()
